@@ -175,7 +175,8 @@ Decode::setDecodeQueue(TimeBuffer<DecodeStruct> *dq_ptr)
     decodeQueue = dq_ptr;
 
     // Setup wire to write information to proper place in decode queue.
-    toRename = decodeQueue->getWire(0);
+    toRename1 = decodeQueue1->getWire(0);
+    toRename2 = decodeQueue2->getWire(0);
 }
 
 void
@@ -184,7 +185,8 @@ Decode::setFetchQueue(TimeBuffer<FetchStruct> *fq_ptr)
     fetchQueue = fq_ptr;
 
     // Setup wire to read information from fetch queue.
-    fromFetch = fetchQueue->getWire(-fetchToDecodeDelay);
+    fromFetch1 = fetchQueue1->getWire(-fetchToDecodeDelay);
+    fromFetch2 = fetchQueue2->getWire(-fetchToDecodeDelay)
 }
 
 void
@@ -197,7 +199,7 @@ void
 Decode::drainSanityCheck() const
 {
     for (ThreadID tid = 0; tid < numThreads; ++tid) {
-        assert(insts[tid].empty());
+        assert(insts1[tid].empty() && insts2[tid].empty());assert(insts[tid].empty());
         assert(skidBuffer[tid].empty());
     }
 }
@@ -206,7 +208,7 @@ bool
 Decode::isDrained() const
 {
     for (ThreadID tid = 0; tid < numThreads; ++tid) {
-        if (!insts[tid].empty() || !skidBuffer[tid].empty() ||
+        if (!insts1[tid].empty()|| !insts2[tid].empty()|| !skidBuffer[tid].empty() ||
                 (decodeStatus[tid] != Running && decodeStatus[tid] != Idle))
             return false;
     }
@@ -364,19 +366,26 @@ Decode::squash(ThreadID tid)
     // Go through incoming instructions from fetch and squash them.
     unsigned squash_count = 0;
 
-    for (int i=0; i<fromFetch->size; i++) {
-        if (fromFetch->insts[i]->threadNumber == tid) {
-            fromFetch->insts[i]->setSquashed();
+    for (int i=0; i<fromFetch1->size; i++) {
+        if (fromFetch1->insts1[i]->threadNumber == tid) {
+            fromFetch1->insts1[i]->setSquashed();
             squash_count++;
         }
     }
-
+     for (int i=0; i<fromFetch2->size; i++) {
+        if (fromFetch2->insts2[i]->threadNumber == tid) {
+            fromFetch2->insts2[i]->setSquashed();
+            squash_count++;
+        }
+    }
     // Clear the instruction list and skid buffer in case they have any
     // insts in them.
-    while (!insts[tid].empty()) {
-        insts[tid].pop();
+    while (!insts1[tid].empty()) {
+        insts1[tid].pop();
     }
-
+    while (!insts2[tid].empty()) {
+        insts2[tid].pop();
+    }
     while (!skidBuffer[tid].empty()) {
         skidBuffer[tid].pop();
     }
