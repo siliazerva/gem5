@@ -407,8 +407,8 @@ class Fetch
 
     //Might be annoying how this name is different than the queue.
     /** Wire used to write any information heading to decode. */
-    TimeBuffer<FetchStruct>::wire toDecode;
-
+    TimeBuffer<FetchStruct>::wire toDecode1;
+    TimeBuffer<FetchStruct>::wire toDecode2;
     /** BPredUnit. */
     branch_prediction::BPredUnit *branchPred;
 
@@ -431,7 +431,7 @@ class Fetch
 
     /** Tracks how many instructions has been fetched this cycle. */
     int numInst;
-
+    int toggle = 0;
     /** Source of possible stalls. */
     struct Stalls
     {
@@ -490,8 +490,8 @@ class Fetch
     unsigned fetchQueueSize;
 
     /** Queue of fetched instructions. Per-thread to prevent HoL blocking. */
-    std::deque<DynInstPtr> fetchQueue[MaxThreads];
-
+    std::deque<DynInstPtr> fetchQueue1[MaxThreads];
+    std::deque<DynInstPtr> fetchQueue2[MaxThreads];
     /** Whether or not the fetch buffer data is valid. */
     bool fetchBufferValid[MaxThreads];
 
