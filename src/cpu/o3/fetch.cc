@@ -1076,9 +1076,7 @@ Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
 
     // Write the instruction to the first slot in the queue
     // that heads to decode.
-    assert(numInst < fetchWidth);
-    fetchQueue[tid].push_back(instruction);
-    assert(fetchQueue[tid].size() <= fetchQueueSize);
+
     if (toggle){
     fetchQueue1[tid].push_back(instruction);
     assert(fetchQueue1[tid].size() <= fetchQueueSize);
