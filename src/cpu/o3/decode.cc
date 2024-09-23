@@ -318,19 +318,27 @@ Decode::squash(const DynInstPtr &inst, ThreadID tid)
     // Set status to squashing.
     decodeStatus[tid] = Squashing;
 
-    for (int i=0; i<fromFetch->size; i++) {
-        if (fromFetch->insts[i]->threadNumber == tid &&
-            fromFetch->insts[i]->seqNum > squash_seq_num) {
-            fromFetch->insts[i]->setSquashed();
+    for (int i=0; i<fromFetch->size1; i++) {
+        if (fromFetch->insts1[i]->threadNumber == tid &&
+            fromFetch->insts1[i]->seqNum > squash_seq_num) {
+            fromFetch->insts1[i]->setSquashed();
+        }
+    }
+       for (int i=0; i<fromFetch->size2; i++) {
+        if (fromFetch->insts2[i]->threadNumber == tid &&
+            fromFetch->insts2[i]->seqNum > squash_seq_num) {
+            fromFetch->insts2[i]->setSquashed();
         }
     }
 
     // Clear the instruction list and skid buffer in case they have any
     // insts in them.
-    while (!insts[tid].empty()) {
-        insts[tid].pop();
+    while (!insts1[tid].empty()) {
+        insts1[tid].pop();
     }
-
+  while (!insts2[tid].empty()) {
+        insts2[tid].pop();
+    }
     while (!skidBuffer[tid].empty()) {
         skidBuffer[tid].pop();
     }
@@ -367,17 +375,26 @@ Decode::squash(ThreadID tid)
     unsigned squash_count = 0;
 
 
-     for (int i=0; i<fromFetch->size; i++) {
-        if (fromFetch->insts[i]->threadNumber == tid) {
-            fromFetch->insts[i]->setSquashed();
+     for (int i=0; i<fromFetch->size1; i++) {
+        if (fromFetch->insts1[i]->threadNumber == tid) {
+            fromFetch->insts1[i]->setSquashed();
+            squash_count++;
+        }
+    }
+    for (int i=0; i<fromFetch->size2; i++) {
+        if (fromFetch->insts2[i]->threadNumber == tid) {
+            fromFetch->insts2[i]->setSquashed();
             squash_count++;
         }
     }
     // Clear the instruction list and skid buffer in case they have any
     // insts in them.
 
-    while (!insts[tid].empty()) {
-        insts[tid].pop();
+    while (!insts1[tid].empty()) {
+        insts1[tid].pop();
+    }
+      while (!insts2[tid].empty()) {
+        insts2[tid].pop();
     }
     while (!skidBuffer[tid].empty()) {
         skidBuffer[tid].pop();
@@ -398,11 +415,11 @@ Decode::skidInsert(ThreadID tid)
 
         assert(tid == inst->threadNumber);
 
-        skidBuffer[tid].push(inst);
+        skidBuffer1[tid].push(inst);
 
         DPRINTF(Decode, "Inserting [tid:%d][sn:%lli] PC: %s into decode "
                 "skidBuffer %i\n", inst->threadNumber, inst->seqNum,
-                inst->pcState(), skidBuffer[tid].size());
+                inst->pcState(), skidBuffer1[tid].size());
     }
 while (!insts2[tid].empty()) {
         inst = insts2[tid].front();
@@ -411,15 +428,15 @@ while (!insts2[tid].empty()) {
 
         assert(tid == inst->threadNumber);
 
-        skidBuffer[tid].push(inst);
+        skidBuffer2[tid].push(inst);
 
         DPRINTF(Decode, "Inserting [tid:%d][sn:%lli] PC: %s into decode "
                 "skidBuffer %i\n", inst->threadNumber, inst->seqNum,
-                inst->pcState(), skidBuffer[tid].size());
+                inst->pcState(), skidBuffer2[tid].size());
     }
     // @todo: Eventually need to enforce this by not letting a thread
     // fetch past its skidbuffer
-    assert(skidBuffer[tid].size() <= skidBufferMax);
+    assert(skidBuffer1[tid].size() <= skidBufferMax&&skidBuffer2[tid].size() <= skidBufferMax);
 }
 
 bool
@@ -430,7 +447,7 @@ Decode::skidsEmpty()
 
     while (threads != end) {
         ThreadID tid = *threads++;
-        if (!skidBuffer[tid].empty())
+        if (!skidBuffer1[tid].empty()&&!skidBuffer2[tid].empty())
             return false;
     }
 
@@ -646,9 +663,9 @@ Decode::decodeInsts(ThreadID tid)
     // Instructions can come either from the skid buffer or the list of
     // instructions coming from fetch, depending on decode's status.
     int insts_available1 = decodeStatus[tid] == Unblocking ?
-        skidBuffer[tid].size() : insts1[tid].size();
+        skidBuffer1[tid].size() : insts1[tid].size();
 int insts_available2 = decodeStatus[tid] == Unblocking ?
-        skidBuffer[tid].size() : insts2[tid].size();
+        skidBuffer2[tid].size() : insts2[tid].size();
     if (insts_available1 == 0&&insts_available2 == 0) {
         DPRINTF(Decode, "[tid:%i] Nothing to do, breaking out"
                 " early.\n",tid);
@@ -665,10 +682,10 @@ int insts_available2 = decodeStatus[tid] == Unblocking ?
 
     std::queue<DynInstPtr>
         &insts_to_decode1 = decodeStatus[tid] == Unblocking ?
-        skidBuffer[tid] : insts1[tid];
+        skidBuffer1[tid] : insts1[tid];
     std::queue<DynInstPtr>
         &insts_to_decode2 = decodeStatus[tid] == Unblocking ?
-        skidBuffer[tid] : insts2[tid];
+        skidBuffer2[tid] : insts2[tid];
     DPRINTF(Decode, "[tid:%i] Sending instruction to rename.\n",tid);
 
     while ((insts_available1 > 0||insts_available2 > 0) && toRenameIndex < decodeWidth) {
