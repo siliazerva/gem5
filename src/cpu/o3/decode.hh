@@ -228,15 +228,15 @@ class Decode
     TimeBuffer<DecodeStruct> *decodeQueue2;
 
     /** Wire used to write any information heading to rename. */
-    TimeBuffer<DecodeStruct>::wire toRename1;
-    TimeBuffer<DecodeStruct>::wire toRename2;
+    TimeBuffer<DecodeStruct>::wire toRename;
+    
 
     /** Fetch instruction queue interface. */
     TimeBuffer<FetchStruct> *fetchQueue;
 
     /** Wire to get fetch's output from fetch queue. */
-    TimeBuffer<FetchStruct>::wire fromFetch1;
-    TimeBuffer<FetchStruct>::wire fromFetch2;
+    TimeBuffer<FetchStruct>::wire fromFetch;
+    
 
     /** Queue of all instructions coming from fetch this cycle. */
     std::queue<DynInstPtr> insts1[MaxThreads];
