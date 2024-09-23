@@ -243,8 +243,8 @@ class Decode
     std::queue<DynInstPtr> insts2[MaxThreads];
 
     /** Skid buffer between fetch and decode. */
-    std::queue<DynInstPtr> skidBuffer[MaxThreads];
-
+    std::queue<DynInstPtr> skidBuffer1[MaxThreads];
+    std::queue<DynInstPtr> skidBuffer2[MaxThreads];
     /** Variable that tracks if decode has written to the time buffer this
      * cycle. Used to tell CPU if there is activity this cycle.
      */
