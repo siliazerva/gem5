@@ -407,8 +407,8 @@ class Fetch
 
     //Might be annoying how this name is different than the queue.
     /** Wire used to write any information heading to decode. */
-    TimeBuffer<FetchStruct>::wire toDecode1;
-    TimeBuffer<FetchStruct>::wire toDecode2;
+    TimeBuffer<FetchStruct>::wire toDecode;
+    
     /** BPredUnit. */
     branch_prediction::BPredUnit *branchPred;
 
@@ -496,7 +496,7 @@ class Fetch
     bool fetchBufferValid[MaxThreads];
 
     /** Size of instructions. */
-    int instSize;
+    int ize;
 
     /** Icache stall statistics. */
     Counter lastIcacheStall[MaxThreads];
