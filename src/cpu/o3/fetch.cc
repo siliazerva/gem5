@@ -256,8 +256,8 @@ void
 Fetch::setFetchQueue(TimeBuffer<FetchStruct> *ftb_ptr)
 {
     // Create wire to write information to proper place in fetch time buf.
-    toDecode1 = ftb_ptr->getWire(0);  
-    toDecode2 = ftb_ptr->getWire(0); 
+    toDecode = ftb_ptr->getWire(0);  
+   
 }
 
 void
@@ -894,7 +894,7 @@ Fetch::tick()
         if (!stalls[tid].decode  ) {
             if (!fetchQueue1[tid].empty()){
             const auto& inst = fetchQueue1[tid].front();
-            toDecode1->insts1[toDecode1->size++] = inst;
+            toDecode->insts1[toDecode->size1++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
                     "from fetch queue no1. Fetch queue size: %i.\n",
                     tid, inst->seqNum, fetchQueue1[tid].size());
@@ -906,7 +906,7 @@ Fetch::tick()
         }
         if (!fetchQueue2[tid].empty()){
             const auto& inst = fetchQueue2[tid].front();
-            toDecode2->insts2[toDecode2->size++] = inst;
+            toDecode->insts2[toDecode->size2++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
                     "from fetch queue no2. Fetch queue size: %i.\n",
                     tid, inst->seqNum, fetchQueue1[tid].size());
