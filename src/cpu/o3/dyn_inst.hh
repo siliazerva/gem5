@@ -81,7 +81,8 @@ class DynInst : public ExecContext, public RefCounted
   public:
     // The list of instructions iterator type.
     typedef typename std::list<DynInstPtr>::iterator ListIt;
-
+//add an id for the cluster
+    int cluster_id; 
     struct Arrays
     {
         size_t numSrcs;
@@ -96,6 +97,9 @@ class DynInst : public ExecContext, public RefCounted
 
     static void *operator new(size_t count, Arrays &arrays);
     static void  operator delete(void* ptr);
+   //get and set cluster id
+    int getClusterId() const { return cluster_id; }
+    void setClusterId(int id) { cluster_id = id; }
 
     /** BaseDynInst constructor given a binary instruction. */
     DynInst(const Arrays &arrays, const StaticInstPtr &staticInst,
