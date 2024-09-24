@@ -447,7 +447,7 @@ Decode::skidsEmpty()
 
     while (threads != end) {
         ThreadID tid = *threads++;
-        if (!skidBuffer1[tid].empty()&&!skidBuffer2[tid].empty())
+        if (!skidBuffer1[tid].empty()||!skidBuffer2[tid].empty())
             return false;
     }
 
@@ -691,7 +691,7 @@ int insts_available2 = decodeStatus[tid] == Unblocking ?
     while ((insts_available1 > 0||insts_available2 > 0) && toRenameIndex < decodeWidth) {
 
         assert(!insts_to_decode1.empty()||!insts_to_decode2.empty());
-        if (insts_available1>0){
+        if (insts_available1>0&& toRenameIndex < decodeWidth){
         DynInstPtr inst1 = std::move(insts_to_decode1.front());
       
         insts_to_decode1.pop();
@@ -779,7 +779,7 @@ int insts_available2 = decodeStatus[tid] == Unblocking ?
 
         //now the same thing for the 2nd list of insts-
         
-        if (insts_available2>0){
+        if (insts_available2>0&& toRenameIndex < decodeWidth){
         DynInstPtr inst2 = std::move(insts_to_decode2.front());
       
         insts_to_decode2.pop();
