@@ -199,7 +199,7 @@ void
 Decode::drainSanityCheck() const
 {
     for (ThreadID tid = 0; tid < numThreads; ++tid) {
-        assert(insts1[tid].empty() && insts2[tid].empty());assert(insts[tid].empty());
+        assert(insts1[tid].empty() && insts2[tid].empty());
         assert(skidBuffer[tid].empty());
     }
 }
