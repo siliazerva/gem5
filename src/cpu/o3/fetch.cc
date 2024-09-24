@@ -892,7 +892,7 @@ Fetch::tick()
  while ((available_insts1 > 0|| available_insts2 > 0) && (insts_to_decode < decodeWidth)) {
         ThreadID tid = *tid_itr;
         if (!stalls[tid].decode  ) {
-            if (!fetchQueue1[tid].empty()){
+            if (!fetchQueue1[tid].empty()&& insts_to_decode < decodeWidth){
             const auto& inst = fetchQueue1[tid].front();
             toDecode->insts1[toDecode->size1++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
@@ -904,7 +904,7 @@ Fetch::tick()
             insts_to_decode++;
             available_insts1--;
         }
-        if (!fetchQueue2[tid].empty()){
+        if (!fetchQueue2[tid].empty()&& insts_to_decode < decodeWidth){
             const auto& inst = fetchQueue2[tid].front();
             toDecode->insts2[toDecode->size2++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
