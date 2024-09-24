@@ -176,7 +176,6 @@ Decode::setDecodeQueue(TimeBuffer<DecodeStruct> *dq_ptr)
 
     // Setup wire to write information to proper place in decode queue.
     toRename = decodeQueue->getWire(0);
-    
 }
 
 void
@@ -186,7 +185,6 @@ Decode::setFetchQueue(TimeBuffer<FetchStruct> *fq_ptr)
 
     // Setup wire to read information from fetch queue.
     fromFetch = fetchQueue->getWire(-fetchToDecodeDelay);
-    
 }
 
 void
@@ -199,7 +197,7 @@ void
 Decode::drainSanityCheck() const
 {
     for (ThreadID tid = 0; tid < numThreads; ++tid) {
-        assert(insts1[tid].empty() && insts2[tid].empty());
+        assert(insts[tid].empty());
         assert(skidBuffer[tid].empty());
     }
 }
@@ -208,7 +206,7 @@ bool
 Decode::isDrained() const
 {
     for (ThreadID tid = 0; tid < numThreads; ++tid) {
-        if (!insts1[tid].empty()|| !insts2[tid].empty()|| !skidBuffer[tid].empty() ||
+        if (!insts[tid].empty() || !skidBuffer[tid].empty() ||
                 (decodeStatus[tid] != Running && decodeStatus[tid] != Idle))
             return false;
     }
@@ -318,27 +316,19 @@ Decode::squash(const DynInstPtr &inst, ThreadID tid)
     // Set status to squashing.
     decodeStatus[tid] = Squashing;
 
-    for (int i=0; i<fromFetch->size1; i++) {
-        if (fromFetch->insts1[i]->threadNumber == tid &&
-            fromFetch->insts1[i]->seqNum > squash_seq_num) {
-            fromFetch->insts1[i]->setSquashed();
-        }
-    }
-       for (int i=0; i<fromFetch->size2; i++) {
-        if (fromFetch->insts2[i]->threadNumber == tid &&
-            fromFetch->insts2[i]->seqNum > squash_seq_num) {
-            fromFetch->insts2[i]->setSquashed();
+    for (int i=0; i<fromFetch->size; i++) {
+        if (fromFetch->insts[i]->threadNumber == tid &&
+            fromFetch->insts[i]->seqNum > squash_seq_num) {
+            fromFetch->insts[i]->setSquashed();
         }
     }
 
     // Clear the instruction list and skid buffer in case they have any
     // insts in them.
-    while (!insts1[tid].empty()) {
-        insts1[tid].pop();
+    while (!insts[tid].empty()) {
+        insts[tid].pop();
     }
-  while (!insts2[tid].empty()) {
-        insts2[tid].pop();
-    }
+
     while (!skidBuffer[tid].empty()) {
         skidBuffer[tid].pop();
     }
@@ -374,28 +364,19 @@ Decode::squash(ThreadID tid)
     // Go through incoming instructions from fetch and squash them.
     unsigned squash_count = 0;
 
+    for (int i=0; i<fromFetch->size; i++) {
+        if (fromFetch->insts[i]->threadNumber == tid) {
+            fromFetch->insts[i]->setSquashed();
+            squash_count++;
+        }
+    }
 
-     for (int i=0; i<fromFetch->size1; i++) {
-        if (fromFetch->insts1[i]->threadNumber == tid) {
-            fromFetch->insts1[i]->setSquashed();
-            squash_count++;
-        }
-    }
-    for (int i=0; i<fromFetch->size2; i++) {
-        if (fromFetch->insts2[i]->threadNumber == tid) {
-            fromFetch->insts2[i]->setSquashed();
-            squash_count++;
-        }
-    }
     // Clear the instruction list and skid buffer in case they have any
     // insts in them.
+    while (!insts[tid].empty()) {
+        insts[tid].pop();
+    }
 
-    while (!insts1[tid].empty()) {
-        insts1[tid].pop();
-    }
-      while (!insts2[tid].empty()) {
-        insts2[tid].pop();
-    }
     while (!skidBuffer[tid].empty()) {
         skidBuffer[tid].pop();
     }
@@ -408,35 +389,23 @@ Decode::skidInsert(ThreadID tid)
 {
     DynInstPtr inst = NULL;
 
-    while (!insts1[tid].empty()) {
-        inst = insts1[tid].front();
+    while (!insts[tid].empty()) {
+        inst = insts[tid].front();
 
-        insts1[tid].pop();
-
-        assert(tid == inst->threadNumber);
-
-        skidBuffer1[tid].push(inst);
-
-        DPRINTF(Decode, "Inserting [tid:%d][sn:%lli] PC: %s into decode "
-                "skidBuffer %i\n", inst->threadNumber, inst->seqNum,
-                inst->pcState(), skidBuffer1[tid].size());
-    }
-while (!insts2[tid].empty()) {
-        inst = insts2[tid].front();
-
-        insts2[tid].pop();
+        insts[tid].pop();
 
         assert(tid == inst->threadNumber);
 
-        skidBuffer2[tid].push(inst);
+        skidBuffer[tid].push(inst);
 
         DPRINTF(Decode, "Inserting [tid:%d][sn:%lli] PC: %s into decode "
                 "skidBuffer %i\n", inst->threadNumber, inst->seqNum,
-                inst->pcState(), skidBuffer2[tid].size());
+                inst->pcState(), skidBuffer[tid].size());
     }
+
     // @todo: Eventually need to enforce this by not letting a thread
     // fetch past its skidbuffer
-    assert(skidBuffer1[tid].size() <= skidBufferMax&&skidBuffer2[tid].size() <= skidBufferMax);
+    assert(skidBuffer[tid].size() <= skidBufferMax);
 }
 
 bool
@@ -447,7 +416,7 @@ Decode::skidsEmpty()
 
     while (threads != end) {
         ThreadID tid = *threads++;
-        if (!skidBuffer1[tid].empty()||!skidBuffer2[tid].empty())
+        if (!skidBuffer[tid].empty())
             return false;
     }
 
@@ -495,17 +464,10 @@ Decode::updateStatus()
 void
 Decode::sortInsts()
 {
-int insts_from_fetch1 = fromFetch->size1;  
-    int insts_from_fetch2 = fromFetch->size2;  
-   
-    for (int i = 0; i < insts_from_fetch1; ++i) {
-        insts1[fromFetch->insts1[i]->threadNumber].push(fromFetch->insts1[i]);
+    int insts_from_fetch = fromFetch->size;
+    for (int i = 0; i < insts_from_fetch; ++i) {
+        insts[fromFetch->insts[i]->threadNumber].push(fromFetch->insts[i]);
     }
-
-    for (int i = 0; i < insts_from_fetch2; ++i) {
-        insts2[fromFetch->insts2[i]->threadNumber].push(fromFetch->insts2[i]);
-    }
-
 }
 
 void
@@ -585,7 +547,6 @@ Decode::tick()
     bool status_change = false;
 
     toRenameIndex = 0;
-    
 
     list<ThreadID>::iterator threads = activeThreads->begin();
     list<ThreadID>::iterator end = activeThreads->end();
@@ -662,11 +623,10 @@ Decode::decodeInsts(ThreadID tid)
 {
     // Instructions can come either from the skid buffer or the list of
     // instructions coming from fetch, depending on decode's status.
-    int insts_available1 = decodeStatus[tid] == Unblocking ?
-        skidBuffer1[tid].size() : insts1[tid].size();
-int insts_available2 = decodeStatus[tid] == Unblocking ?
-        skidBuffer2[tid].size() : insts2[tid].size();
-    if (insts_available1 == 0&&insts_available2 == 0) {
+    int insts_available = decodeStatus[tid] == Unblocking ?
+        skidBuffer[tid].size() : insts[tid].size();
+
+    if (insts_available == 0) {
         DPRINTF(Decode, "[tid:%i] Nothing to do, breaking out"
                 " early.\n",tid);
         // Should I change the status to idle?
@@ -681,33 +641,30 @@ int insts_available2 = decodeStatus[tid] == Unblocking ?
     }
 
     std::queue<DynInstPtr>
-        &insts_to_decode1 = decodeStatus[tid] == Unblocking ?
-        skidBuffer1[tid] : insts1[tid];
-    std::queue<DynInstPtr>
-        &insts_to_decode2 = decodeStatus[tid] == Unblocking ?
-        skidBuffer2[tid] : insts2[tid];
+        &insts_to_decode = decodeStatus[tid] == Unblocking ?
+        skidBuffer[tid] : insts[tid];
+
     DPRINTF(Decode, "[tid:%i] Sending instruction to rename.\n",tid);
 
-    while ((insts_available1 > 0||insts_available2 > 0) && toRenameIndex < decodeWidth) {
+    while (insts_available > 0 && toRenameIndex < decodeWidth) {
+        assert(!insts_to_decode.empty());
 
-        assert(!insts_to_decode1.empty()||!insts_to_decode2.empty());
-        if (insts_available1>0&& toRenameIndex < decodeWidth){
-        DynInstPtr inst1 = std::move(insts_to_decode1.front());
-      
-        insts_to_decode1.pop();
+        DynInstPtr inst = std::move(insts_to_decode.front());
+
+        insts_to_decode.pop();
 
         DPRINTF(Decode, "[tid:%i] Processing instruction [sn:%lli] with "
-                "PC %s\n", tid, inst1->seqNum, inst1->pcState());
+                "PC %s\n", tid, inst->seqNum, inst->pcState());
 
-        if (inst1->isSquashed()) {
+        if (inst->isSquashed()) {
             DPRINTF(Decode, "[tid:%i] Instruction %i with PC %s is "
                     "squashed, skipping.\n",
-                    tid, inst1->seqNum, inst1->pcState());
+                    tid, inst->seqNum, inst->pcState());
 
             ++stats.squashedInsts;
 
-            --insts_available1;
-            
+            --insts_available;
+
             continue;
         }
 
@@ -715,36 +672,36 @@ int insts_available2 = decodeStatus[tid] == Unblocking ?
         // them as ready to issue at any time.  Not sure if this check
         // should exist here or at a later stage; however it doesn't matter
         // too much for function correctness.
-        if (inst1->numSrcRegs() == 0) {
-            inst1->setCanIssue();
+        if (inst->numSrcRegs() == 0) {
+            inst->setCanIssue();
         }
-        
+
         // This current instruction is valid, so add it into the decode
         // queue.  The next instruction may not be valid, so check to
         // see if branches were predicted correctly.
-        toRename->insts1[toRenameIndex] = inst1;
+        toRename->insts[toRenameIndex] = inst;
 
         ++(toRename->size);
         ++toRenameIndex;
         ++stats.decodedInsts;
-        --insts_available1;
+        --insts_available;
 
 #if TRACING_ON
         if (debug::O3PipeView) {
-            inst1->decodeTick = curTick() - inst1->fetchTick;
+            inst->decodeTick = curTick() - inst->fetchTick;
         }
 #endif
 
         // Ensure that if it was predicted as a branch, it really is a
         // branch.
-        if (inst1->readPredTaken() && !inst1->isControl()) {
+        if (inst->readPredTaken() && !inst->isControl()) {
             panic("Instruction predicted as a branch!");
 
             ++stats.controlMispred;
 
             // Might want to set some sort of boolean and just do
             // a check at the end
-            squash(inst1, inst1->threadNumber);
+            squash(inst, inst->threadNumber);
 
             break;
         }
@@ -752,125 +709,34 @@ int insts_available2 = decodeStatus[tid] == Unblocking ?
         // Go ahead and compute any PC-relative branches.
         // This includes direct unconditional control and
         // direct conditional control that is predicted taken.
-        if (inst1->isDirectCtrl() &&
-           (inst1->isUncondCtrl() || inst1->readPredTaken()))
+        if (inst->isDirectCtrl() &&
+           (inst->isUncondCtrl() || inst->readPredTaken()))
         {
             ++stats.branchResolved;
 
-            std::unique_ptr<PCStateBase> target = inst1->branchTarget();
-            if (*target != inst1->readPredTarg()) {
+            std::unique_ptr<PCStateBase> target = inst->branchTarget();
+            if (*target != inst->readPredTarg()) {
                 ++stats.branchMispred;
 
                 // Might want to set some sort of boolean and just do
                 // a check at the end
-                squash(inst1, inst1->threadNumber);
+                squash(inst, inst->threadNumber);
 
                 DPRINTF(Decode,
                         "[tid:%i] [sn:%llu] "
                         "Updating predictions: Wrong predicted target: %s \
                         PredPC: %s\n",
-                        tid, inst1->seqNum, inst1->readPredTarg(), *target);
+                        tid, inst->seqNum, inst->readPredTarg(), *target);
                 //The micro pc after an instruction level branch should be 0
-                inst1->setPredTarg(*target);
+                inst->setPredTarg(*target);
                 break;
             }
         }
-        }
-
-        //now the same thing for the 2nd list of insts-
-        
-        if (insts_available2>0&& toRenameIndex < decodeWidth){
-        DynInstPtr inst2 = std::move(insts_to_decode2.front());
-      
-        insts_to_decode2.pop();
-
-        DPRINTF(Decode, "[tid:%i] Processing instruction [sn:%lli] with "
-                "PC %s\n", tid, inst2->seqNum, inst2->pcState());
-
-        if (inst2->isSquashed()) {
-            DPRINTF(Decode, "[tid:%i] Instruction %i with PC %s is "
-                    "squashed, skipping.\n",
-                    tid, inst2->seqNum, inst2->pcState());
-
-            ++stats.squashedInsts;
-
-            --insts_available2;
-            
-            continue;
-        }
-
-        // Also check if instructions have no source registers.  Mark
-        // them as ready to issue at any time.  Not sure if this check
-        // should exist here or at a later stage; however it doesn't matter
-        // too much for function correctness.
-        if (inst2->numSrcRegs() == 0) {
-            inst2->setCanIssue();
-        }
-        
-        // This current instruction is valid, so add it into the decode
-        // queue.  The next instruction may not be valid, so check to
-        // see if branches were predicted correctly.
-        toRename->insts2[toRenameIndex] = inst2;
-
-        ++(toRename->size);
-        ++toRenameIndex;
-        ++stats.decodedInsts;
-        --insts_available2;
-
-#if TRACING_ON
-        if (debug::O3PipeView) {
-            inst2->decodeTick = curTick() - inst2->fetchTick;
-        }
-#endif
-
-        // Ensure that if it was predicted as a branch, it really is a
-        // branch.
-        if (inst2->readPredTaken() && !inst2->isControl()) {
-            panic("Instruction predicted as a branch!");
-
-            ++stats.controlMispred;
-
-            // Might want to set some sort of boolean and just do
-            // a check at the end
-            squash(inst2, inst2->threadNumber);
-
-            break;
-        }
-
-        // Go ahead and compute any PC-relative branches.
-        // This includes direct unconditional control and
-        // direct conditional control that is predicted taken.
-        if (inst2->isDirectCtrl() &&
-           (inst2->isUncondCtrl() || inst2->readPredTaken()))
-        {
-            ++stats.branchResolved;
-
-            std::unique_ptr<PCStateBase> target = inst2->branchTarget();
-            if (*target != inst2->readPredTarg()) {
-                ++stats.branchMispred;
-
-                // Might want to set some sort of boolean and just do
-                // a check at the end
-                squash(inst2, inst2->threadNumber);
-
-                DPRINTF(Decode,
-                        "[tid:%i] [sn:%llu] "
-                        "Updating predictions: Wrong predicted target: %s \
-                        PredPC: %s\n",
-                        tid, inst2>seqNum, inst2->readPredTarg(), *target);
-                //The micro pc after an instruction level branch should be 0
-                inst2->setPredTarg(*target);
-                break;
-            }
-        }
-        }
-        
-            
     }
 
     // If we didn't process all instructions, then we will need to block
     // and put all those instructions into the skid buffer.
-    if (!insts_to_decode1.empty()&&!insts_to_decode2.empty()) {
+    if (!insts_to_decode.empty()) {
         block(tid);
     }
 
