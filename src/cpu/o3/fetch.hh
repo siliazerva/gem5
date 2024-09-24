@@ -496,7 +496,7 @@ class Fetch
     bool fetchBufferValid[MaxThreads];
 
     /** Size of instructions. */
-    int ize;
+    int instSize;
 
     /** Icache stall statistics. */
     Counter lastIcacheStall[MaxThreads];
