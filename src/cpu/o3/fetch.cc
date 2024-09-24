@@ -256,8 +256,7 @@ void
 Fetch::setFetchQueue(TimeBuffer<FetchStruct> *ftb_ptr)
 {
     // Create wire to write information to proper place in fetch time buf.
-    toDecode = ftb_ptr->getWire(0);  
-   
+    toDecode = ftb_ptr->getWire(0);
 }
 
 void
@@ -284,8 +283,7 @@ Fetch::clearStates(ThreadID tid)
     stalls[tid].drain = false;
     fetchBufferPC[tid] = 0;
     fetchBufferValid[tid] = false;
-    fetchQueue1[tid].clear();
-    fetchQueue2[tid].clear();
+    fetchQueue[tid].clear();
 
     // TODO not sure what to do with priorityList for now
     // priorityList.push_back(tid);
@@ -316,8 +314,8 @@ Fetch::resetStage()
         fetchBufferPC[tid] = 0;
         fetchBufferValid[tid] = false;
 
-        fetchQueue1[tid].clear();
-        fetchQueue2[tid].clear();
+        fetchQueue[tid].clear();
+
         priorityList.push_back(tid);
     }
 
@@ -405,10 +403,9 @@ Fetch::isDrained() const
      */
     for (ThreadID i = 0; i < numThreads; ++i) {
         // Verify fetch queues are drained
-        if (!fetchQueue1[i].empty())
+        if (!fetchQueue[i].empty())
             return false;
-        if (!fetchQueue2[i].empty())
-            return false;
+
         // Return false if not idle or drain stalled
         if (fetchStatus[i] != Idle) {
             if (fetchStatus[i] == Blocked && stalls[i].drain)
@@ -644,8 +641,7 @@ Fetch::finishTranslation(const Fault &fault, const RequestPtr &mem_req)
     } else {
         // Don't send an instruction to decode if we can't handle it.
         if (!(numInst < fetchWidth) ||
-                !(fetchQueue1[tid].size() < fetchQueueSize)||
-    !(fetchQueue2[tid].size() < fetchQueueSize))  {
+                !(fetchQueue[tid].size() < fetchQueueSize)) {
             assert(!finishTranslationEvent.scheduled());
             finishTranslationEvent.setFault(fault);
             finishTranslationEvent.setReq(mem_req);
@@ -726,8 +722,8 @@ Fetch::doSquash(const PCStateBase &new_pc, const DynInstPtr squashInst,
     fetchStatus[tid] = Squashing;
 
     // Empty fetch queue
-    fetchQueue1[tid].clear();
-    fetchQueue2[tid].clear();
+    fetchQueue[tid].clear();
+
     // microops are being squashed, it is not known wheather the
     // youngest non-squashed microop was  marked delayed commit
     // or not. Setting the flag to true ensures that the
@@ -873,14 +869,12 @@ Fetch::tick()
 
     // Send instructions enqueued into the fetch queue to decode.
     // Limit rate by fetchWidth.  Stall if decode is stalled.
-   unsigned insts_to_decode = 0;
-    unsigned available_insts1 = 0;
+    unsigned insts_to_decode = 0;
+    unsigned available_insts = 0;
 
-    unsigned available_insts2 = 0;
     for (auto tid : *activeThreads) {
         if (!stalls[tid].decode) {
-            available_insts1 += fetchQueue1[tid].size();
-            available_insts2 += fetchQueue2[tid].size();
+            available_insts += fetchQueue[tid].size();
         }
     }
 
@@ -889,33 +883,19 @@ Fetch::tick()
     std::advance(tid_itr,
             random_mt.random<uint8_t>(0, activeThreads->size() - 1));
 
- while ((available_insts1 > 0|| available_insts2 > 0) && (insts_to_decode < decodeWidth)) {
+    while (available_insts != 0 && insts_to_decode < decodeWidth) {
         ThreadID tid = *tid_itr;
-        if (!stalls[tid].decode  ) {
-            if (!fetchQueue1[tid].empty()&& insts_to_decode < decodeWidth){
-            const auto& inst = fetchQueue1[tid].front();
-            toDecode->insts1[toDecode->size1++] = inst;
+        if (!stalls[tid].decode && !fetchQueue[tid].empty()) {
+            const auto& inst = fetchQueue[tid].front();
+            toDecode->insts[toDecode->size++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
-                    "from fetch queue no1. Fetch queue size: %i.\n",
-                    tid, inst->seqNum, fetchQueue1[tid].size());
- 
+                    "from fetch queue. Fetch queue size: %i.\n",
+                    tid, inst->seqNum, fetchQueue[tid].size());
+
             wroteToTimeBuffer = true;
-            fetchQueue1[tid].pop_front();
+            fetchQueue[tid].pop_front();
             insts_to_decode++;
-            available_insts1--;
-        }
-        if (!fetchQueue2[tid].empty()&& insts_to_decode < decodeWidth){
-            const auto& inst = fetchQueue2[tid].front();
-            toDecode->insts2[toDecode->size2++] = inst;
-            DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
-                    "from fetch queue no2. Fetch queue size: %i.\n",
-                    tid, inst->seqNum, fetchQueue1[tid].size());
- 
-            wroteToTimeBuffer = true;
-            fetchQueue2[tid].pop_front();
-            insts_to_decode++;
-            available_insts2--;
-        }
+            available_insts--;
         }
 
         tid_itr++;
@@ -1076,19 +1056,14 @@ Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
 
     // Write the instruction to the first slot in the queue
     // that heads to decode.
-
-    if (toggle){
-    fetchQueue1[tid].push_back(instruction);
-    assert(fetchQueue1[tid].size() <= fetchQueueSize);
+    assert(numInst < fetchWidth);
+    fetchQueue[tid].push_back(instruction);
+    assert(fetchQueue[tid].size() <= fetchQueueSize);
     DPRINTF(Fetch, "[tid:%i] Fetch queue entry created (%i/%i).\n",
-            tid, fetchQueue1[tid].size(), fetchQueueSize);
-    }
-    else{
-        fetchQueue2[tid].push_back(instruction);
-        DPRINTF(Fetch, "[tid:%i] Added to fetchQueue2 (%i/%i).\n",
-                tid, fetchQueue2[tid].size(), fetchQueueSize);
-    }
-   toggle=!toggle;
+            tid, fetchQueue[tid].size(), fetchQueueSize);
+    //toDecode->insts[toDecode->size++] = instruction;
+
+    // Keep track of if we can take an interrupt at this boundary
     delayedCommit[tid] = instruction->isDelayedCommit();
 
     return instruction;
@@ -1205,9 +1180,8 @@ Fetch::fetch(bool &status_change)
     // Loop through instruction memory from the cache.
     // Keep issuing while fetchWidth is available and branch is not
     // predicted taken
-    while (numInst < fetchWidth && 
-      (fetchQueue1[tid].size() < fetchQueueSize || fetchQueue2[tid].size() < fetchQueueSize) 
-      && !predictedBranch && !quiesce) {
+    while (numInst < fetchWidth && fetchQueue[tid].size() < fetchQueueSize
+           && !predictedBranch && !quiesce) {
         // We need to process more memory if we aren't going to get a
         // StaticInst from the rom, the current macroop, or what's already
         // in the decoder.
@@ -1318,9 +1292,8 @@ Fetch::fetch(bool &status_change)
                 break;
             }
         } while ((curMacroop || dec_ptr->instReady()) &&
-         numInst < fetchWidth &&
-         (fetchQueue1[tid].size() < fetchQueueSize || fetchQueue2[tid].size() < fetchQueueSize));
- 
+                 numInst < fetchWidth &&
+                 fetchQueue[tid].size() < fetchQueueSize);
 
         // Re-evaluate whether the next instruction to fetch is in micro-op ROM
         // or not.
