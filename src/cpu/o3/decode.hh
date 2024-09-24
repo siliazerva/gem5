@@ -224,8 +224,8 @@ class Decode
     TimeBuffer<TimeStruct>::wire toFetch;
 
     /** Decode instruction queue. */
-    TimeBuffer<DecodeStruct> *decodeQueue1;
-    TimeBuffer<DecodeStruct> *decodeQueue2;
+    TimeBuffer<DecodeStruct> *decodeQueue;
+
 
     /** Wire used to write any information heading to rename. */
     TimeBuffer<DecodeStruct>::wire toRename;
@@ -239,12 +239,12 @@ class Decode
     
 
     /** Queue of all instructions coming from fetch this cycle. */
-    std::queue<DynInstPtr> insts1[MaxThreads];
-    std::queue<DynInstPtr> insts2[MaxThreads];
+    std::queue<DynInstPtr> insts[MaxThreads];
+   
 
     /** Skid buffer between fetch and decode. */
-    std::queue<DynInstPtr> skidBuffer1[MaxThreads];
-    std::queue<DynInstPtr> skidBuffer2[MaxThreads];
+    std::queue<DynInstPtr> skidBuffer[MaxThreads];
+
     /** Variable that tracks if decode has written to the time buffer this
      * cycle. Used to tell CPU if there is activity this cycle.
      */
