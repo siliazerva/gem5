@@ -1,4 +1,4 @@
-/*
+f/*
  * Copyright (c) 2010-2012, 2014 ARM Limited
  * All rights reserved
  *
@@ -490,8 +490,8 @@ class Fetch
     unsigned fetchQueueSize;
 
     /** Queue of fetched instructions. Per-thread to prevent HoL blocking. */
-    std::deque<DynInstPtr> fetchQueue1[MaxThreads];
-    std::deque<DynInstPtr> fetchQueue2[MaxThreads];
+    std::deque<DynInstPtr> fetchQueue[MaxThreads];
+    
     /** Whether or not the fetch buffer data is valid. */
     bool fetchBufferValid[MaxThreads];
 
