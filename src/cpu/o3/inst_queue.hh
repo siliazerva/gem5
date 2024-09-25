@@ -311,7 +311,9 @@ class InstructionQueue
     typename TimeBuffer<TimeStruct>::wire fromCommit;
 
     /** Function unit pool. */
-    FUPool *fuPool;
+    FUPool *fuPool1;
+    FUPool *fuPool2;
+
 
     //////////////////////////////////////
     // Instruction lists, ready queues, and ordering
