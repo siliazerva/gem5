@@ -811,7 +811,7 @@ InstructionQueue::scheduleReadyInsts()
 
             continue;
         }
-
+        FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
