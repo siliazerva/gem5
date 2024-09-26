@@ -358,7 +358,8 @@ class IEW
     LSQ ldstQueue;
 
     /** Pointer to the functional unit pool. */
-    FUPool *fuPool;
+    FUPool *fuPool1;
+    FUPool *fuPool2;
     /** Records if the LSQ needs to be updated on the next cycle, so that
      * IEW knows if there will be activity on the next cycle.
      */
