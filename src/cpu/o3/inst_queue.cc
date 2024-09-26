@@ -88,7 +88,8 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
         const BaseO3CPUParams &params)
     : cpu(cpu_ptr),
       iewStage(iew_ptr),
-      fuPool(params.fuPool),
+      fuPool1(params.fuPool1),
+      fuPool2(params.fuPool2),
       iqPolicy(params.smtIQPolicy),
       numThreads(params.numThreads),
       numEntries(params.numIQEntries),
@@ -97,7 +98,8 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-    assert(fuPool);
+    assert(fuPool1);
+    assert(fuPool2);    
 
     const auto &reg_classes = params.isa[0]->regClasses();
     // Set the number of total physical registers
@@ -734,7 +736,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
     // long latency op).  Wake it if it was.  This may be overkill.
    --wbOutstanding;
     iewStage->wakeCPU();
-
+    FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
     if (fu_idx > -1)
         fuPool->freeUnitNextCycle(fu_idx);
 
