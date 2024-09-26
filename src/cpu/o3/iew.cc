@@ -69,7 +69,8 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       cpu(_cpu),
       instQueue(_cpu, this, params),
       ldstQueue(_cpu, this, params),
-      fuPool(params.fuPool),
+      fuPool1(params.fuPool1),
+      fuPool2(params.fuPool2),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToIEWDelay(params.renameToIEWDelay),
       issueToExecuteDelay(params.issueToExecuteDelay),
@@ -332,8 +333,8 @@ IEW::isDrained() const
     // Also check the FU pool as instructions are "stored" in FU
     // completion events until they are done and not accounted for
     // above
-    if (drained && !fuPool->isDrained()) {
-        DPRINTF(Drain, "FU pool still busy.\n");
+    if (drained && (!fuPool1->isDrained()||!fuPool2->isDrained()) {
+        DPRINTF(Drain, "FU pools are still busy.\n");
         drained = false;
     }
 
@@ -1403,8 +1404,8 @@ IEW::tick()
     sortInsts();
 
     // Free function units marked as being freed this cycle.
-    fuPool->processFreeUnits();
-
+    fuPool1->processFreeUnits();
+    fuPool2->processFreeUnits();
     std::list<ThreadID>::iterator threads = activeThreads->begin();
     std::list<ThreadID>::iterator end = activeThreads->end();
 
