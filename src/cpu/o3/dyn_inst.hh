@@ -83,6 +83,8 @@ class DynInst : public ExecContext, public RefCounted
     typedef typename std::list<DynInstPtr>::iterator ListIt;
 //add an id for the cluster
     int cluster_id; 
+    bool needsClusterDelay = false; 
+    int clusterDelayCount = 0; 
     struct Arrays
     {
         size_t numSrcs;
