@@ -782,7 +782,7 @@ InstructionQueue::scheduleReadyInsts()
 
     while (total_issued < totalWidth && order_it != order_end_it) {
         OpClass op_class = (*order_it).queueType;
-
+         Cycles extraDelay = Cycles(issuing_inst->clusterDelayCount);
         assert(!readyInsts[op_class].empty());
 
         DynInstPtr issuing_inst = readyInsts[op_class].top();
@@ -851,7 +851,7 @@ InstructionQueue::scheduleReadyInsts()
                                                            idx, this);
 
                 cpu->schedule(execution,
-                              cpu->clockEdge(Cycles(op_latency - 1)));
+                              cpu->clockEdge(Cycles(op_latency - 1)+ extraDelay));
 
                 if (!pipelined) {
                     // If FU isn't pipelined, then it must be freed
