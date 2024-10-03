@@ -1040,7 +1040,12 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         while (dep_inst) {
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
-
+            if (dep_inst->cluster_id != completed_inst->cluster_id) {
+                // If the dependent instruction is in a different cluster, delay 1 cycle
+                dep_inst->issueTick = curTick() + 1;  
+                DPRINTF(IQ, "Adding 1 cycle delay for inter-cluster bypasses. New issueTick: %llu\n", 
+                        dep_inst->issueTick);
+            }
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
