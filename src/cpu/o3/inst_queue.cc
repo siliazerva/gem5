@@ -836,8 +836,10 @@ InstructionQueue::scheduleReadyInsts()
         // valid FU, then schedule for execution.
         if (idx != FUPool::NoFreeFU) {
             if (op_latency == Cycles(1)) {
-                i2e_info->size++;
+                cpu->schedule(new EventFunctionWrapper([this, issuing_inst]() {
+                issueToExecuteQueue->access(0)->size++;
                 instsToExecute.push_back(issuing_inst);
+            }, name()), cpu->clockEdge(extraDelay));
 
                 // Add the FU onto the list of FU's to be freed next
                 // cycle if we used one.
