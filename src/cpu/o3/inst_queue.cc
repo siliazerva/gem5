@@ -782,7 +782,7 @@ InstructionQueue::scheduleReadyInsts()
 
     while (total_issued < totalWidth && order_it != order_end_it) {
         OpClass op_class = (*order_it).queueType;
-         Cycles extraDelay = Cycles(issuing_inst->clusterDelayCount);
+        Cycles extraDelay = issuing_inst->needsClusterDelay ? Cycles(1) : Cycles(0);
         assert(!readyInsts[op_class].empty());
 
         DynInstPtr issuing_inst = readyInsts[op_class].top();
@@ -801,7 +801,7 @@ InstructionQueue::scheduleReadyInsts()
             readyInsts[op_class].pop();
 
             if (!readyInsts[op_class].empty()) {
-                moveToYoungerInst(order_it);
+                moveopToYoungerInst(order_it);
             } else {
                 readyIt[op_class] = listOrder.end();
                 queueOnList[op_class] = false;
@@ -968,7 +968,7 @@ int
 InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 {
     int dependents = 0;
-    clusterDelayCount = 0;
+    
     // The instruction queue here takes care of both floating and int ops
     if (completed_inst->isFloating()) {
         iqIOStats.fpInstQueueWakeupAccesses++;
@@ -1042,11 +1042,12 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
             if (dep_inst->cluster_id != completed_inst->cluster_id) {
                 // If the dependent instruction is in a different cluster, delay 1 cycle
-                dep_inst->issueTick = curTick() + 1;  
-                DPRINTF(IQ, "Adding 1 cycle delay for inter-cluster bypasses. New issueTick: %llu\n", 
+                //dep_inst->issueTick = curTick() + 1;  
+                //or execution tick?!
+                //DPRINTF(IQ, "Adding 1 cycle delay for inter-cluster bypasses. New issueTick: %llu\n", 
                         dep_inst->issueTick);
-                dep_inst->clusterDelayCount++; 
-                needsClusterDelay = true; 
+               
+                dep_inst->needsClusterDelay = true; 
             }
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
