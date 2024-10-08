@@ -59,7 +59,7 @@ DynInst::DynInst(const Arrays &arrays, const StaticInstPtr &static_inst,
       _numSrcs(arrays.numSrcs), _numDests(arrays.numDests),
       _flatDestIdx(arrays.flatDestIdx), _destIdx(arrays.destIdx),
       _prevDestIdx(arrays.prevDestIdx), _srcIdx(arrays.srcIdx),
-      _readySrcIdx(arrays.readySrcIdx), macroop(_macroop),cluster_id(0)
+      _readySrcIdx(arrays.readySrcIdx), macroop(_macroop),cluster_id(0),needsClusterDelay(false)
 {
     std::fill(_readySrcIdx, _readySrcIdx + (numSrcs() + 7) / 8, 0);
 
