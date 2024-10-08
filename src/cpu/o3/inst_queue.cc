@@ -836,15 +836,16 @@ InstructionQueue::scheduleReadyInsts()
         // valid FU, then schedule for execution.
         if (idx != FUPool::NoFreeFU) {
             if (op_latency == Cycles(1)) {
-                cpu->schedule(new EventFunctionWrapper([this, issuing_inst]() {
+                cpu->schedule(new EventFunctionWrapper([this, issuing_inst,idx,fuPool]() {
                 issueToExecuteQueue->access(0)->size++;
                 instsToExecute.push_back(issuing_inst);
+                    if (idx >= 0)
+                    fuPool->freeUnitNextCycle(idx);
             }, name()), cpu->clockEdge(extraDelay));
 
                 // Add the FU onto the list of FU's to be freed next
                 // cycle if we used one.
-                if (idx >= 0)
-                    fuPool->freeUnitNextCycle(idx);
+                
             } else {
                 bool pipelined = fuPool->isPipelined(op_class);
                 // Generate completion event for the FU
