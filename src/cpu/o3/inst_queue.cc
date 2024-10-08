@@ -782,11 +782,11 @@ InstructionQueue::scheduleReadyInsts()
 
     while (total_issued < totalWidth && order_it != order_end_it) {
         OpClass op_class = (*order_it).queueType;
-        Cycles extraDelay = issuing_inst->needsClusterDelay ? Cycles(1) : Cycles(0);
+        
         assert(!readyInsts[op_class].empty());
 
         DynInstPtr issuing_inst = readyInsts[op_class].top();
-
+        Cycles extraDelay = issuing_inst->needsClusterDelay ? Cycles(1) : Cycles(0);
         if (issuing_inst->isFloating()) {
             iqIOStats.fpInstQueueReads++;
         } else if (issuing_inst->isVector()) {
@@ -801,7 +801,7 @@ InstructionQueue::scheduleReadyInsts()
             readyInsts[op_class].pop();
 
             if (!readyInsts[op_class].empty()) {
-                moveopToYoungerInst(order_it);
+                moveToYoungerInst(order_it);
             } else {
                 readyIt[op_class] = listOrder.end();
                 queueOnList[op_class] = false;
@@ -1047,7 +1047,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                 //dep_inst->issueTick = curTick() + 1;  
                 //or execution tick?!
                 //DPRINTF(IQ, "Adding 1 cycle delay for inter-cluster bypasses. New issueTick: %llu\n", 
-                        dep_inst->issueTick);
+                        //dep_inst->issueTick);
                
                 dep_inst->needsClusterDelay = true; 
             }
