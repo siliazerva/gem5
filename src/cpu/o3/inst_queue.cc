@@ -786,7 +786,7 @@ InstructionQueue::scheduleReadyInsts()
         assert(!readyInsts[op_class].empty());
 
         DynInstPtr issuing_inst = readyInsts[op_class].top();
-        Cycles extraDelay = issuing_inst->needsClusterDelay ? Cycles(1) : Cycles(0);
+        
         if (issuing_inst->isFloating()) {
             iqIOStats.fpInstQueueReads++;
         } else if (issuing_inst->isVector()) {
@@ -836,15 +836,13 @@ InstructionQueue::scheduleReadyInsts()
         // valid FU, then schedule for execution.
         if (idx != FUPool::NoFreeFU) {
             if (op_latency == Cycles(1)) {
-                cpu->schedule(new EventFunctionWrapper([this, issuing_inst,idx,fuPool]() {
-                issueToExecuteQueue->access(0)->size++;
+                i2e_info->size++;
                 instsToExecute.push_back(issuing_inst);
-                    if (idx >= 0)
-                    fuPool->freeUnitNextCycle(idx);
-            }, name()), cpu->clockEdge(extraDelay));
 
                 // Add the FU onto the list of FU's to be freed next
                 // cycle if we used one.
+                if (idx >= 0)
+                    fuPool->freeUnitNextCycle(idx);
                 
             } else {
                 bool pipelined = fuPool->isPipelined(op_class);
@@ -854,7 +852,7 @@ InstructionQueue::scheduleReadyInsts()
                                                            idx, this);
 
                 cpu->schedule(execution,
-                              cpu->clockEdge(Cycles(op_latency - 1)+ extraDelay));
+                              cpu->clockEdge(Cycles(op_latency - 1)));
 
                 if (!pipelined) {
                     // If FU isn't pipelined, then it must be freed
@@ -1039,7 +1037,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         //Go through the dependency chain, marking the registers as
         //ready within the waiting instructions.
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
-
+        Cycles extraDelay = Cycles(1);
         while (dep_inst) {
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
@@ -1056,14 +1054,25 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
-            dep_inst->markSrcRegReady();
+            if(dep_inst->needsClusterDelay){
+            cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents]() {
+                dep_inst->markSrcRegReady();
+                addIfReady(dep_inst);
+                dep_inst = dependGraph.pop(dest_reg->flatIndex());
+                ++dependents;
+            }, name()), cpu->clockEdge(extraDelay));
+            }
+            else {
+                dep_inst->markSrcRegReady();
 
-            addIfReady(dep_inst);
+                addIfReady(dep_inst);
 
-            dep_inst = dependGraph.pop(dest_reg->flatIndex());
+                dep_inst = dependGraph.pop(dest_reg->flatIndex());
 
-            ++dependents;
+                ++dependents;
+                 }
         }
+        DPRINTF(IQ, "Source register of dependent instruction is marked ready");
 
         // Reset the head node now that all of its dependents have
         // been woken up.
