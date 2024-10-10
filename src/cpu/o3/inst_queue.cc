@@ -1038,14 +1038,14 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         //ready within the waiting instructions.
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
         Cycles extraDelay = Cycles(1);
-        while (dep_inst) {
+         while (dep_inst) {
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
             if (dep_inst->cluster_id != completed_inst->cluster_id) {
                 // If the dependent instruction is in a different cluster, delay 1 cycle
                 //dep_inst->issueTick = curTick() + 1;  
                 //or execution tick?!
-                //DPRINTF(IQ, "Adding 1 cycle delay for inter-cluster bypasses. New issueTick: %llu\n", 
+                //DPRINTF(IQ, "Adding 1 cycle delay for inter-cluster bypasses. New issueT>
                         //dep_inst->issueTick);
                
                 dep_inst->needsClusterDelay = true; 
@@ -1058,8 +1058,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents]() {
                 dep_inst->markSrcRegReady();
                 addIfReady(dep_inst);
-                dep_inst = dependGraph.pop(dest_reg->flatIndex());
-                ++dependents;
+                
             }, name()), cpu->clockEdge(extraDelay));
             }
             else {
@@ -1067,11 +1066,16 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 
                 addIfReady(dep_inst);
 
-                dep_inst = dependGraph.pop(dest_reg->flatIndex());
-
-                ++dependents;
+                
                  }
-        }
+
+        dep_inst = dependGraph.pop(dest_reg->flatIndex());
+        if (dep_inst) {
+
+        ++dependents;
+}        
+}
+
         DPRINTF(IQ, "Source register of dependent instruction is marked ready");
 
         // Reset the head node now that all of its dependents have
