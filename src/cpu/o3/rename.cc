@@ -1015,15 +1015,23 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
     UnifiedRenameMap *map = renameMap[tid];
     unsigned num_src_regs = inst->numSrcRegs();
     auto *isa = tc->getIsaPtr();
-
+    int cluster_id = -1;
     // Get the architectual register numbers from the source and
     // operands, and redirect them to the right physical register.
     for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
         const RegId& src_reg = inst->srcRegIdx(src_idx);
         const RegId flat_reg = src_reg.flatten(*isa);
         PhysRegIdPtr renamed_reg;
-
         renamed_reg = map->lookup(flat_reg);
+    
+        // Check the cluster_id of the source register
+        int reg_cluster_id = renamed_reg->cluster_id;
+
+        if (reg_cluster_id != -1 && cluster_id == -1) {
+            cluster_id = reg_cluster_id;
+            inst->cluster_id = cluster_id;
+        }
+        
         switch (flat_reg.classValue()) {
           case InvalidRegClass:
             break;
@@ -1088,7 +1096,7 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
     UnifiedRenameMap *map = renameMap[tid];
     unsigned num_dest_regs = inst->numDestRegs();
     auto *isa = tc->getIsaPtr();
-
+    int instruction_cluster_id = inst->cluster_id;
     // Rename the destination registers.
     for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
         const RegId& dest_reg = inst->destRegIdx(dest_idx);
@@ -1100,7 +1108,9 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
         rename_result = map->rename(flat_dest_regid);
 
         inst->flattenedDestIdx(dest_idx, flat_dest_regid);
-
+        if (rename_result.first) {
+            rename_result.first->cluster_id = instruction_cluster_id;
+        }
         scoreboard->unsetReg(rename_result.first);
 
         DPRINTF(Rename,
