@@ -1256,8 +1256,8 @@ Commit::commitHead(const DynInstPtr &head_inst, unsigned inst_num)
     for (int i = 0; i < head_inst->numDestRegs(); i++) {
         renameMap[tid]->setEntry(head_inst->flattenedDestIdx(i),
                                  head_inst->renamedDestIdx(i));
-        PhysRegIdPtr phys_dest_reg = renamedDestIdx(i);
-        phys_dest_reg->cluster_id=-1;
+        //PhysRegIdPtr phys_dest_reg = renamedDestIdx(i);
+        //phys_dest_reg->cluster_id=-1;
     }
 
     // hardware transactional memory
