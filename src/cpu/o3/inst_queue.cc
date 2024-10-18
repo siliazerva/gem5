@@ -813,7 +813,32 @@ InstructionQueue::scheduleReadyInsts()
 
             continue;
         }
-        FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+        //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+        FUPool *fuPool = nullptr;
+
+    // If cluster_id is -1, steer the instruction to the cluster with available FUs for the OpClass
+    if (issuing_inst->cluster_id == -1) {
+        OpClass op_class = issuing_inst->opClass();
+
+        // Check if there's an available FU in fuPool1 or fuPool2
+        int fu_idx_cluster1 = fuPool1->getUnit(op_class);
+        int fu_idx_cluster2 = fuPool2->getUnit(op_class);
+
+    // If both clusters have available FUs, choose one randomly
+    if (fu_idx_cluster1 != FUPool::NoCapableFU && fu_idx_cluster2 != FUPool::NoCapableFU) {
+        // Randomly choose one of the clusters
+        fuPool = (std::rand() % 2 == 0) ? fuPool1 : fuPool2;
+    } else if (fu_idx_cluster1 != FUPool::NoCapableFU) {
+        // If only cluster 1 has a capable FU
+        fuPool = fuPool1;
+    } else if (fu_idx_cluster2 != FUPool::NoCapableFU) {
+        // If only cluster 2 has a capable FU
+        fuPool = fuPool2;
+    }
+} else {
+    // Use the cluster assigned by the instruction (0 or 1)
+    fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+}
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
