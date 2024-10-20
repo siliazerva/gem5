@@ -333,7 +333,7 @@ IEW::isDrained() const
     // Also check the FU pool as instructions are "stored" in FU
     // completion events until they are done and not accounted for
     // above
-    if (drained && (!fuPool1->isDrained()||!fuPool2->isDrained()) {
+    if (drained && (!fuPool1->isDrained()||!fuPool2->isDrained())) {
         DPRINTF(Drain, "FU pools are still busy.\n");
         drained = false;
     }
