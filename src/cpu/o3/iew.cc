@@ -360,7 +360,8 @@ IEW::takeOverFrom()
 
     instQueue.takeOverFrom();
     ldstQueue.takeOverFrom();
-    fuPool->takeOverFrom();
+    fuPool1->takeOverFrom(); 
+    fuPool2->takeOverFrom(); 
 
     startupStage();
     cpu->activityThisCycle();
