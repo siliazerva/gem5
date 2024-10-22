@@ -1030,7 +1030,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         if (reg_cluster_id != -1 && cluster_id == -1) {
             cluster_id = reg_cluster_id;
             inst->cluster_id = cluster_id;
-            DPRINTF(Rename,"Instruction's id is %d, due to src register with index %d",cluster_id, src_idx);
+            DPRINTF(Rename,"Instruction's id is %d,that has sn:%llu, due to src register with index %d",cluster_id, src_idx, inst->SeqNum);
         }
         
         switch (flat_reg.classValue()) {
@@ -1068,7 +1068,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
                 renamed_reg->className());
 
         inst->renameSrcReg(src_idx, renamed_reg);
-        DPRINTF(Rename, "Register's id= %d, instruction's id=%d, with [sn:%llu].", renamed_reg->cluster_id, inst->cluster_id);
+        DPRINTF(Rename, "Register's id= %d, instruction's id=%d, with [sn:%llu].", renamed_reg->cluster_id, inst->cluster_id,inst->seqNum);
         // See if the register is ready or not.
         if (scoreboard->getReg(renamed_reg)) {
             DPRINTF(Rename,
