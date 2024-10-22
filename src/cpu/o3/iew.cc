@@ -1379,7 +1379,7 @@ IEW::writebackInsts()
                             inst->renamedDestIdx(i)->index(),
                             inst->renamedDestIdx(i)->className());
                     scoreboard->setReg(inst->renamedDestIdx(i));
-                    inst->renamedDestIdx(i)->cluster_id = -1;
+                    //inst->renamedDestIdx(i)->cluster_id = -1;
                 }
             }
 
