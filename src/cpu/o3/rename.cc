@@ -1030,6 +1030,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         if (reg_cluster_id != -1 && cluster_id == -1) {
             cluster_id = reg_cluster_id;
             inst->cluster_id = cluster_id;
+            DPRINTF(Rename,"Instruction's id is %d, due to src register with index %d",cluster_id, src_idx);
         }
         
         switch (flat_reg.classValue()) {
