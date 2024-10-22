@@ -1115,7 +1115,7 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
 
         DPRINTF(Rename,
                 "[tid:%i] "
-                "Renaming arch reg %i (%s) to physical reg %i (%i).\n",". Destination register's cluster_id is %i"," ,from instruction with [sn:%llu]."
+                "Renaming arch reg %i (%s) to physical reg %i (%i).\n .Destination register's cluster_id is %i,from instruction with [sn:%llu].",
                 tid, dest_reg.index(), dest_reg.className(),
                 rename_result.first->index(),
                 rename_result.first->flatIndex(),rename_result.first->cluster_id, inst->seqNum);
