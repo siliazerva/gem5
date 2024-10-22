@@ -1067,7 +1067,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
                 renamed_reg->className());
 
         inst->renameSrcReg(src_idx, renamed_reg);
-
+        DPRINTF(Rename, "Register's id= %d, instruction's id=%d, with [sn:%llu].", renamed_reg->cluster_id, inst->cluster_id);
         // See if the register is ready or not.
         if (scoreboard->getReg(renamed_reg)) {
             DPRINTF(Rename,
@@ -1115,10 +1115,10 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
 
         DPRINTF(Rename,
                 "[tid:%i] "
-                "Renaming arch reg %i (%s) to physical reg %i (%i).\n",
+                "Renaming arch reg %i (%s) to physical reg %i (%i).\n",". Destination register's cluster_id is %i"," ,from instruction with [sn:%llu]."
                 tid, dest_reg.index(), dest_reg.className(),
                 rename_result.first->index(),
-                rename_result.first->flatIndex());
+                rename_result.first->flatIndex(),rename_result.first->cluster_id, inst->seqNum);
 
         // Record the rename information so that a history can be kept.
         RenameHistory hb_entry(inst->seqNum, flat_dest_regid,
