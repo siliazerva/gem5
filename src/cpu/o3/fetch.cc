@@ -1057,25 +1057,11 @@ Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
     // Write the instruction to the first slot in the queue
     // that heads to decode.
     assert(numInst < fetchWidth);
-    if (toggle){
-    instruction->setClusterId(0);
-    fetchQueue[tid].push_back(instruction);
+      fetchQueue[tid].push_back(instruction);
     assert(fetchQueue[tid].size() <= fetchQueueSize);
     DPRINTF(Fetch, "[tid:%i] Fetch queue entry created (%i/%i).\n",
             tid, fetchQueue[tid].size(), fetchQueueSize);
     //toDecode->insts[toDecode->size++] = instruction;
-
-    }
-    else {
-    instruction->setClusterId(1);
-    fetchQueue[tid].push_back(instruction);
-    assert(fetchQueue[tid].size() <= fetchQueueSize);
-    DPRINTF(Fetch, "[tid:%i] Fetch queue entry created (%i/%i).\n",
-            tid, fetchQueue[tid].size(), fetchQueueSize);
-    //toDecode->insts[toDecode->size++] = instruction;
-         }
-    toggle=!toggle;
-    // Keep track of if we can take an interrupt at this boundary
     delayedCommit[tid] = instruction->isDelayedCommit();
 
     return instruction;
