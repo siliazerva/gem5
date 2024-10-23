@@ -1016,6 +1016,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
     unsigned num_src_regs = inst->numSrcRegs();
     auto *isa = tc->getIsaPtr();
     int cluster_id = -1;
+    DPRINTF(Rename,"Right now cluster_id=%d and instruction's cluster id is %d",cluster_id, inst->cluster_id);
     // Get the architectual register numbers from the source and
     // operands, and redirect them to the right physical register.
     for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
@@ -1116,10 +1117,10 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
 
         DPRINTF(Rename,
                 "[tid:%i] "
-                "Renaming arch reg %i (%s) to physical reg %i (%i).\n Destination register's cluster_id is %i,from instruction with [sn:%llu].",
+                "Renaming arch reg %i (%s) to physical reg %i (%i).\n Destination register's cluster_id is %d,from instruction with id %d and [sn:%llu].",
                 tid, dest_reg.index(), dest_reg.className(),
                 rename_result.first->index(),
-                rename_result.first->flatIndex(),rename_result.first->cluster_id, inst->seqNum);
+                rename_result.first->flatIndex(),rename_result.first->cluster_id,inst->cluster_id, inst->seqNum);
 
         // Record the rename information so that a history can be kept.
         RenameHistory hb_entry(inst->seqNum, flat_dest_regid,
