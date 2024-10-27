@@ -816,15 +816,9 @@ InstructionQueue::scheduleReadyInsts()
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         FUPool *fuPool = nullptr;
 
-    // If cluster_id is -1, steer the instruction to the cluster with available FUs for the OpClass
-    if (issuing_inst->cluster_id == -1) {
-         int chosen_cluster = std::rand() % 2;
-         fuPool = (chosen_cluster == 0) ? fuPool1 : fuPool2;
-
-} else {
     // Use the cluster assigned by the instruction (0 or 1)
     fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
-}
+
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
