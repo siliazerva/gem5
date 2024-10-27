@@ -1089,6 +1089,12 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
 
         ++stats.lookups;
     }
+     if (inst->cluster_id == -1) {
+        cluster_id = std::rand() % 2;
+        inst->cluster_id = cluster_id;
+        DPRINTF(Rename, "Instruction [sn:%llu] assigned random cluster ID: %d\n", 
+                inst->seqNum, cluster_id);
+    }
 }
 
 void
