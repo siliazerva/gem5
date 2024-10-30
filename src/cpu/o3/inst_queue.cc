@@ -817,14 +817,27 @@ InstructionQueue::scheduleReadyInsts()
         FUPool *fuPool = nullptr;
 
     // If cluster_id is -1, steer the instruction to the cluster with available FUs for the OpClass
-    if (issuing_inst->cluster_id == -1) {
-         int chosen_cluster = std::rand() % 2;
-         fuPool = (chosen_cluster == 0) ? fuPool1 : fuPool2;
-
-} else {
-    // Use the cluster assigned by the instruction (0 or 1)
-    fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+    if (issuing_inst->cluster_id==-1){
+	OpClass op_class=issuing_inst->opClass();
+	int new_cluster_id = -1;
+	while (new_cluster_id == -1) {
+          if(fuPool1->getUnit(op_class)!=NoFreeFU){
+        	new_cluster_id=0;
+            }
+            else if(fuPool1->getUnit(op_class)!=NoFreeFU){
+            	new_cluster_id=1;
+            }
 }
+	unsigned num_dest_regs = issuing_inst->numDestRegs();
+	for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
+    	PhysRegIdPtr phys_reg_ptr = issuing_inst->renamedDestIdx(dest_idx);
+    	if (phys_reg_ptr) {
+    		issuing_inst->cluster_id=new_cluster_id;
+        	phys_reg_ptr->cluster_id = new_cluster_id;  
+    }
+}}
+
+        fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
