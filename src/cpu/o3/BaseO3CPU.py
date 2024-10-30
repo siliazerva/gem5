@@ -118,15 +118,15 @@ class BaseO3CPU(BaseCPU):
     )
     dispatchWidth = Param.Unsigned(4, "Dispatch width")
     issueWidth = Param.Unsigned(4, "Issue width")
-    wbWidth = Param.Unsigned(4, "Writeback width")
+    wbWidth = Param.Unsigned(8, "Writeback width")
     fuPool = Param.FUPool(DefaultFUPool(), "Functional Unit pool")
 
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
     )
     renameToROBDelay = Param.Cycles(1, "Rename to reorder buffer delay")
-    commitWidth = Param.Unsigned(4, "Commit width")
-    squashWidth = Param.Unsigned(4, "Squash width")
+    commitWidth = Param.Unsigned(8, "Commit width")
+    squashWidth = Param.Unsigned(8, "Squash width")
     trapLatency = Param.Cycles(13, "Trap latency")
     fetchTrapLatency = Param.Cycles(1, "Fetch trap latency")
 
