@@ -818,18 +818,27 @@ InstructionQueue::scheduleReadyInsts()
 
     // If cluster_id is -1, steer the instruction to the cluster with available FUs for the OpClass
     if (issuing_inst->cluster_id==-1){
-	OpClass op_class=issuing_inst->opClass();
 	int new_cluster_id = -1;
-	while (new_cluster_id == -1) {
-          if(fuPool1->getUnit(op_class)!=FUPool::NoFreeFU){
+	if (op_class!=No_OpClass){
+        if(fuPool1->getUnit(op_class)!=FUPool::NoFreeFU){
         	new_cluster_id=0;
-		 DPRINTF(IQ,"Cluster 1 is not busy, setting the cluster id as 0 (instruction with sn:%llu).\n",issuing_inst->seqNum);
+		DPRINTF(IQ,"Cluster 1 is not busy, setting the cluster id as 0 (instruction with sn:%llu).\n",issuing_inst->seqNum);
             }
-            else if(fuPool1->getUnit(op_class)!=FUPool::NoFreeFU){
+        else if(fuPool2->getUnit(op_class)!=FUPool::NoFreeFU){
             	new_cluster_id=1;
 		DPRINTF(IQ,"Cluster 2 is not busy, setting the cluster id as 1 (instruction with sn:%llu).\n",issuing_inst->seqNum);
             }
-}
+    	else{
+		DPRINTF(IQ, "No available FU in either cluster, deferring instruction %d\n", issuing_inst->seqNum);
+
+	   }
+	}
+     else {
+		new_cluster_id = rand() % 2; // Randomly selects 0 or 1
+                DPRINTF(IQ,"random selection for no op instruction");
+
+	    }
+	if (new_cluster_id != -1) {
 	unsigned num_dest_regs = issuing_inst->numDestRegs();
 	for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
     	PhysRegIdPtr phys_reg_ptr = issuing_inst->renamedDestIdx(dest_idx);
@@ -837,7 +846,7 @@ InstructionQueue::scheduleReadyInsts()
     		issuing_inst->cluster_id=new_cluster_id;
         	phys_reg_ptr->cluster_id = new_cluster_id;  
 		DPRINTF(IQ,"Setting physical register's cluster id.\n",issuing_inst->seqNum);
-		
+	}
     }
 }}
 
