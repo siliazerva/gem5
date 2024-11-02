@@ -821,11 +821,11 @@ InstructionQueue::scheduleReadyInsts()
 	OpClass op_class=issuing_inst->opClass();
 	int new_cluster_id = -1;
 	while (new_cluster_id == -1) {
-          if(fuPool1->getUnit(op_class)!=NoFreeFU){
+          if(fuPool1->getUnit(op_class)!=FUPool::NoFreeFU){
         	new_cluster_id=0;
 		 DPRINTF(IQ,"Cluster 1 is not busy, setting the cluster id as 0 (instruction with sn:%llu).\n",issuing_inst->seqNum);
             }
-            else if(fuPool1->getUnit(op_class)!=NoFreeFU){
+            else if(fuPool1->getUnit(op_class)!=FUPool::NoFreeFU){
             	new_cluster_id=1;
 		DPRINTF(IQ,"Cluster 2 is not busy, setting the cluster id as 1 (instruction with sn:%llu).\n",issuing_inst->seqNum);
             }
