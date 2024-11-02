@@ -823,9 +823,11 @@ InstructionQueue::scheduleReadyInsts()
 	while (new_cluster_id == -1) {
           if(fuPool1->getUnit(op_class)!=NoFreeFU){
         	new_cluster_id=0;
+		 DPRINTF(IQ,"Cluster 1 is not busy, setting the cluster id as 0 (instruction with sn:%llu).\n",issuing_inst->seqNum);
             }
             else if(fuPool1->getUnit(op_class)!=NoFreeFU){
             	new_cluster_id=1;
+		DPRINTF(IQ,"Cluster 2 is not busy, setting the cluster id as 1 (instruction with sn:%llu).\n",issuing_inst->seqNum);
             }
 }
 	unsigned num_dest_regs = issuing_inst->numDestRegs();
@@ -834,6 +836,8 @@ InstructionQueue::scheduleReadyInsts()
     	if (phys_reg_ptr) {
     		issuing_inst->cluster_id=new_cluster_id;
         	phys_reg_ptr->cluster_id = new_cluster_id;  
+		DPRINTF(IQ,"Setting physical register's cluster id.\n",issuing_inst->seqNum);
+		
     }
 }}
 
