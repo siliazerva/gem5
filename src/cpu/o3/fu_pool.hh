@@ -180,6 +180,15 @@ class FUPool : public SimObject
 
     /** Takes over from another CPU's thread. */
     void takeOverFrom() {};
+    // Inside FUPool class
+
+/** Returns the current relative load as a ratio of busy units to total units. */
+float getRelativeLoad() const {
+    int busyCount = std::count(unitBusy.begin(), unitBusy.end(), true);
+    return static_cast<float>(busyCount) / numFU;
+}
+
+
 };
 
 } // namespace o3
