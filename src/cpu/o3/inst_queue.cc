@@ -826,11 +826,11 @@ if (issuing_inst->cluster_id==-1){
 
 	if (load1 < load2) {
    		 fuPool = fuPool1;
-    		new_cluster_id = 0;
+    		issuing_inst->cluster_id = 0;
     		DPRINTF(IQ, "Choosing Cluster 1 (less load: %.2f) for instruction sn:%llu.\n", load1, issuing_inst->seqNum);
 	} else {
     		fuPool = fuPool2;
-    		new_cluster_id = 1;
+    		issuing_inst->cluster_id = 0;
     		DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
 	}
 }
