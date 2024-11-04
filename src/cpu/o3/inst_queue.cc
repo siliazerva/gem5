@@ -820,47 +820,32 @@ InstructionQueue::scheduleReadyInsts()
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
-if (issuing_inst->cluster_id==-1){
-	float load1 = fuPool1->getRelativeLoad();
-	float load2 = fuPool2->getRelativeLoad();
+if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
+        DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issu>
+        float load1 = fuPool1->getRelativeLoad();
+        float load2 = fuPool2->getRelativeLoad();
+        if (load1 < load2) {
+                 fuPool = fuPool1;
+                issuing_inst->cluster_id=0;
+                DPRINTF(IQ, "Choosing Cluster 1 (less load: %.2f) for instruction sn:%llu.>
+        } else {
+                fuPool = fuPool2;
+                issuing_inst->cluster_id=1;
+                DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.>
+        }
+        unsigned num_dest_regs = issuing_inst->numDestRegs();
+        for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
+        PhysRegIdPtr phys_reg_ptr = issuing_inst->renamedDestIdx(dest_idx);
+        const RegId& dest_reg =issuing_inst->destRegIdx(dest_idx);
+        const RegId flat_reg = dest_reg.flatten(*isa);
+        if (phys_reg_ptr) {
 
-	if (load1 < load2) {
-   		 fuPool = fuPool1;
-    		issuing_inst->cluster_id = 0;
-    		DPRINTF(IQ, "Choosing Cluster 1 (less load: %.2f) for instruction sn:%llu.\n", load1, issuing_inst->seqNum);
-	} else {
-    		fuPool = fuPool2;
-    		issuing_inst->cluster_id = 0;
-    		DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
-	}
-}
-
-	
-	/*if (issuing_inst->cluster_id==-1){
-		int new_cluster_id = -1;
-		if (op_class!=No_OpClass){
-        		if(fuPool1->getUnit(op_class)>FUPool::NoFreeFU){
-				fuPool=fuPool1;
-        			new_cluster_id=0;
-				DPRINTF(IQ,"Cluster 1 is not busy, setting the cluster id as 0 (instruction with sn:%llu).\n",issuing_inst->seqNum);
-            }
-        		else if(fuPool2->getUnit(op_class)>FUPool::NoFreeFU){
-				fuPool=fuPool2;
-            			new_cluster_id=1;
-				DPRINTF(IQ,"Cluster 2 is not busy, setting the cluster id as 1 (instruction with sn:%llu).\n",issuing_inst->seqNum);
-            }
-	} 
-	unsigned num_dest_regs = issuing_inst->numDestRegs();
-	issuing_inst->cluster_id=new_cluster_id;
-	for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
-    	PhysRegIdPtr phys_reg_ptr = issuing_inst->renamedDestIdx(dest_idx);
-    	if (phys_reg_ptr) {
-    		
-        	phys_reg_ptr->cluster_id = new_cluster_id;  
-		DPRINTF(IQ,"Setting physical register's cluster id.\n",issuing_inst->seqNum);
-	}
+                phys_reg_ptr->cluster_id = issuing_inst->cluster_id;
+                DPRINTF(IQ,"Setting physical register's (register id:%d) cluster id=%d (in>
+        }
     }
-} */
+
+}
         if (op_class != No_OpClass) {
             idx = fuPool->getUnit(op_class);
             if (issuing_inst->isFloating()) {
