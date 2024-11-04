@@ -1031,7 +1031,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         if (reg_cluster_id != -1 && cluster_id == -1) {
             cluster_id = reg_cluster_id;
             inst->cluster_id = cluster_id;
-            DPRINTF(Rename,"Instruction's id is %d,that has sn:%llu, due to src register with index %d",cluster_id, src_idx, inst->SeqNum);
+            DPRINTF(Rename,"Instruction's id is %d,that has sn:%llu, due to source register with (register id:%d).\n",cluster_id, inst->seqNum, flat_reg.index());    
         }
         
         switch (flat_reg.classValue()) {
