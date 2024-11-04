@@ -820,6 +820,22 @@ InstructionQueue::scheduleReadyInsts()
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
+if (issuing_inst->cluster_id==-1){
+	float load1 = fuPool1->getRelativeLoad();
+	float load2 = fuPool2->getRelativeLoad();
+
+	if (load1 < load2) {
+   		 fuPool = fuPool1;
+    		new_cluster_id = 0;
+    		DPRINTF(IQ, "Choosing Cluster 1 (less load: %.2f) for instruction sn:%llu.\n", load1, issuing_inst->seqNum);
+	} else {
+    		fuPool = fuPool2;
+    		new_cluster_id = 1;
+    		DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
+	}
+}
+
+	
 	/*if (issuing_inst->cluster_id==-1){
 		int new_cluster_id = -1;
 		if (op_class!=No_OpClass){
