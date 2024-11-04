@@ -821,17 +821,17 @@ InstructionQueue::scheduleReadyInsts()
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
 if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
-        DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issu>
+        DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issuing_inst->seqNum);
         float load1 = fuPool1->getRelativeLoad();
         float load2 = fuPool2->getRelativeLoad();
         if (load1 < load2) {
                  fuPool = fuPool1;
                 issuing_inst->cluster_id=0;
-                DPRINTF(IQ, "Choosing Cluster 1 (less load: %.2f) for instruction sn:%llu.>
+                DPRINTF(IQ, "Choosing Cluster 1 (less load: %.2f) for instruction sn:%llu.\n", load1, issuing_inst->seqNum);
         } else {
                 fuPool = fuPool2;
                 issuing_inst->cluster_id=1;
-                DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.>
+                DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
         }
         unsigned num_dest_regs = issuing_inst->numDestRegs();
         for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
@@ -841,11 +841,12 @@ if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
         if (phys_reg_ptr) {
 
                 phys_reg_ptr->cluster_id = issuing_inst->cluster_id;
-                DPRINTF(IQ,"Setting physical register's (register id:%d) cluster id=%d (in>
+                DPRINTF(IQ,"Setting physical register's (register id:%d) cluster id=%d (intsruction with sn:%llu).\n", flat_reg.index(), issuing_inst->cluster_id ,issuing_inst->seqNum);
         }
     }
 
 }
+
         if (op_class != No_OpClass) {
             idx = fuPool->getUnit(op_class);
             if (issuing_inst->isFloating()) {
