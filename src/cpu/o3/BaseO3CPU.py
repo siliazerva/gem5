@@ -187,10 +187,6 @@ class BaseO3CPU(BaseCPU):
     smtROBThreshold = Param.Int(100, "SMT ROB Threshold Sharing Parameter")
     smtCommitPolicy = Param.CommitPolicy("RoundRobin", "SMT Commit Policy")
 
-    #branchPred = Param.BranchPredictor(
-     #TAGE_SC_L_TAGE_64KB(numThreads=Parent.numThreads), "Branch Predictor"
-    #)
-
      branchPred = Param.BranchPredictor(
         TAGE(numThreads=Parent.numThreads), "Branch Predictor"
     )
