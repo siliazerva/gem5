@@ -759,6 +759,8 @@ InstructionQueue::scheduleReadyInsts()
     IssueStruct *i2e_info = issueToExecuteQueue->access(0);
 
     DynInstPtr mem_inst;
+    gem5::ThreadContext *tc = issuing_inst->tcBase();
+    auto *isa = tc->getIsaPtr();
     while ((mem_inst = getDeferredMemInstToExecute())) {
         addReadyMemInst(mem_inst);
     }
