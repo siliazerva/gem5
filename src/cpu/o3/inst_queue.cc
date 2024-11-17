@@ -759,8 +759,6 @@ InstructionQueue::scheduleReadyInsts()
     IssueStruct *i2e_info = issueToExecuteQueue->access(0);
 
     DynInstPtr mem_inst;
-    gem5::ThreadContext *tc = issuing_inst->tcBase();
-    auto *isa = tc->getIsaPtr();
     while ((mem_inst = getDeferredMemInstToExecute())) {
         addReadyMemInst(mem_inst);
     }
@@ -788,7 +786,8 @@ InstructionQueue::scheduleReadyInsts()
         assert(!readyInsts[op_class].empty());
 
         DynInstPtr issuing_inst = readyInsts[op_class].top();
-        
+        gem5::ThreadContext *tc = issuing_inst->tcBase();
+        auto *isa = tc->getIsaPtr();
         if (issuing_inst->isFloating()) {
             iqIOStats.fpInstQueueReads++;
         } else if (issuing_inst->isVector()) {
