@@ -1054,20 +1054,20 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
-            if(dep_inst->needsClusterDelay){
+           /* if(dep_inst->needsClusterDelay){
           cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents,dest_reg]()mutable {
                 dep_inst->markSrcRegReady();
                 addIfReady(dep_inst);
                 dep_inst = dependGraph.pop(dest_reg->flatIndex());
             }, name()), cpu->clockEdge(extraDelay));
             }
-            else {
+            else {*/
                 dep_inst->markSrcRegReady();
 
                 addIfReady(dep_inst);
                 dep_inst = dependGraph.pop(dest_reg->flatIndex());
                 
-                 }
+                 //}
 
         ++dependents;
     
