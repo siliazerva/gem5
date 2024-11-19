@@ -1058,12 +1058,13 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         cpu->schedule(new EventFunctionWrapper([this, dep_inst]() mutable {
         dep_inst->markSrcRegReady();
         addIfReady(dep_inst);
+        dep_inst->needsClusterDelay=false;
         }, name()), cpu->clockEdge(extraDelay));
     } else {
         dep_inst->markSrcRegReady();
         addIfReady(dep_inst);
 }
-dep_inst->needsClusterDelay=false;                    
+                    
 dep_inst = dependGraph.pop(dest_reg->flatIndex());
 ++dependents;
 
