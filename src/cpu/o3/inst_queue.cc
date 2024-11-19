@@ -1056,7 +1056,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // graph entries would need to hold the src_reg_idx.
            if (dep_inst->needsClusterDelay) {
     auto delayed_inst = dep_inst;  // Make a local copy to avoid holding references unnecessarily
-    cpu->schedule(new EventFunctionWrapper([delayed_inst]() {
+    cpu->schedule(new EventFunctionWrapper([this,delayed_inst]() {
         delayed_inst->markSrcRegReady();
         addIfReady(delayed_inst);
     }, name()), cpu->clockEdge(extraDelay));
