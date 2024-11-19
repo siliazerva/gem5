@@ -1055,7 +1055,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
             if(dep_inst->needsClusterDelay){
-          cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents]() {
+          cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents]()mutable {
                 dep_inst->markSrcRegReady();
                 addIfReady(dep_inst);
                 dep_inst = dependGraph.pop(dest_reg->flatIndex());
