@@ -1058,22 +1058,19 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents]() {
                 dep_inst->markSrcRegReady();
                 addIfReady(dep_inst);
-                
+                dep_inst = dependGraph.pop(dest_reg->flatIndex());
             }, name()), cpu->clockEdge(extraDelay));
             }
             else {
                 dep_inst->markSrcRegReady();
 
                 addIfReady(dep_inst);
-
+                dep_inst = dependGraph.pop(dest_reg->flatIndex());
                 
                  }
 
-        dep_inst = dependGraph.pop(dest_reg->flatIndex());
-        if (dep_inst) {
-
         ++dependents;
-}        
+    
 }
 
         DPRINTF(IQ, "Source register of dependent instruction is marked ready");
