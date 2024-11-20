@@ -84,7 +84,7 @@ class DynInst : public ExecContext, public RefCounted
 //add an id for the cluster
     int cluster_id; 
     bool needsClusterDelay = false; 
-    
+     bool eventScheduled = false;
     struct Arrays
     {
         size_t numSrcs;
@@ -102,7 +102,12 @@ class DynInst : public ExecContext, public RefCounted
    //get and set cluster id
     int getClusterId() const { return cluster_id; }
     void setClusterId(int id) { cluster_id = id; }
-
+    bool isEventScheduled() const {
+    return eventScheduled;
+}
+    void setEventScheduled(bool scheduled) {
+      eventScheduled = scheduled;
+}
     /** BaseDynInst constructor given a binary instruction. */
     DynInst(const Arrays &arrays, const StaticInstPtr &staticInst,
             const StaticInstPtr &macroop, InstSeqNum seq_num, CPU *cpu);
