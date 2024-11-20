@@ -1060,10 +1060,6 @@ if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
 
     // Create an event that auto-deletes after execution
     cpu->schedule(new Event(Stat_Event_Pri, AutoDelete, [this, dep_inst]() {
-        // Event processing logic
-        DPRINTF(IQ, "Event queue size: %zu\n", eventQueue.getEventQueueSize());
-
-        // Mark the source register as ready
         dep_inst->markSrcRegReady();
         addIfReady(dep_inst);
         DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum);
