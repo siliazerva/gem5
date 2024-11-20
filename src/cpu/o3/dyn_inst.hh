@@ -102,6 +102,9 @@ class DynInst : public ExecContext, public RefCounted
    //get and set cluster id
     int getClusterId() const { return cluster_id; }
     void setClusterId(int id) { cluster_id = id; }
+    bool isEventScheduled() const {
+    return eventScheduled;
+}
 
     /** BaseDynInst constructor given a binary instruction. */
     DynInst(const Arrays &arrays, const StaticInstPtr &staticInst,
