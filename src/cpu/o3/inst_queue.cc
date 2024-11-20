@@ -1057,17 +1057,14 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
     dep_inst->setEventScheduled(true);
     DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-
-    // Create an event that auto-deletes after execution
-    cpu->schedule(new Event(Stat_Event_Pri, AutoDelete, [this, dep_inst]() {
+    cpu->schedule(new EventFunctionWrapper([this, dep_inst]() {
         dep_inst->markSrcRegReady();
         addIfReady(dep_inst);
-        DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum);
-
-        // Reset the delay flag and event scheduling flag
+        DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
         dep_inst->needsClusterDelay = false;
         dep_inst->setEventScheduled(false);
-    }), cpu->clockEdge(extraDelay));  // Specify delay before execution
+}, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
+
 } else {
     dep_inst->markSrcRegReady();
     addIfReady(dep_inst);
