@@ -52,7 +52,7 @@
 #include "enums/OpClass.hh"
 #include "params/BaseO3CPU.hh"
 #include "sim/core.hh"
-
+#include "cpu/pc_event.hh"
 // clang complains about std::set being overloaded with Packet::set if
 // we open up the entire namespace std
 using std::list;
@@ -1058,6 +1058,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                dep_inst->setEventScheduled(true);
                DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
                cpu->schedule(new EventFunctionWrapper([this, dep_inst]() mutable {
+                DPRINTF(IQ, "Event queue size: %zu\n", pcMap.size());
                 dep_inst->markSrcRegReady();
                 addIfReady(dep_inst);
                 DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
