@@ -1054,28 +1054,31 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
-          if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
-               dep_inst->setEventScheduled(true);
-               DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-               cpu->schedule(new EventFunctionWrapper([this, dep_inst]() mutable {
-                
-                DPRINTF(IQ, "Event queue size: %zu\n", eventQueue.getEventQueueSize());
+if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
+    dep_inst->setEventScheduled(true);
+    DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
 
-                dep_inst->markSrcRegReady();
-                addIfReady(dep_inst);
-                DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
-                dep_inst->needsClusterDelay=false;
-                dep_inst->setEventScheduled(false);
-        }, name()), cpu->clockEdge(extraDelay));
-        } else {
-            dep_inst->markSrcRegReady();
-            addIfReady(dep_inst);
+    // Create an event that auto-deletes after execution
+    cpu->schedule(new Event(Stat_Event_Pri, AutoDelete, [this, dep_inst]() {
+        // Event processing logic
+        DPRINTF(IQ, "Event queue size: %zu\n", eventQueue.getEventQueueSize());
+
+        // Mark the source register as ready
+        dep_inst->markSrcRegReady();
+        addIfReady(dep_inst);
+        DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum);
+
+        // Reset the delay flag and event scheduling flag
+        dep_inst->needsClusterDelay = false;
+        dep_inst->setEventScheduled(false);
+    }), cpu->clockEdge(extraDelay));  // Specify delay before execution
+} else {
+    dep_inst->markSrcRegReady();
+    addIfReady(dep_inst);
 }
-                    
+
 dep_inst = dependGraph.pop(dest_reg->flatIndex());
 ++dependents;
-
-
 
     
 }
