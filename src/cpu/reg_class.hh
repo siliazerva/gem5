@@ -421,14 +421,14 @@ class PhysRegId : private RegId
   public:
     int cluster_id;
     explicit PhysRegId() : RegId(invalidRegClass, -1), flatIdx(-1),
-                           numPinnedWritesToComplete(0), cluster_id(0)
+                           numPinnedWritesToComplete(0), cluster_id(-1)
     {}
 
     /** Scalar PhysRegId constructor. */
     explicit PhysRegId(const RegClass &reg_class, RegIndex _regIdx,
               RegIndex _flatIdx)
         : RegId(reg_class, _regIdx), flatIdx(_flatIdx),
-          numPinnedWritesToComplete(0), pinned(false), cluster_id(0)
+          numPinnedWritesToComplete(0), pinned(false), cluster_id(-1)
     {}
 
     /** Visible RegId methods */
