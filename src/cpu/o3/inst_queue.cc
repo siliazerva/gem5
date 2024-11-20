@@ -1058,7 +1058,9 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                dep_inst->setEventScheduled(true);
                DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
                cpu->schedule(new EventFunctionWrapper([this, dep_inst]() mutable {
-                DPRINTF(IQ, "Event queue size: %zu\n", pcMap.size());
+                
+                DPRINTF(IQ, "Event queue size: %zu\n", eventQueue.getEventQueueSize());
+
                 dep_inst->markSrcRegReady();
                 addIfReady(dep_inst);
                 DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
