@@ -1059,26 +1059,25 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
-            if(dep_inst->needsClusterDelay){
-            cpu->schedule(new EventFunctionWrapper([this, dep_inst,&dependents]() {
-                dep_inst->markSrcRegReady();
-                addIfReady(dep_inst);
-                
-            }, name()), cpu->clockEdge(extraDelay));
-            }
-            else {
-                dep_inst->markSrcRegReady();
+if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
+    dep_inst->setEventScheduled(true);
+    DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
+    cpu->schedule(new EventFunctionWrapper([this, dep_inst]() {
+        dep_inst->markSrcRegReady();
+        addIfReady(dep_inst);
+        DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
+        dep_inst->needsClusterDelay = false;
+        dep_inst->setEventScheduled(false);
+}, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
 
-                addIfReady(dep_inst);
+} else {
+    dep_inst->markSrcRegReady();
+    addIfReady(dep_inst);
+}
 
-                
-                 }
-
-        dep_inst = dependGraph.pop(dest_reg->flatIndex());
-        if (dep_inst) {
-
-        ++dependents;
-}        
+dep_inst = dependGraph.pop(dest_reg->flatIndex());
+++dependents;
+      
 }
 
         DPRINTF(IQ, "Source register of dependent instruction is marked ready");
