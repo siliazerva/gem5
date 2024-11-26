@@ -1096,6 +1096,8 @@ if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
         dep_inst->markSrcRegReady();
         addIfReady(dep_inst);
         DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
+	double percentage = 100.0 * interClusterDependents / totalDependents;
+	DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
         dep_inst->needsClusterDelay = false;
         dep_inst->setEventScheduled(false);
 }, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
