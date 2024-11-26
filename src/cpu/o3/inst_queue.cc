@@ -819,7 +819,7 @@ InstructionQueue::scheduleReadyInsts()
 
         fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
-        Cycles op_latency = Cycles(1);
+        Cycles op_latency = Cycles(100);
         ThreadID tid = issuing_inst->threadNumber;
 if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
         DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issuing_inst->seqNum);
