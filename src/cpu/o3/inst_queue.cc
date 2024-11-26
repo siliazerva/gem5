@@ -1001,7 +1001,7 @@ int
 InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 {
     int dependents = 0;
-    
+
     // The instruction queue here takes care of both floating and int ops
     if (completed_inst->isFloating()) {
         iqIOStats.fpInstQueueWakeupAccesses++;
