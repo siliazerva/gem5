@@ -1071,9 +1071,11 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
         Cycles extraDelay = Cycles(1);
          while (dep_inst) {
+	    totalDependents++;
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
             if (dep_inst->cluster_id != completed_inst->cluster_id) {
+		
                 // If the dependent instruction is in a different cluster, delay 1 cycle
                 //dep_inst->issueTick = curTick() + 1;  
                 //or execution tick?!
@@ -1081,6 +1083,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                         //dep_inst->issueTick);
                
                 dep_inst->needsClusterDelay = true; 
+		interClusterDependents++;
             }
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
