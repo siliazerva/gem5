@@ -819,7 +819,7 @@ InstructionQueue::scheduleReadyInsts()
 
         fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
-        Cycles op_latency = Cycles(10);
+        Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
 if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
         DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issuing_inst->seqNum);
@@ -1069,7 +1069,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         //Go through the dependency chain, marking the registers as
         //ready within the waiting instructions.
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
-        Cycles extraDelay = Cycles(1);
+        Cycles extraDelay = Cycles(100;
          while (dep_inst) {
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
                     "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
