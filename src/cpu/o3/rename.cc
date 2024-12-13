@@ -145,7 +145,25 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
       ADD_STAT(tempSerializing, statistics::units::Count::get(),
                "count of temporary serializing insts renamed"),
       ADD_STAT(skidInsts, statistics::units::Count::get(),
-               "count of insts added to the skid buffer")
+               "count of insts added to the skid buffer"),
+      ADD_STAT(insts1, statistics::units::Count::get(),
+               "one operand, 0 in different cluster"),
+      ADD_STAT(insts2, statistics::units::Count::get(),
+               "one operand, one in different cluster"),
+      ADD_STAT(insts3, statistics::units::Count::get(),
+               "2 operands, 0 in different cluster"),
+      ADD_STAT(insts4, statistics::units::Count::get(),
+               "2 operands, 1 in different cluster"),
+      ADD_STAT(insts5, statistics::units::Count::get(),
+               "2 operands, 2 in different cluster"),
+      ADD_STAT(insts6, statistics::units::Count::get(),
+               "3 operands, 0 in different cluster"),
+      ADD_STAT(insts7, statistics::units::Count::get(),
+               "3 operands, 1 in different cluster"),
+      ADD_STAT(insts8, statistics::units::Count::get(),
+               "3 operands, 2 in different cluster"),
+      ADD_STAT(insts9, statistics::units::Count::get(),
+               "3 operands, 3 in different cluster")
 {
     squashCycles.prereq(squashCycles);
     idleCycles.prereq(idleCycles);
@@ -176,6 +194,17 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
     serializing.flags(statistics::total);
     tempSerializing.flags(statistics::total);
     skidInsts.flags(statistics::total);
+
+insts1.prereq(insts1);
+insts2.prereq(insts2);
+insts3.prereq(insts3);
+insts4.prereq(insts4);
+insts5.prereq(insts5);
+insts6.prereq(insts6);
+insts7.prereq(insts7);
+insts8.prereq(insts8);
+insts9.prereq(insts9);
+
 }
 
 void
@@ -1016,6 +1045,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
     unsigned num_src_regs = inst->numSrcRegs();
     auto *isa = tc->getIsaPtr();
     int cluster_id = -1;
+    int diff_clust=0;
     DPRINTF(Rename,"Right now cluster_id=%d and instruction's cluster id is %d",cluster_id, inst->cluster_id);
     // Get the architectual register numbers from the source and
     // operands, and redirect them to the right physical register.
@@ -1033,6 +1063,10 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
             inst->cluster_id = cluster_id;
             DPRINTF(Rename,"Instruction's id is %d,that has sn:%llu, due to source register with (register id:%d).\n",cluster_id, inst->seqNum, flat_reg.index());    
         }
+        if (inst->cluster_id!=-1 && inst->cluster_id!= reg_cluster_id){
+            diff_clust++;
+        }
+    
         
         switch (flat_reg.classValue()) {
           case InvalidRegClass:
@@ -1088,6 +1122,21 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         }
 
         ++stats.lookups;
+    }
+    if (num_src_regs==1){
+        if(diff_clust==0) stats.insts1++;
+        if(diff_clust==1) stats.insts2++;   
+    }
+    if (num_src_regs==2) {
+        if (diff_clust==0) stats.insts3++;
+        if (diff_clust==1) stats.insts4++;
+        if (diff_clust==2) stats.insts5++;
+    }
+    if (num_src_regs==3) {
+        if (diff_clust==0) stats.insts6++;
+        if (diff_clust==1) stats.insts7++;
+        if (diff_clust==2) stats.insts8++;
+        if (diff_clust==3) stats.insts9++;
     }
 }
 
