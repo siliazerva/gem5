@@ -1123,7 +1123,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
 
         ++stats.lookups;
     }
-  DPRINTF(Rename, Instruction with [sn:%llu] has %d operands (out of %d) at a different cluster.\n", inst->seqNum, diff_clust, num_src_regs);
+  DPRINTF(Rename, "Instruction with [sn:%llu] has %d operands (out of %d) at a different cluster.\n", inst->seqNum, diff_clust, num_src_regs);
     if (num_src_regs==1){
         if(diff_clust==0) stats.insts1++;
         if(diff_clust==1) stats.insts2++;   
