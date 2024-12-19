@@ -168,6 +168,7 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
                "3 operands, 3 in different cluster")
 {
     squashCycles.prereq(squashCycles);
+    instsHist.init(9);  
     idleCycles.prereq(idleCycles);
     blockCycles.prereq(blockCycles);
     serializeStallCycles.flags(statistics::total);
@@ -1126,22 +1127,49 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         ++stats.lookups;
     }
   DPRINTF(Rename, "Instruction with [sn:%llu] has %d operands (out of %d) at a different cluster.\n", inst->seqNum, diff_clust, num_src_regs);
-    if (num_src_regs==1){
-        if(diff_clust==0) stats.insts1++;
-        if(diff_clust==1) stats.insts2++;   
+if (num_src_regs == 1) {
+    if (diff_clust == 0) {
+        stats.insts1++;
+        stats.instsHist.sample(1, 1);  // insts1
     }
-    if (num_src_regs==2) {
-        if (diff_clust==0) stats.insts3++;
-        if (diff_clust==1) stats.insts4++;
-        if (diff_clust==2) stats.insts5++;
-    }
-    if (num_src_regs==3) {
-        if (diff_clust==0) stats.insts6++;
-        if (diff_clust==1) stats.insts7++;
-        if (diff_clust==2) stats.insts8++;
-        if (diff_clust==3) stats.insts9++;
+    if (diff_clust == 1) {
+        stats.insts2++;
+        stats.instsHist.sample(2, 1);  // insts2
     }
 }
+if (num_src_regs == 2) {
+    if (diff_clust == 0) {
+        stats.insts3++;
+        stats.instsHist.sample(3, 1);  // insts3
+    }
+    if (diff_clust == 1) {
+        stats.insts4++;
+        stats.instsHist.sample(4, 1);  // insts4
+    }
+    if (diff_clust == 2) {
+        stats.insts5++;
+        stats.instsHist.sample(5, 1);  // insts5
+    }
+}
+if (num_src_regs == 3) {
+    if (diff_clust == 0) {
+        stats.insts6++;
+        stats.instsHist.sample(6, 1);  // insts6
+    }
+    if (diff_clust == 1) {
+        stats.insts7++;
+        stats.instsHist.sample(7, 1);  // insts7
+    }
+    if (diff_clust == 2) {
+        stats.insts8++;
+        stats.instsHist.sample(8, 1);  // insts8
+    }
+    if (diff_clust == 3) {
+        stats.insts9++;
+        stats.instsHist.sample(9, 1);  // insts9
+    }
+}
+
 
 void
 Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
