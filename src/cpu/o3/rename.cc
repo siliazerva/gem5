@@ -1169,6 +1169,7 @@ if (num_src_regs == 3) {
         stats.instsHist.sample(9, 1);  // insts9
     }
 }
+}
 
 
 void
