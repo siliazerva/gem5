@@ -99,7 +99,7 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
       ADD_STAT(squashCycles, statistics::units::Cycle::get(),
                "Number of cycles rename is squashing"),
       ADD_STAT(instsHist, statistics::units::Count::get(),
-               "Histogram of instructions by operand distribution")
+               "Histogram of instructions by operand distribution"),
       ADD_STAT(idleCycles, statistics::units::Cycle::get(),
                "Number of cycles rename is idle"),
       ADD_STAT(blockCycles, statistics::units::Cycle::get(),
