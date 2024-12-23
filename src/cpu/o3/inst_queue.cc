@@ -753,6 +753,8 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
 void
 InstructionQueue::scheduleReadyInsts()
 {
+    int cluster=-1;
+    bool adjacent_loads=false;
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
 
@@ -786,6 +788,26 @@ InstructionQueue::scheduleReadyInsts()
         assert(!readyInsts[op_class].empty());
 
         DynInstPtr issuing_inst = readyInsts[op_class].top();
+        OpClass issuing_inst_op_class = issuing_inst->opClass();
+        DPRINTF(IQ, "Issuing instruction with [sn:%llu] and opclass: %i.\n",
+                    issuing_inst->seqNum, issuing_inst_op_class);
+    if (cluster==-1){
+        //first instruction to arrive
+        cluster=std::rand() % 2;
+    }
+    else {
+            if (issuing_inst_op_class==enums::MemRead && !adjacent_loads){
+                // This is a memory read (load) instruction
+                DPRINTF(IQ, "Issuing a memory read (load) instruction.\n");
+
+                // Switch cluster from 0 to 1 or from 1 to 0
+                cluster = (cluster == 0) ? 1 : 0;
+                DPRINTF(IQ, "Cluster switched to: %d\n", cluster);
+                adjacent_loads=true;
+            }
+            else if (issuing_inst_op_class!=enums::MemRead && adjacent_loads) adjacent_loads=false;
+            issuing_inst->cluster_id=cluster;
+        }
         
         if (issuing_inst->isFloating()) {
             iqIOStats.fpInstQueueReads++;
@@ -869,8 +891,8 @@ InstructionQueue::scheduleReadyInsts()
                     tid, issuing_inst->pcState(),
                     issuing_inst->seqNum);
 
-            readyInsts[op_class].pop();
-
+            readyInsts[op_class].pop(); 
+ 
             if (!readyInsts[op_class].empty()) {
                 moveToYoungerInst(order_it);
             } else {
