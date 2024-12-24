@@ -797,7 +797,7 @@ InstructionQueue::scheduleReadyInsts()
     }
     else {
             if (issuing_inst_op_class==enums::MemRead && !adjacent_loads){
-                // This is a memory read (load) instruction
+                // This is a load (first) 
                 DPRINTF(IQ, "Issuing a memory read (load) instruction.\n");
 
                 // Switch cluster from 0 to 1 or from 1 to 0
