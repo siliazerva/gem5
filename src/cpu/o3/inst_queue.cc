@@ -886,9 +886,9 @@ InstructionQueue::scheduleReadyInsts()
                 }
             }
 
-            DPRINTF(IQ, "Thread %i: Issuing instruction PC %s "
+            DPRINTF(IQ, "Thread %i: Issuing instruction into cluster %d PC %s "
                     "[sn:%llu]\n",
-                    tid, issuing_inst->pcState(),
+                    tid, issuing_inst->cluster_id, issuing_inst->pcState(),
                     issuing_inst->seqNum);
 
             readyInsts[op_class].pop(); 
