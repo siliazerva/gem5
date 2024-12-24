@@ -794,6 +794,7 @@ InstructionQueue::scheduleReadyInsts()
     if (cluster==-1){
         //first instruction to arrive
         cluster=std::rand() % 2;
+        issuing_inst->cluster_id=cluster;
     }
     else {
             if (issuing_inst_op_class==enums::MemRead && !adjacent_loads){
