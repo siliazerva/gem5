@@ -754,7 +754,6 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
 void
 InstructionQueue::scheduleReadyInsts()
 {
-    int cluster=-1;
     bool adjacent_loads=false;
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
