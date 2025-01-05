@@ -96,7 +96,8 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       totalWidth(params.issueWidth),
       commitToIEWDelay(params.commitToIEWDelay),
       iqStats(cpu, totalWidth),
-      iqIOStats(cpu)
+      iqIOStats(cpu),
+      cluster(-1)
 {
     assert(fuPool1);
     assert(fuPool2);    
