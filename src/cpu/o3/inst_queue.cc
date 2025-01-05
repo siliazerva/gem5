@@ -793,13 +793,14 @@ InstructionQueue::scheduleReadyInsts()
                     issuing_inst->seqNum, issuing_inst_op_class);
     if (cluster==-1){
         //first instruction to arrive
+        DPRINTF(IQ, "Setting a random cluster id for instruction with sn:%llu.\n",issuing_inst->seqNum);
         cluster=std::rand() % 2;
         issuing_inst->cluster_id=cluster;
     }
     else {
             if (issuing_inst_op_class==enums::MemRead && !adjacent_loads){
                 // This is a load (first) 
-                DPRINTF(IQ, "Issuing a memory read (load) instruction.\n");
+                DPRINTF(IQ, "Issuing a memory read (load) instruction with sn:%llu.\n",issuing_inst->seqNum);
 
                 // Switch cluster from 0 to 1 or from 1 to 0
                 cluster = (cluster == 0) ? 1 : 0;
@@ -807,6 +808,7 @@ InstructionQueue::scheduleReadyInsts()
                 adjacent_loads=true;
             }
             else if (issuing_inst_op_class!=enums::MemRead && adjacent_loads) adjacent_loads=false;
+            DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",issuing_inst->seqNum);
             issuing_inst->cluster_id=cluster;
         }
         
