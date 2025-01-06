@@ -807,8 +807,8 @@ InstructionQueue::scheduleReadyInsts()
                 DPRINTF(IQ, "Cluster switched to: %d\n", cluster);
                 adjacent_loads=true;
             }
-            else if (issuing_inst_op_class!=enums::MemRead && adjacent_loads) adjacent_loads=false;
-            DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",issuing_inst->seqNum);
+            else if (issuing_inst_op_class!=enums::MemRead && adjacent_loads) {adjacent_loads=false;
+            DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",issuing_inst->seqNum);}
             issuing_inst->cluster_id=cluster;
         }
         
