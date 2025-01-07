@@ -811,6 +811,18 @@ InstructionQueue::scheduleReadyInsts()
             DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",issuing_inst->seqNum);}
             issuing_inst->cluster_id=cluster;
         }
+
+/*  //check for the stats  
+    int8_t total_src_regs = new_inst->numSrcRegs();
+    for (int src_reg_idx = 0;
+         src_reg_idx < total_src_regs;
+         src_reg_idx++)
+    {
+        PhysRegIdPtr src_reg = new_inst->renamedSrcIdx(src_reg_idx);
+        //counter for src regs in diff cluster, id=0, 1
+    }*/
+
+        
         
         if (issuing_inst->isFloating()) {
             iqIOStats.fpInstQueueReads++;
