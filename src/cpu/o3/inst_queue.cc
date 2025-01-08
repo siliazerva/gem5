@@ -240,6 +240,8 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
       ADD_STAT(insts9, statistics::units::Count::get(),
                "3 operands, 3 in different cluster")
 {
+
+    instsHist.init(9);  
     instsAdded
         .prereq(instsAdded);
 
@@ -853,12 +855,12 @@ InstructionQueue::scheduleReadyInsts()
 }
 
   //check for the stats  
-    int8_t total_src_regs = new_inst->numSrcRegs();
+    int8_t num_src_regs = issuing_inst->numSrcRegs();
     for (int src_reg_idx = 0;
-         src_reg_idx < total_src_regs;
+         src_reg_idx < num_src_regs;
          src_reg_idx++)
     {
-        PhysRegIdPtr src_reg = new_inst->renamedSrcIdx(src_reg_idx);
+        PhysRegIdPtr src_reg = issuing_inst->renamedSrcIdx(src_reg_idx);
         if ((src_reg->cluster_id==0 & cluster==1)||(src_reg->cluster_id==1 & cluster==0))
         //counter for src regs in diff cluster, id=0, 1
         diff_clust++;
