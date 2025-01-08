@@ -527,7 +527,7 @@ class InstructionQueue
         statistics::Scalar insts7;
         statistics::Scalar insts8;
         statistics::Scalar insts9;
-
+        statistics::Histogram instsHist; 
 
         /** Distribution of number of instructions in the queue.
          * @todo: Need to create struct to track the entry time for each
