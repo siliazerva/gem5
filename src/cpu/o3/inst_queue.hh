@@ -518,6 +518,16 @@ class InstructionQueue
          */
         statistics::Scalar squashedNonSpecRemoved;
         // Also include number of instructions rescheduled and replayed.
+        statistics::Scalar insts1;
+        statistics::Scalar insts2;
+        statistics::Scalar insts3;
+        statistics::Scalar insts4;
+        statistics::Scalar insts5;
+        statistics::Scalar insts6;
+        statistics::Scalar insts7;
+        statistics::Scalar insts8;
+        statistics::Scalar insts9;
+
 
         /** Distribution of number of instructions in the queue.
          * @todo: Need to create struct to track the entry time for each
