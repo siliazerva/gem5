@@ -184,6 +184,8 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
     : statistics::Group(cpu),
     ADD_STAT(instsAdded, statistics::units::Count::get(),
              "Number of instructions added to the IQ (excludes non-spec)"),
+    ADD_STAT(instsHist, statistics::units::Count::get(),
+               "Histogram of instructions by operand distribution"),
     ADD_STAT(nonSpecInstsAdded, statistics::units::Count::get(),
              "Number of non-speculative instructions added to the IQ"),
     ADD_STAT(instsIssued, statistics::units::Count::get(),
