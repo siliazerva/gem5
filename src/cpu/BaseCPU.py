@@ -297,7 +297,7 @@ class BaseCPU(ClockedObject):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.power_state.possible_states = ["ON", "CLK_GATED", "OFF"]
-
+        self.num_clusters = kwargs.get('num_clusters', 2)
         self._cached_ports = self._cached_ports + self.ArchMMU.walkerPorts()
 
         # Practically speaking, these ports will exist on the x86 interrupt
