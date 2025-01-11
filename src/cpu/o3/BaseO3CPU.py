@@ -128,8 +128,8 @@ class BaseO3CPU(BaseCPU):
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         for i in range(1, self.num_clusters + 1):
-            
-            self.fuPools.append(Param.FUPool(DefaultFUPool(), f"Functional Unit pool for cluster {i}"))
+            new_fupool = DefaultFUPool()  # Or FUPool() if DefaultFUPool isn't appropriate
+            self.fuPools.append(new_fupool)
 
 
     iewToCommitDelay = Param.Cycles(
