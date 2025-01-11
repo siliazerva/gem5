@@ -98,10 +98,10 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-for (int i = 0; i < params.fuPools.size(); ++i) {
-    fuPools.push_back(params.fuPools[i]);
+for (int i = 0; i < fuPools.size(); ++i) {
+    fuPools.push_back(fuPools[i]);
 }
-assert(fuPools.size() == params.fuPools.size());
+assert(fuPools.size() == fuPools.size());
   
 
     const auto &reg_classes = params.isa[0]->regClasses();
@@ -740,7 +740,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
    --wbOutstanding;
     iewStage->wakeCPU();
     //FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
-FUPool *fuPool = (inst->cluster_id < params.fuPools.size()) ? &params.fuPools[inst->cluster_id] : nullptr;
+FUPool *fuPool = (inst->cluster_id < fuPools.size()) ? &fuPools[inst->cluster_id] : nullptr;
 
 
     if (fu_idx > -1)
@@ -822,7 +822,7 @@ InstructionQueue::scheduleReadyInsts()
         }
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         //FUPool *fuPool = nullptr;
-	FUPool *fuPool = (inst->cluster_id < params.fuPools.size()) ? &params.fuPools[inst->cluster_id] : nullptr;
+	FUPool *fuPool = (issuing_inst->cluster_id < fuPools.size()) ? &fuPools[issuing_inst->cluster_id] : nullptr;
 
 
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
@@ -850,9 +850,9 @@ float minLoad = std::numeric_limits<float>::infinity();
 int selectedCluster = -1;
 
 // Loop through all available FUPools (based on num_clusters) to find the one with the least load
-for (int i = 0; i < params.fuPools.size(); ++i) {
+for (int i = 0; i < fuPools.size(); ++i) {
     // Get the load for the current cluster
-    float load = params.fuPools[i].getRelativeLoad(); // Access the correct FUPool dynamically
+    float load = fuPools[i].getRelativeLoad(); // Access the correct FUPool dynamically
 
     // Update the selected cluster if this one has less load
     if (load < minLoad) {
