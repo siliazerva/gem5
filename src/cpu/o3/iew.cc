@@ -82,9 +82,7 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       numThreads(params.numThreads),
       iewStats(cpu)
 {
- for (int i = 0; i < fuPools.size(); ++i) {
-    fuPools.push_back(fuPools[i]);
-}
+
 
     if (dispatchWidth > MaxWidth)
         fatal("dispatchWidth (%d) is larger than compiled limit (%d),\n"
