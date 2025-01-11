@@ -98,10 +98,8 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-for (int i = 0; i < fuPools.size(); ++i) {
-    fuPools.push_back(fuPools[i]);
-}
-assert(fuPools.size() == fuPools.size());
+
+assert(params.fuPools.size() == num_clusters);
   
 
     const auto &reg_classes = params.isa[0]->regClasses();
