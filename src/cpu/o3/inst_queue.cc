@@ -736,7 +736,9 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
     // long latency op).  Wake it if it was.  This may be overkill.
    --wbOutstanding;
     iewStage->wakeCPU();
-    FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
+    //FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
+    FUPool *fuPool = (inst->cluster_id < params.num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
+
     if (fu_idx > -1)
         fuPool->freeUnitNextCycle(fu_idx);
 
@@ -815,16 +817,20 @@ InstructionQueue::scheduleReadyInsts()
             continue;
         }
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
-        FUPool *fuPool = nullptr;
+        //FUPool *fuPool = nullptr;
+	FUPool *fuPool = (inst->cluster_id < params.num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
 
-        fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+        //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
 if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
         DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issuing_inst->seqNum);
-        float load1 = fuPool1->getRelativeLoad();
+        
+	
+	/*float load1 = fuPool1->getRelativeLoad();
         float load2 = fuPool2->getRelativeLoad();
+	
         if (load1 < load2) {
                  fuPool = fuPool1;
                 issuing_inst->cluster_id=0;
@@ -833,7 +839,31 @@ if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
                 fuPool = fuPool2;
                 issuing_inst->cluster_id=1;
                 DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
+        } */
+
+    float minLoad = std::numeric_limits<float>::infinity();
+    int selectedCluster = -1;
+
+    // Loop through all available FUPools (based on num_clusters) to find the one with the least load
+    for (int i = 0; i < params.num_clusters; ++i) {
+        // Get the load for the current cluster
+        float load = params.*(fuPool1 + i)->getRelativeLoad(); // Access the correct FUPool dynamically
+
+        // Update the selected cluster if this one has less load
+        if (load < minLoad) {
+            minLoad = load;
+            selectedCluster = i;
         }
+    }
+
+    // Select the FUPool with the least load
+    if (selectedCluster != -1) {
+        fuPool = params.*(fuPool1 + selectedCluster); // Select the correct FUPool
+        issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction
+        DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster + 1, minLoad, issuing_inst->seqNum);
+    } 
+	
+	
         unsigned num_dest_regs = issuing_inst->numDestRegs();
         for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
         PhysRegIdPtr phys_reg_ptr = issuing_inst->renamedDestIdx(dest_idx);
