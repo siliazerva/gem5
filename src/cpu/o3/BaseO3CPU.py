@@ -121,17 +121,7 @@ class BaseO3CPU(BaseCPU):
     wbWidth = Param.Unsigned(8, "Writeback width")
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
-    def setup(self):
-        # Create FUPools based on the number of clusters
-        self.fuPools = []
-        for i in range(self.num_clusters):
-            fu_pool = DefaultFUPool()
-            setattr(self, f"fuPool{i+1}", fu_pool)
-            self.fuPools.append(fu_pool)
 
-        # Optionally print the FU pools
-        for i, fu_pool in enumerate(self.fuPools):
-            print(f"Cluster {i} has FUPool: {fu_pool}")
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
     )
