@@ -89,6 +89,7 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
     : cpu(cpu_ptr),
       iewStage(iew_ptr),
       iqPolicy(params.smtIQPolicy),
+      num_clusters(params.num_clusters)
       numThreads(params.numThreads),
       numEntries(params.numIQEntries),
       totalWidth(params.issueWidth),
@@ -96,10 +97,10 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-     for (int i = 0; i < params.num_clusters; ++i) {
+     for (int i = 0; i < num_clusters; ++i) {
         fuPools.push_back(params.*(fuPool1 + i));
     }
-    assert(fuPools.size() == params.num_clusters);   
+    assert(fuPools.size() == num_clusters);   
 
     const auto &reg_classes = params.isa[0]->regClasses();
     // Set the number of total physical registers
@@ -737,7 +738,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
    --wbOutstanding;
     iewStage->wakeCPU();
     //FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
-    FUPool *fuPool = (inst->cluster_id < params.num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
+    FUPool *fuPool = (inst->cluster_id < num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
 
     if (fu_idx > -1)
         fuPool->freeUnitNextCycle(fu_idx);
@@ -818,7 +819,7 @@ InstructionQueue::scheduleReadyInsts()
         }
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         //FUPool *fuPool = nullptr;
-	FUPool *fuPool = (inst->cluster_id < params.num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
+	FUPool *fuPool = (inst->cluster_id < num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
 
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
@@ -845,7 +846,7 @@ if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
     int selectedCluster = -1;
 
     // Loop through all available FUPools (based on num_clusters) to find the one with the least load
-    for (int i = 0; i < params.num_clusters; ++i) {
+    for (int i = 0; i < num_clusters; ++i) {
         // Get the load for the current cluster
         float load = params.*(fuPool1 + i)->getRelativeLoad(); // Access the correct FUPool dynamically
 
