@@ -89,7 +89,8 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
     : cpu(cpu_ptr),
       iewStage(iew_ptr),
       iqPolicy(params.smtIQPolicy),
-      num_clusters(params.num_clusters)
+      num_clusters(params.num_clusters),
+      fuPools(params.fuPools),
       numThreads(params.numThreads),
       numEntries(params.numIQEntries),
       totalWidth(params.issueWidth),
@@ -97,10 +98,11 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-     for (int i = 0; i < num_clusters; ++i) {
-        fuPools.push_back(params.*(fuPool1 + i));
-    }
-    assert(fuPools.size() == num_clusters);   
+for (int i = 0; i < params.fuPools.size(); ++i) {
+    fuPools.push_back(params.fuPools[i]);
+}
+assert(fuPools.size() == params.fuPools.size());
+  
 
     const auto &reg_classes = params.isa[0]->regClasses();
     // Set the number of total physical registers
@@ -738,7 +740,8 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
    --wbOutstanding;
     iewStage->wakeCPU();
     //FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
-    FUPool *fuPool = (inst->cluster_id < num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
+FUPool *fuPool = (inst->cluster_id < params.fuPools.size()) ? &params.fuPools[inst->cluster_id] : nullptr;
+
 
     if (fu_idx > -1)
         fuPool->freeUnitNextCycle(fu_idx);
@@ -819,7 +822,8 @@ InstructionQueue::scheduleReadyInsts()
         }
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         //FUPool *fuPool = nullptr;
-	FUPool *fuPool = (inst->cluster_id < num_clusters) ? params.*(fuPool1 + inst->cluster_id) : nullptr;
+	FUPool *fuPool = (inst->cluster_id < params.fuPools.size()) ? &params.fuPools[inst->cluster_id] : nullptr;
+
 
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
@@ -842,27 +846,27 @@ if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
                 DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
         } */
 
-    float minLoad = std::numeric_limits<float>::infinity();
-    int selectedCluster = -1;
+float minLoad = std::numeric_limits<float>::infinity();
+int selectedCluster = -1;
 
-    // Loop through all available FUPools (based on num_clusters) to find the one with the least load
-    for (int i = 0; i < num_clusters; ++i) {
-        // Get the load for the current cluster
-        float load = params.*(fuPool1 + i)->getRelativeLoad(); // Access the correct FUPool dynamically
+// Loop through all available FUPools (based on num_clusters) to find the one with the least load
+for (int i = 0; i < params.fuPools.size(); ++i) {
+    // Get the load for the current cluster
+    float load = params.fuPools[i].getRelativeLoad(); // Access the correct FUPool dynamically
 
-        // Update the selected cluster if this one has less load
-        if (load < minLoad) {
-            minLoad = load;
-            selectedCluster = i;
-        }
+    // Update the selected cluster if this one has less load
+    if (load < minLoad) {
+        minLoad = load;
+        selectedCluster = i;
     }
+}
 
-    // Select the FUPool with the least load
-    if (selectedCluster != -1) {
-        fuPool = params.*(fuPool1 + selectedCluster); // Select the correct FUPool
-        issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction
-        DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster + 1, minLoad, issuing_inst->seqNum);
-    } 
+// Select the FUPool with the least load
+if (selectedCluster != -1) {
+    FUPool* fuPool = fuPools[selectedCluster]; // Select the correct FUPool
+    issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction
+    DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster + 1, minLoad, issuing_inst->seqNum);
+} 
 	
 	
         unsigned num_dest_regs = issuing_inst->numDestRegs();
