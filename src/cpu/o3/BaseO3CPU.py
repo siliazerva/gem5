@@ -121,7 +121,7 @@ class BaseO3CPU(BaseCPU):
     wbWidth = Param.Unsigned(8, "Writeback width")
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
-
+    num_clusters = Param.Int(2, "Number of clusters in the CPU")
     def __init__(self, *args, **kwargs):
         # Initialize the parent class (BaseCPU) without overriding its __init__
         super(BaseO3CPU, self).__init__(*args, **kwargs)
