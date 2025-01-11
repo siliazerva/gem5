@@ -67,6 +67,7 @@ namespace o3
 IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
     : issueToExecQueue(params.backComSize, params.forwardComSize),
       cpu(_cpu),
+      num_clusters(params.num_clusters),
       instQueue(_cpu, this, params),
       ldstQueue(_cpu, this, params),
       commitToIEWDelay(params.commitToIEWDelay),
@@ -80,9 +81,10 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       numThreads(params.numThreads),
       iewStats(cpu)
 {
-    for (int i = 0; i < params.num_clusters; ++i) {
-        fuPools.push_back(params.*(fuPool1 + i));
-    }
+ for (int i = 0; i < params.fuPools.size(); ++i) {
+    fuPools.push_back(params.fuPools[i]);
+}
+
     if (dispatchWidth > MaxWidth)
         fatal("dispatchWidth (%d) is larger than compiled limit (%d),\n"
              "\tincrease MaxWidth in src/cpu/o3/limits.hh\n",
@@ -339,12 +341,12 @@ IEW::isDrained() const
         drained = false;
     } */
 
-    if (drained) {
+if (drained) {
     bool anyFUIsBusy = false;
 
     // Check if any of the FU pools are still busy
-    for (int i = 0; i < params.num_clusters; ++i) {
-        FUPool* currentFU = params.*(fuPool1 + i);
+    for (int i = 0; i < params.fuPools.size(); ++i) {
+        FUPool* currentFU = params.fuPools[i];
         if (!currentFU->isDrained()) {
             anyFUIsBusy = true;
             break;
@@ -383,10 +385,11 @@ IEW::takeOverFrom()
     /*fuPool1->takeOverFrom(); 
     fuPool2->takeOverFrom(); */ 
 
-    for (int i = 0; i < params.num_clusters; ++i) {
-        FUPool* currentFU = params.*(fuPool1 + i);
-        currentFU->takeOverFrom();
-    }
+for (int i = 0; i < params.fuPools.size(); ++i) {
+    FUPool* currentFU = params.fuPools[i];
+    currentFU->takeOverFrom();
+}
+
 
     startupStage();
     cpu->activityThisCycle();
@@ -1433,9 +1436,11 @@ IEW::tick()
     // Free function units marked as being freed this cycle.
     /* fuPool1->processFreeUnits();
     fuPool2->processFreeUnits(); */
-    for (int i = 0; i < params.num_clusters; ++i) {
-        FUPool* currentFU = params.*(fuPool1 + i);
-        currentFU->processFreeUnits();
+for (int i = 0; i < params.fuPools.size(); ++i) {
+    FUPool* currentFU = params.fuPools[i];
+    currentFU->takeOverFrom();
+}
+
     }
     
     std::list<ThreadID>::iterator threads = activeThreads->begin();
