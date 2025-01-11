@@ -126,7 +126,7 @@ class BaseO3CPU(BaseCPU):
         self.fuPools = []
         for i in range(self.num_clusters):
             fu_pool = DefaultFUPool()
-            setattr(self, f"fuPool{i+1}", fu_pool)
+            setattr(self, f"fupool{i+1}", fu_pool)
             self.fuPools.append(fu_pool)
 
         # Optionally print the FU pools
