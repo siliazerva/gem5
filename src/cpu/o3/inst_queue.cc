@@ -88,8 +88,6 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
         const BaseO3CPUParams &params)
     : cpu(cpu_ptr),
       iewStage(iew_ptr),
-      fuPool1(params.fuPool1),
-      fuPool2(params.fuPool2),
       iqPolicy(params.smtIQPolicy),
       numThreads(params.numThreads),
       numEntries(params.numIQEntries),
@@ -98,8 +96,10 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-    assert(fuPool1);
-    assert(fuPool2);    
+     for (int i = 0; i < params.num_clusters; ++i) {
+        fuPools.push_back(params.*(fuPool1 + i));
+    }
+    assert(fuPools.size() == params.num_clusters);   
 
     const auto &reg_classes = params.isa[0]->regClasses();
     // Set the number of total physical registers
