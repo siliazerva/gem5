@@ -132,6 +132,8 @@ class IEW
     /** Returns the name of the IEW stage. */
     std::string name() const;
 
+    int num_clusters;
+
     /** Registers probes. */
     void regProbePoints();
 
