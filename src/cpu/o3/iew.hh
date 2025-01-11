@@ -358,8 +358,7 @@ class IEW
     LSQ ldstQueue;
 
     /** Pointer to the functional unit pool. */
-    FUPool *fuPool1;
-    FUPool *fuPool2;
+    std::vector<FUPool*> fuPools;
     /** Records if the LSQ needs to be updated on the next cycle, so that
      * IEW knows if there will be activity on the next cycle.
      */
