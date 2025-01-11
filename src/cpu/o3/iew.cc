@@ -82,8 +82,8 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       numThreads(params.numThreads),
       iewStats(cpu)
 {
- for (int i = 0; i < params.fuPools.size(); ++i) {
-    fuPools.push_back(params.fuPools[i]);
+ for (int i = 0; i < fuPools.size(); ++i) {
+    fuPools.push_back(fuPools[i]);
 }
 
     if (dispatchWidth > MaxWidth)
@@ -346,8 +346,8 @@ if (drained) {
     bool anyFUIsBusy = false;
 
     // Check if any of the FU pools are still busy
-    for (int i = 0; i < params.fuPools.size(); ++i) {
-        FUPool* currentFU = params.fuPools[i];
+    for (int i = 0; i < fuPools.size(); ++i) {
+        FUPool* currentFU = fuPools[i];
         if (!currentFU->isDrained()) {
             anyFUIsBusy = true;
             break;
@@ -386,8 +386,8 @@ IEW::takeOverFrom()
     /*fuPool1->takeOverFrom(); 
     fuPool2->takeOverFrom(); */ 
 
-for (int i = 0; i < params.fuPools.size(); ++i) {
-    FUPool* currentFU = params.fuPools[i];
+for (int i = 0; i < fuPools.size(); ++i) {
+    FUPool* currentFU = fuPools[i];
     currentFU->takeOverFrom();
 }
 
@@ -1437,12 +1437,12 @@ IEW::tick()
     // Free function units marked as being freed this cycle.
     /* fuPool1->processFreeUnits();
     fuPool2->processFreeUnits(); */
-for (int i = 0; i < params.fuPools.size(); ++i) {
-    FUPool* currentFU = params.fuPools[i];
+for (int i = 0; i < fuPools.size(); ++i) {
+    FUPool* currentFU = fuPools[i];
     currentFU->takeOverFrom();
 }
 
-    }
+    
     
     std::list<ThreadID>::iterator threads = activeThreads->begin();
     std::list<ThreadID>::iterator end = activeThreads->end();
