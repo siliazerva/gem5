@@ -121,16 +121,16 @@ class BaseO3CPU(BaseCPU):
     wbWidth = Param.Unsigned(8, "Writeback width")
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
+
+    //new code
+    fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
     def __init__(self, *args, **kwargs):
-        # Initialize the parent class (BaseCPU) without overriding its __init__
         super(BaseO3CPU, self).__init__(*args, **kwargs)
-        self.num_clusters = num_clusters
-        
-        # Dynamically create the FUPool parameters based on num_clusters
-        for i in range(1, num_clusters + 1):
-            param_name = f"fuPool{i}"
-            setattr(self, param_name, Param.FUPool(DefaultFUPool(), f"Functional Unit pool for cluster {i}"))
+        for i in range(1, self.num_clusters + 1):
+            
+            self.fuPools.append(Param.FUPool(DefaultFUPool(), f"Functional Unit pool for cluster {i}"))
+
 
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
