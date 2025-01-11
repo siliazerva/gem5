@@ -127,7 +127,7 @@ class BaseO3CPU(BaseCPU):
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
-        for i in range(1, self.num_clusters + 1):
+        for i in range(self.num_clusters):
             new_fupool = DefaultFUPool()  # Or FUPool() if DefaultFUPool isn't appropriate
             self.fuPools.append(new_fupool)
 
