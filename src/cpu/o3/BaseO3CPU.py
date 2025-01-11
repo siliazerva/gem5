@@ -125,7 +125,7 @@ class BaseO3CPU(BaseCPU):
     def __init__(self, *args, **kwargs):
         # Initialize the parent class (BaseCPU) without overriding its __init__
         super(BaseO3CPU, self).__init__(*args, **kwargs)
-        num_clusters = self.num_clusters
+        self.num_clusters = num_clusters
         
         # Dynamically create the FUPool parameters based on num_clusters
         for i in range(1, num_clusters + 1):
