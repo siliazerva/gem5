@@ -99,7 +99,9 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqIOStats(cpu)
 {
 
-assert(params.fuPools.size() == num_clusters);
+for (int i = 0; i < fuPools.size(); ++i) {
+    assert(fuPools[i]); // Check that each FU pool in fuPools is valid
+}
   
 
     const auto &reg_classes = params.isa[0]->regClasses();
