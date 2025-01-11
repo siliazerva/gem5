@@ -122,7 +122,7 @@ class BaseO3CPU(BaseCPU):
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
 
-    //new code
+    
     fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
     def __init__(self, *args, **kwargs):
