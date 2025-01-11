@@ -122,6 +122,16 @@ class BaseO3CPU(BaseCPU):
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
 
+    def __init__(self, *args, **kwargs):
+        # Initialize the parent class (BaseCPU) without overriding its __init__
+        super(BaseO3CPU, self).__init__(*args, **kwargs)
+        num_clusters = self.num_clusters
+        
+        # Dynamically create the FUPool parameters based on num_clusters
+        for i in range(1, num_clusters + 1):
+            param_name = f"fuPool{i}"
+            setattr(self, param_name, Param.FUPool(DefaultFUPool(), f"Functional Unit pool for cluster {i}"))
+
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
     )
