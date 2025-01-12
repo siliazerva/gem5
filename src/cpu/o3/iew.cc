@@ -1437,7 +1437,7 @@ IEW::tick()
     fuPool2->processFreeUnits(); */
 for (int i = 0; i < fuPools.size(); ++i) {
     FUPool* currentFU = fuPools[i];
-    currentFU->takeOverFrom();
+    currentFU->processFreeUnits();
 }
 
     
