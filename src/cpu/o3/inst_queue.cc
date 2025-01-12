@@ -740,7 +740,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
    --wbOutstanding;
     iewStage->wakeCPU();
     //FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
-//FUPool *fuPool = (inst->cluster_id < fuPools.size()) ? fuPools[inst->cluster_id] : nullptr;
+    FUPool *fuPool =  fuPools[inst->cluster_id];
 
 
     if (fu_idx > -1)
