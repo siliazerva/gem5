@@ -823,7 +823,7 @@ InstructionQueue::scheduleReadyInsts()
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         FUPool *fuPool = nullptr;
 	fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
-	DPRINTF(IQ, "Instruction with sn:%llu has cluster_id = %d, goes to cluster %d.\n", issuing_inst->seqNum, issuing_inst->cluster_id, );
+	DPRINTF(IQ, "Instruction with sn:%llu has cluster_id = %d, goes to cluster %d.\n", issuing_inst->seqNum, issuing_inst->cluster_id, issuing_inst->cluster_id );
 
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
