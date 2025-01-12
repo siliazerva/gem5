@@ -822,7 +822,7 @@ InstructionQueue::scheduleReadyInsts()
         }
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         //FUPool *fuPool = nullptr;
-	FUPool *fuPool = (issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
+	FUPool *fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
 	
 
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
