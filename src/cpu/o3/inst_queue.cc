@@ -863,7 +863,7 @@ for (int i = 0; i < fuPools.size(); ++i) {
 
 // Select the FUPool with the least load
 if (selectedCluster != -1) {
-    FUPool* fuPool = fuPools[selectedCluster]; // Select the correct FUPool
+    fuPool = fuPools[selectedCluster]; // Select the correct FUPool
     issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction
     DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster + 1, minLoad, issuing_inst->seqNum);
 } 
