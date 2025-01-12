@@ -823,8 +823,9 @@ InstructionQueue::scheduleReadyInsts()
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         FUPool *fuPool = nullptr;
 	fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
-	DPRINTF(IQ, "Instruction with sn:%llu has cluster_id = %d, goes to cluster %d.\n", issuing_inst->seqNum, issuing_inst->cluster_id, issuing_inst->cluster_id );
-
+	if (issuing_inst->cluster_id!=-1){
+	    DPRINTF(IQ, "Instruction with sn:%llu has cluster_id = %d, goes to cluster %d.\n", issuing_inst->seqNum, issuing_inst->cluster_id, issuing_inst->cluster_id );
+	}
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
@@ -832,7 +833,6 @@ InstructionQueue::scheduleReadyInsts()
 if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
         DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issuing_inst->seqNum);
         
-	
 	/*float load1 = fuPool1->getRelativeLoad();
         float load2 = fuPool2->getRelativeLoad();
 	
