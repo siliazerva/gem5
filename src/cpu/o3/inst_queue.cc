@@ -821,9 +821,9 @@ InstructionQueue::scheduleReadyInsts()
             continue;
         }
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
-        //FUPool *fuPool = nullptr;
-	FUPool *fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
-	
+        FUPool *fuPool = nullptr;
+	fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
+	DPRINTF(IQ, "Instruction with sn:%llu has cluster_id = %d, goes to cluster %d.\n", issuing_inst->seqNum, issuing_inst->cluster_id, );
 
         //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
         int idx = FUPool::NoCapableFU;
@@ -865,7 +865,7 @@ for (int i = 0; i < fuPools.size(); ++i) {
 if (selectedCluster != -1) {
     fuPool = fuPools[selectedCluster]; // Select the correct FUPool
     issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction
-    DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster + 1, minLoad, issuing_inst->seqNum);
+    DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, issuing_inst->seqNum);
 } 
 	
 	
