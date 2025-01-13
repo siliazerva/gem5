@@ -818,7 +818,7 @@ InstructionQueue::scheduleReadyInsts()
         //FUPool *fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
     FUPool *fuPool = nullptr;
 	fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
-	if (issuing_inst->cluster_id!=-1){
+
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
