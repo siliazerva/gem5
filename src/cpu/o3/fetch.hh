@@ -203,7 +203,7 @@ class Fetch
   public:
     /** Fetch constructor. */
     Fetch(CPU *_cpu, const BaseO3CPUParams &params);
-
+    int num_clusters;
     /** Returns the name of fetch. */
     std::string name() const;
 
