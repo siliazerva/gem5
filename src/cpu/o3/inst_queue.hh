@@ -295,7 +295,7 @@ class InstructionQueue
 
     /** Pointer to IEW stage. */
     IEW *iewStage;
-
+    int num_clusters;
     /** The memory dependence unit, which tracks/predicts memory dependences
      *  between instructions.
      */
