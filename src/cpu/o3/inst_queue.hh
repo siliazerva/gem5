@@ -293,6 +293,7 @@ class InstructionQueue
 
     /** Pointer to IEW stage. */
     IEW *iewStage;
+    int num_clusters;
 
     /** The memory dependence unit, which tracks/predicts memory dependences
      *  between instructions.
@@ -311,9 +312,9 @@ class InstructionQueue
     typename TimeBuffer<TimeStruct>::wire fromCommit;
 
     /** Function unit pool. */
-    FUPool *fuPool1;
-    FUPool *fuPool2;
-
+    //FUPool *fuPool1;
+    //FUPool *fuPool2;
+    std::vector<FUPool*> fuPools;
 
     //////////////////////////////////////
     // Instruction lists, ready queues, and ordering
