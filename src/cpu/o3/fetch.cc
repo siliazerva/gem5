@@ -83,6 +83,7 @@ Fetch::IcachePort::IcachePort(Fetch *_fetch, CPU *_cpu) :
 Fetch::Fetch(CPU *_cpu, const BaseO3CPUParams &params)
     : fetchPolicy(params.smtFetchPolicy),
       cpu(_cpu),
+      num_clusters(param.num_clusters),
       branchPred(nullptr),
       decodeToFetchDelay(params.decodeToFetchDelay),
       renameToFetchDelay(params.renameToFetchDelay),
@@ -1063,10 +1064,10 @@ Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
 // Assign cluster ID to the instruction
 instruction->setClusterId(cluster_id);
 DPRINTF(Fetch, "Instruction with sn:%llu assigned to cluster %d\n", 
-        instruction->seqNum, clusterId);
+        instruction->seqNum, cluster_id);
 
 // Update currentClusterIndex for the next instruction
-currentClusterIndex = (currentClusterIndex + 1) % numClusters;
+currentClusterIndex = (currentClusterIndex + 1) % num_clusters;
 fetchQueue[tid].push_back(instruction);
 assert(fetchQueue[tid].size() <= fetchQueueSize);
 DPRINTF(Fetch, "[tid:%i] Fetch queue entry created (%i/%i).\n",
