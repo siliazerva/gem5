@@ -1058,24 +1058,22 @@ Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
     // that heads to decode.
     assert(numInst < fetchWidth);
     DPRINTF(Fetch,"Instruction with sn:%llu has now cluster_id %d\n", instruction->seqNum, instruction->cluster_id);
-    if (toggle){
-    instruction->setClusterId(0);
-    }
-    else {
-    instruction->setClusterId(1);
-    }
-    DPRINTF(Fetch,"Instruction with sn:%llu has now cluster_id %d\n", instruction->seqNum, instruction->cluster_id);
-    fetchQueue[tid].push_back(instruction);
-    assert(fetchQueue[tid].size() <= fetchQueueSize);
-    DPRINTF(Fetch, "[tid:%i] Fetch queue entry created (%i/%i).\n",
-            tid, fetchQueue[tid].size(), fetchQueueSize);
-    //toDecode->insts[toDecode->size++] = instruction;
-         
-    toggle=!toggle;
-    // Keep track of if we can take an interrupt at this boundary
-    delayedCommit[tid] = instruction->isDelayedCommit();
+    int cluster_id = currentClusterIndex;
 
-    return instruction;
+// Assign cluster ID to the instruction
+instruction->setClusterId(cluster_id);
+DPRINTF(Fetch, "Instruction with sn:%llu assigned to cluster %d\n", 
+        instruction->seqNum, clusterId);
+
+// Update currentClusterIndex for the next instruction
+currentClusterIndex = (currentClusterIndex + 1) % numClusters;
+fetchQueue[tid].push_back(instruction);
+assert(fetchQueue[tid].size() <= fetchQueueSize);
+DPRINTF(Fetch, "[tid:%i] Fetch queue entry created (%i/%i).\n",
+        tid, fetchQueue[tid].size(), fetchQueueSize);
+
+// Return the instruction
+return instruction;
 }
 
 void
