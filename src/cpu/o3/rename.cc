@@ -1100,10 +1100,10 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
 
         DPRINTF(Rename,
                 "[tid:%i] "
-                "Looking up %s arch reg %i, got phys reg %i (%s)\n",
+                "Looking up %s arch reg %i, got phys reg %i (%s) for instruction with sn:%llu.\n",
                 tid, flat_reg.className(),
                 src_reg.index(), renamed_reg->index(),
-                renamed_reg->className());
+                renamed_reg->className(), inst->seqNum);
 
         inst->renameSrcReg(src_idx, renamed_reg);
         DPRINTF(Rename, "Source register's id= %d, instruction's id=%d, with [sn:%llu].", renamed_reg->cluster_id, inst->cluster_id,inst->seqNum);
@@ -1111,17 +1111,17 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         if (scoreboard->getReg(renamed_reg)) {
             DPRINTF(Rename,
                     "[tid:%i] "
-                    "Register %d (flat: %d) (%s) is ready.\n",
+                    "Register %d (flat: %d) (%s) is ready (sn:%llu).\n",
                     tid, renamed_reg->index(), renamed_reg->flatIndex(),
-                    renamed_reg->className());
+                    renamed_reg->className(), inst->seqNum);
 
             inst->markSrcRegReady(src_idx);
         } else {
             DPRINTF(Rename,
                     "[tid:%i] "
-                    "Register %d (flat: %d) (%s) is not ready.\n",
+                    "Register %d (flat: %d) (%s) is not ready (sn:%llu).\n",
                     tid, renamed_reg->index(), renamed_reg->flatIndex(),
-                    renamed_reg->className());
+                    renamed_reg->className(), inst->seqNum);
         }
 
         ++stats.lookups;
