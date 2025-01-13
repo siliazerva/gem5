@@ -102,7 +102,7 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
 std::cout << "InstructionQueue initialized with " << fuPools.size() << " FU pools." << std::endl;
 for (int i = 0; i < fuPools.size(); ++i) {
     assert(fuPools[i]); // Check that each FU pool in fuPools is valid    
-
+}
     const auto &reg_classes = params.isa[0]->regClasses();
     // Set the number of total physical registers
     // As the vector registers have two addressing modes, they are added twice
