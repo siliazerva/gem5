@@ -69,8 +69,8 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       cpu(_cpu),
       instQueue(_cpu, this, params),
       ldstQueue(_cpu, this, params),
-      fuPool1(params.fuPool1),
-      fuPool2(params.fuPool2),
+      num_clusters(params.num_clusters),
+      fuPools(params.fuPools),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToIEWDelay(params.renameToIEWDelay),
       issueToExecuteDelay(params.issueToExecuteDelay),
@@ -333,11 +333,29 @@ IEW::isDrained() const
     // Also check the FU pool as instructions are "stored" in FU
     // completion events until they are done and not accounted for
     // above
-    if (drained && (!fuPool1->isDrained()||!fuPool2->isDrained())) {
+    /*if (drained && (!fuPool1->isDrained()||!fuPool2->isDrained())) {
         DPRINTF(Drain, "FU pools are still busy.\n");
         drained = false;
     }
+*/
 
+    if (drained) {
+    bool anyFUIsBusy = false;
+
+    // Check if any of the FU pools are still busy
+    for (int i = 0; i < fuPools.size(); ++i) {
+        FUPool* currentFU = fuPools[i];
+        if (!currentFU->isDrained()) {
+            anyFUIsBusy = true;
+            break;
+        }
+    }
+
+    if (anyFUIsBusy) {
+        DPRINTF(Drain, "FU pools are still busy.\n");
+        drained = false;
+    }
+}
     return drained;
 }
 
@@ -360,8 +378,10 @@ IEW::takeOverFrom()
 
     instQueue.takeOverFrom();
     ldstQueue.takeOverFrom();
-    fuPool1->takeOverFrom(); 
-    fuPool2->takeOverFrom(); 
+   for (int i = 0; i < fuPools.size(); ++i) {
+    FUPool* currentFU = fuPools[i];
+    currentFU->takeOverFrom();
+}
 
     startupStage();
     cpu->activityThisCycle();
@@ -1405,8 +1425,13 @@ IEW::tick()
     sortInsts();
 
     // Free function units marked as being freed this cycle.
-    fuPool1->processFreeUnits();
-    fuPool2->processFreeUnits();
+    /*fuPool1->processFreeUnits();
+    fuPool2->processFreeUnits();*/
+    for (int i = 0; i < fuPools.size(); ++i) {
+    FUPool* currentFU = fuPools[i];
+    currentFU->processFreeUnits();
+}
+    
     std::list<ThreadID>::iterator threads = activeThreads->begin();
     std::list<ThreadID>::iterator end = activeThreads->end();
 
