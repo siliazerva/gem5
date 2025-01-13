@@ -688,7 +688,12 @@ def addCommonOptions(parser, default_isa: Optional[ISA] = None):
         default=None,
         help="Override vendor string returned by CPUID instruction in X86.",
     )
-
+    parser.add_argument(
+    "--num-clusters",
+    type=int,
+    default=2,
+    help="Number of clusters."
+)
 
 def addSEOptions(parser):
     # Benchmark options
