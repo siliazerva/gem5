@@ -88,8 +88,8 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
         const BaseO3CPUParams &params)
     : cpu(cpu_ptr),
       iewStage(iew_ptr),
-      fuPool1(params.fuPool1),
-      fuPool2(params.fuPool2),
+      num_clusters(params.num_clusters),
+      fuPools(params.fuPools),
       iqPolicy(params.smtIQPolicy),
       numThreads(params.numThreads),
       numEntries(params.numIQEntries),
@@ -98,8 +98,10 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqStats(cpu, totalWidth),
       iqIOStats(cpu)
 {
-    assert(fuPool1);
-    assert(fuPool2);    
+std::cout << "InstructionQueue initialized with " << fuPools.size() << " FU pools." << std::endl;
+for (int i = 0; i < fuPools.size(); ++i) {
+    assert(fuPools[i]); // Check that each FU pool in fuPools is valid
+}  
 
     const auto &reg_classes = params.isa[0]->regClasses();
     // Set the number of total physical registers
@@ -736,7 +738,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
     // long latency op).  Wake it if it was.  This may be overkill.
    --wbOutstanding;
     iewStage->wakeCPU();
-    FUPool *fuPool = (inst->cluster_id == 0) ? fuPool1 : fuPool2;
+    FUPool *fuPool =  fuPools[inst->cluster_id];
     if (fu_idx > -1)
         fuPool->freeUnitNextCycle(fu_idx);
 
@@ -817,8 +819,8 @@ InstructionQueue::scheduleReadyInsts()
         FUPool *fuPool = nullptr;
 
     // Use the cluster assigned by the instruction (0 or 1)
-    fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
-
+    //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+    fuPool = (issuing_inst->cluster_id >= 0 && issuing_inst->cluster_id < fuPools.size()) ? fuPools[issuing_inst->cluster_id] : nullptr;
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
