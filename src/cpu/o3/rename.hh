@@ -129,7 +129,7 @@ class Rename
 
     /** Returns the name of rename. */
     std::string name() const;
-
+    int num_clusters;
     /** Registers probes. */
     void regProbePoints();
 
