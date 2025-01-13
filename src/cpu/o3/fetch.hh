@@ -431,8 +431,9 @@ class Fetch
 
     /** Tracks how many instructions has been fetched this cycle. */
     int numInst;
-    int toggle = 0;
-    /** Source of possible stalls. */
+   // int toggle = 0;
+  int currentClusterIndex=0;   
+/** Source of possible stalls. */
     struct Stalls
     {
         bool decode;
