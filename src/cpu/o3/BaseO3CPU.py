@@ -119,8 +119,19 @@ class BaseO3CPU(BaseCPU):
     dispatchWidth = Param.Unsigned(8, "Dispatch width")
     issueWidth = Param.Unsigned(8, "Issue width")
     wbWidth = Param.Unsigned(8, "Writeback width")
-    fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
-    fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
+    #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
+    #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
+    
+    fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
+    num_clusters = Param.Int(2, "Number of clusters in the CPU")
+    def __init__(self, *args, **kwargs):
+        super(BaseO3CPU, self).__init__(*args, **kwargs)
+        print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
+
+        for i in range(self.num_clusters):
+            new_fupool = DefaultFUPool()  # Or FUPool() if DefaultFUPool isn't appropriate
+            self.fuPools.append(new_fupool)
+            print(f"FU pool {i} added.")
 
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
