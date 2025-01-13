@@ -61,6 +61,7 @@ namespace o3
 Rename::Rename(CPU *_cpu, const BaseO3CPUParams &params)
     : cpu(_cpu),
       iewToRenameDelay(params.iewToRenameDelay),
+      num_clusters(params.num_clusters),
       decodeToRenameDelay(params.decodeToRenameDelay),
       commitToRenameDelay(params.commitToRenameDelay),
       renameWidth(params.renameWidth),
@@ -1090,7 +1091,7 @@ Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
         ++stats.lookups;
     }
      if (inst->cluster_id == -1) {
-        cluster_id = std::rand() % 2;
+        cluster_id = std::rand() % num_clusters;
         inst->cluster_id = cluster_id;
         DPRINTF(Rename, "Instruction [sn:%llu] assigned random cluster ID: %d\n", 
                 inst->seqNum, cluster_id);
