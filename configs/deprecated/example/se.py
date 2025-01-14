@@ -183,10 +183,23 @@ CPUClass.numThreads = numThreads
 if args.smt and args.num_cpus > 1:
     fatal("You cannot use SMT with multiple CPUs!")
 
+def get_counts(file_path):
+    fu_counts = {}
+    with open(file_path, 'r') as f:
+        for line in f:
+            key, value = line.split()
+            fu_counts[key] = int(value)
+    return fu_counts
+
+# Load FU configuration
+fu_counts = get_counts(args.fu_config)
+
+
+
 np = args.num_cpus
 mp0_path = multiprocesses[0].executable
 system = System(
-    cpu=[CPUClass(cpu_id=i, num_clusters=args.num_clusters) for i in range(np)],
+    cpu=[CPUClass(cpu_id=i, num_clusters=args.num_clusters, fu_counts=fu_counts) for i in range(np)],
     mem_mode=test_mem_mode,
     mem_ranges=[AddrRange(args.mem_size)],
     cache_line_size=args.cacheline_size,
