@@ -86,7 +86,7 @@ class FP_MultDiv(FUDesc):
 
 class SIMD_Unit(FUDesc):
     def __init__(self, count, *args, **kwargs):
-        super(FP_MultDiv, self).__init__(*args, **kwargs)
+        super(SIMD_Unit, self).__init__(*args, **kwargs)
         opList = [
         OpDesc(opClass="SimdAdd"),
         OpDesc(opClass="SimdAddAcc"),
