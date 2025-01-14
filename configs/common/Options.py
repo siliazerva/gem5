@@ -694,7 +694,12 @@ def addCommonOptions(parser, default_isa: Optional[ISA] = None):
     default=2,
     help="Number of clusters."
 )
-
+    parser.add_argument(
+    "--fu-config",
+    type=str,
+    default="fu_config.txt",
+    help="Path to the functional unit configuration file."
+)
 
 
 def addSEOptions(parser):
