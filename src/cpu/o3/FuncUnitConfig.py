@@ -43,51 +43,41 @@ from m5.SimObject import SimObject
 
 
 class IntALU(FUDesc):
-    def __init__(self, count, *args, **kwargs):
-        super(IntALU, self).__init__(*args, **kwargs)
-        self.opList = [OpDesc(opClass="IntAlu")]
-        self.count = count
+    opList = [OpDesc(opClass="IntAlu")]
+    count = 3
 
 
 class IntMultDiv(FUDesc):
-    def __init__(self, count, *args, **kwargs):
-        super(IntMultDiv, self).__init__(*args, **kwargs)
-        self.opList = [
-            OpDesc(opClass="IntMult", opLat=3),
-            OpDesc(opClass="IntDiv", opLat=20, pipelined=False),
+    opList = [
+        OpDesc(opClass="IntMult", opLat=3),
+        OpDesc(opClass="IntDiv", opLat=20, pipelined=False),
     ]
 
-        self.count = count
+    count = 1
 
 
 class FP_ALU(FUDesc):
-   def __init__(self, count, *args, **kwargs):
-        super(FP_ALU, self).__init__(*args, **kwargs)
-        self.opList = [
-            OpDesc(opClass="FloatAdd", opLat=2),
-            OpDesc(opClass="FloatCmp", opLat=2),
-            OpDesc(opClass="FloatCvt", opLat=2),
+    opList = [
+        OpDesc(opClass="FloatAdd", opLat=2),
+        OpDesc(opClass="FloatCmp", opLat=2),
+        OpDesc(opClass="FloatCvt", opLat=2),
     ]
-        self.count = count
+    count = 2
 
 
 class FP_MultDiv(FUDesc):
-    def __init__(self, count, *args, **kwargs):
-        super(FP_MultDiv, self).__init__(*args, **kwargs)
-        self.opList = [
+    opList = [
         OpDesc(opClass="FloatMult", opLat=4),
         OpDesc(opClass="FloatMultAcc", opLat=5),
         OpDesc(opClass="FloatMisc", opLat=3),
         OpDesc(opClass="FloatDiv", opLat=12, pipelined=False),
         OpDesc(opClass="FloatSqrt", opLat=24, pipelined=False),
     ]
-        self.count = count
+    count = 1
 
 
 class SIMD_Unit(FUDesc):
-    def __init__(self, count, *args, **kwargs):
-        super(SIMD_Unit, self).__init__(*args, **kwargs)
-        self.opList = [
+    opList = [
         OpDesc(opClass="SimdAdd"),
         OpDesc(opClass="SimdAddAcc"),
         OpDesc(opClass="SimdAlu"),
@@ -120,14 +110,12 @@ class SIMD_Unit(FUDesc):
         OpDesc(opClass="SimdFloatExt"),
         OpDesc(opClass="SimdConfig"),
     ]
-        self.count=count
+    count = 2
 
 
 class PredALU(FUDesc):
-    def __init__(self, count, *args, **kwargs):
-        super(PredALU, self).__init__(*args, **kwargs)
-        self.opList = [OpDesc(opClass="SimdPredAlu")]
-        self.count = count
+    opList = [OpDesc(opClass="SimdPredAlu")]
+    count = 1
 
 
 class ReadPort(FUDesc):
@@ -158,9 +146,7 @@ class WritePort(FUDesc):
 
 
 class RdWrPort(FUDesc):
-     def __init__(self, count, *args, **kwargs):
-        super(RdWrPort, self).__init__(*args, **kwargs)
-        self.opList = [
+    opList = [
         OpDesc(opClass="MemRead"),
         OpDesc(opClass="MemWrite"),
         OpDesc(opClass="FloatMemRead"),
@@ -177,11 +163,9 @@ class RdWrPort(FUDesc):
         OpDesc(opClass="SimdWholeRegisterLoad"),
         OpDesc(opClass="SimdWholeRegisterStore"),
     ]
-        self.count = count
+    count = 2
 
 
 class IprPort(FUDesc):
-    def __init__(self, count, *args, **kwargs):
-        super(IprPort, self).__init__(*args, **kwargs)
-        self.opList = [OpDesc(opClass="IprAccess", opLat=3, pipelined=False)]
-        self.count=count
+    opList = [OpDesc(opClass="IprAccess", opLat=3, pipelined=False)]
+    count = 1
