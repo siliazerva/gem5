@@ -50,18 +50,16 @@ class FUPool(SimObject):
 
 
 class DefaultFUPool(FUPool):
-    def __init__(self, fu_counts, *args, **kwargs):
-        super(DefaultFUPool, self).__init__(*args, **kwargs)
-        self.FUList = [
-            IntALU(count=fu_counts.get("IntALU", 3)), 
-            IntMultDiv(count=fu_counts.get("IntMultDiv", 1)),  
-            FP_ALU(count=fu_counts.get("FP_ALU", 2)),  
-            FP_MultDiv(count=fu_counts.get("FP_MultDiv", 1)),  
-            ReadPort(),
-            SIMD_Unit(count=fu_counts.get("SIMD_Unit", 2)),
-            PredALU(count=fu_counts.get("PredALU", 1)),
-            WritePort(),
-            RdWrPort(count=fu_counts.get("RdWrPort", 2)),
-            IprPort(count=fu_counts.get("IprPort", 1)),
-        ]
+    FUList = [
+        IntALU(),
+        IntMultDiv(),
+        FP_ALU(),
+        FP_MultDiv(),
+        ReadPort(),
+        SIMD_Unit(),
+        PredALU(),
+        WritePort(),
+        RdWrPort(),
+        IprPort(),
+    ]
 
