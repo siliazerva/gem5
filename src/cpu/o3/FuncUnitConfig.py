@@ -48,7 +48,7 @@ class FuncUnitConfig:
                     num_int_alu=3, num_int_multidiv=1, num_fp_alu=2, num_fp_multdiv=1,
                     num_simd_unit=2, num_pred_alu=1, num_read_port=0, 
                     num_write_port=0, num_rdwr_port=2, num_ipr_port=1):
- 
+        print(FUPool)
         fupool = FUPool()
 
         class IntALU(FUDesc):
