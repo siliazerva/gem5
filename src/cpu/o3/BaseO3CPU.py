@@ -132,11 +132,12 @@ class BaseO3CPU(BaseCPU):
         print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
         cluster_fu_count = 10  
         start_idx = 0
+        fu_config_obj = FuncUnitConfig()
         for i in range(self.num_clusters):
             cluster_fu_counts = self.fu_config[start_idx:start_idx + cluster_fu_count]
             #cluster_fu_counts = self.fu_config[i]
             start_idx += cluster_fu_count
-            new_fupool = gen_fu_pool(cluster_fu_counts) 
+            new_fupool = fu_config_obj.gen_fu_pool(*cluster_fu_counts) 
             self.fuPools.append(new_fupool)
             print(f"FU pool {i} added.")
 
