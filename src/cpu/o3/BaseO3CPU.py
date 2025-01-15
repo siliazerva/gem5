@@ -3,7 +3,7 @@
 #
 # The license below extends only to copyright in the software and shall
 # not be construed as granting a license to any other intellectual
-# property including but not limited to intellectual property relating
+# property including but not limited to intellectual property relatingvector
 # to a hardware implementation of the functionality of the software
 # licensed hereunder.  You may use the software subject to the license
 # terms below provided that you ensure that this notice is replicated
@@ -126,7 +126,7 @@ class BaseO3CPU(BaseCPU):
     
     fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
-    fu_config = []
+    fu_config = VectorParam.Vector(VectorParam.Int, [], "List of FU counts for each cluster")
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
