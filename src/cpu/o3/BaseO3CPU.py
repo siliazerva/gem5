@@ -126,7 +126,7 @@ class BaseO3CPU(BaseCPU):
     
     fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
-    fu_config = VectorParam(VectorParam.Int([]), "List of FU counts for each cluster")
+    fu_config = VectorParam.Int([], "num of FUs")
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
