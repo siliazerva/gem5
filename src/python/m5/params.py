@@ -648,12 +648,6 @@ class Int(CheckedInt):
     size = 32
     unsigned = False
 
-class IntVector(VectorParam):
-    cxx_type = "std::vector<int>"
-    size = 32  
-    unsigned = False  
-
-
 class Unsigned(CheckedInt):
     cxx_type = "unsigned"
     size = 32
