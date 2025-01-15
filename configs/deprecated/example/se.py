@@ -183,8 +183,8 @@ CPUClass.numThreads = numThreads
 if args.smt and args.num_cpus > 1:
     fatal("You cannot use SMT with multiple CPUs!")
 
-
-
+if args.fu_config:
+    args.fu_config = ast.literal_eval(args.fu_config)
 
 np = args.num_cpus
 mp0_path = multiprocesses[0].executable
