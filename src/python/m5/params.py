@@ -732,11 +732,6 @@ class Percent(CheckedInt):
     min = 0
     max = 100
 
-class ListofLists(Param):
-    cxx_type = "std::vector<std::vector<int>>"  # C++ type for a list of lists of integers
-    size = 64  # Size of the parameter (optional)
-    unsigned = False  # If the elements are unsigned (optional)
-
 
 class Cycles(CheckedInt):
     cxx_type = "Cycles"
@@ -2481,7 +2476,6 @@ def clear():
 
 __all__ = [
     "Param",
-    "ListofLists",
     "VectorParam",
     "Enum",
     "ScopedEnum",
