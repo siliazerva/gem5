@@ -43,6 +43,8 @@
 import argparse
 import os
 import sys
+import ast
+
 
 import m5
 from m5.defines import buildEnv
