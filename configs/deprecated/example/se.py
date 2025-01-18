@@ -186,9 +186,7 @@ if args.smt and args.num_cpus > 1:
     fatal("You cannot use SMT with multiple CPUs!")
 
 if args.fu_config:
-    # Convert the input string to a Python list (e.g., "[[2, 3], [4, 5]]")
     fu_config = ast.literal_eval(args.fu_config)
-    # Flatten the list of lists into a single list
     flattened_fu_config = [item for sublist in fu_config for item in sublist]
     args.fu_config = flattened_fu_config
 
