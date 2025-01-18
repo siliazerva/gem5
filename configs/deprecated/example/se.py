@@ -183,10 +183,17 @@ CPUClass.numThreads = numThreads
 if args.smt and args.num_cpus > 1:
     fatal("You cannot use SMT with multiple CPUs!")
 
+if args.fu_config:
+    # Convert the input string to a Python list (e.g., "[[2, 3], [4, 5]]")
+    fu_config = ast.literal_eval(args.fu_config)
+    # Flatten the list of lists into a single list
+    flattened_fu_config = [item for sublist in fu_config for item in sublist]
+    args.fu_config = flattened_fu_config
+    
 np = args.num_cpus
 mp0_path = multiprocesses[0].executable
 system = System(
-    cpu=[CPUClass(cpu_id=i, num_clusters=args.num_clusters) for i in range(np)],
+    cpu=[CPUClass(cpu_id=i, num_clusters=args.num_clusters, fu_config=args.fu_config) for i in range(np)],
     mem_mode=test_mem_mode,
     mem_ranges=[AddrRange(args.mem_size)],
     cache_line_size=args.cacheline_size,
