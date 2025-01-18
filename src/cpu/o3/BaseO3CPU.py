@@ -124,14 +124,21 @@ class BaseO3CPU(BaseCPU):
 
     fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
+    fu_config = VectorParam.Int([], "num of FUs")
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
-
+        cluster_fu_count = 10  
+        start_idx = 0
+        fu_config_obj = FuncUnitConfig()
         for i in range(self.num_clusters):
-            new_fupool = DefaultFUPool()  # Or FUPool() if DefaultFUPool isn't appropriate
+            cluster_fu_counts = self.fu_config[start_idx:start_idx + cluster_fu_count]
+            #cluster_fu_counts = self.fu_config[i]
+            start_idx += cluster_fu_count
+            new_fupool = fu_config_obj.gen_fu_pool(*cluster_fu_counts) 
             self.fuPools.append(new_fupool)
             print(f"FU pool {i} added.")
+
 
 
     iewToCommitDelay = Param.Cycles(
