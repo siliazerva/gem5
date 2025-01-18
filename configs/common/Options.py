@@ -695,6 +695,11 @@ def addCommonOptions(parser, default_isa: Optional[ISA] = None):
     default=2,
     help="Number of clusters."
 )
+    parser.add_argument(
+        "--fu-config",
+        type=str,
+        help="List of lists containing FU counts for each cluster."
+    )
 
 
 def addSEOptions(parser):
