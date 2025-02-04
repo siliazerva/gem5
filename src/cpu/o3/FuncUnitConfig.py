@@ -74,7 +74,7 @@ class FP_MultDiv(FUDesc):
         OpDesc(opClass="FloatSqrt", opLat=24, pipelined=False),
     ]
     count = 4
-count=8
+#count=8
 
 class SIMD_Unit(FUDesc):
     opList = [
@@ -164,8 +164,9 @@ class RdWrPort(FUDesc):
         OpDesc(opClass="SimdWholeRegisterStore"),
     ]
     count = 4
-
+#count=8
 
 class IprPort(FUDesc):
     opList = [OpDesc(opClass="IprAccess", opLat=3, pipelined=False)]
     count = 4
+#count=8
