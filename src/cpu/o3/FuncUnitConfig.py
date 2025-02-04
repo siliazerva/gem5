@@ -44,8 +44,8 @@ from m5.SimObject import SimObject
 
 class IntALU(FUDesc):
     opList = [OpDesc(opClass="IntAlu")]
-    count = 8
-
+    count = 4
+#count=8
 
 class IntMultDiv(FUDesc):
     opList = [
@@ -54,7 +54,7 @@ class IntMultDiv(FUDesc):
     ]
 
     count = 4
-
+#count=8
 
 class FP_ALU(FUDesc):
     opList = [
@@ -63,7 +63,7 @@ class FP_ALU(FUDesc):
         OpDesc(opClass="FloatCvt", opLat=2),
     ]
     count = 4
-
+#count=8
 
 class FP_MultDiv(FUDesc):
     opList = [
@@ -74,7 +74,7 @@ class FP_MultDiv(FUDesc):
         OpDesc(opClass="FloatSqrt", opLat=24, pipelined=False),
     ]
     count = 4
-
+count=8
 
 class SIMD_Unit(FUDesc):
     opList = [
@@ -111,12 +111,12 @@ class SIMD_Unit(FUDesc):
         OpDesc(opClass="SimdConfig"),
     ]
     count = 4
-
+#count=8
 
 class PredALU(FUDesc):
     opList = [OpDesc(opClass="SimdPredAlu")]
     count = 4
-
+#count=8
 
 class ReadPort(FUDesc):
     opList = [
