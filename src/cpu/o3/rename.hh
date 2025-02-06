@@ -523,8 +523,8 @@ class Rename
     statistics::Scalar insts6;
     statistics::Scalar insts7;
     statistics::Scalar insts8;
-    statistics::Scalar insts9;*/
-    statistics::Histogram instsHist; 
+    statistics::Scalar insts9;
+    statistics::Histogram instsHist; */
         statistics::Scalar fullRegistersEvents;
         /** Stat for total number of renamed destination registers. */
         statistics::Scalar renamedOperands;
