@@ -170,7 +170,7 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
                "3 operands, 3 in different cluster")*/
 {
     squashCycles.prereq(squashCycles);
-    instsHist.init(9);  
+    //instsHist.init(9);  
     idleCycles.prereq(idleCycles);
     blockCycles.prereq(blockCycles);
     serializeStallCycles.flags(statistics::total);
