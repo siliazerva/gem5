@@ -791,6 +791,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
 void
 InstructionQueue::scheduleReadyInsts()
 {
+	int diff_clust=0;
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
 
