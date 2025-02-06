@@ -515,7 +515,7 @@ class Rename
         statistics::Scalar SQFullEvents;
         /** Stat for total number of times that rename runs out of free
          *  registers to use to rename. */
-    statistics::Scalar insts1;
+    /*statistics::Scalar insts1;
     statistics::Scalar insts2;
     statistics::Scalar insts3;
     statistics::Scalar insts4;
@@ -523,7 +523,7 @@ class Rename
     statistics::Scalar insts6;
     statistics::Scalar insts7;
     statistics::Scalar insts8;
-    statistics::Scalar insts9;
+    statistics::Scalar insts9;*/
     statistics::Histogram instsHist; 
         statistics::Scalar fullRegistersEvents;
         /** Stat for total number of renamed destination registers. */
