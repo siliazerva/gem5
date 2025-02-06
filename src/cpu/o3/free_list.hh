@@ -174,6 +174,7 @@ class UnifiedFreeList
     addReg(PhysRegIdPtr freed_reg)
     {
         freeLists[freed_reg->classValue()].addReg(freed_reg);
+        freed_reg->cluster_id=-1;
     }
 
     /** Checks if there are any free registers of type type. */
