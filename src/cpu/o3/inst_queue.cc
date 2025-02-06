@@ -868,7 +868,7 @@ if (selectedCluster != -1) {
     DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, issuing_inst->seqNum);
 } 
 	
-	
+	//now that the cluster is chosen, the physical register that will contain the result is set
         unsigned num_dest_regs = issuing_inst->numDestRegs();
         for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
         PhysRegIdPtr phys_reg_ptr = issuing_inst->renamedDestIdx(dest_idx);
@@ -882,6 +882,56 @@ if (selectedCluster != -1) {
     }
 
 }
+	//now that the instruction has an id check for registers' id's.
+	unsigned num_src_regs = issuing_inst->numSrcRegs();
+	for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
+		PhysRegIdPtr phys_reg_ptr =issuing_inst->renamedSrcIdx(src_idx);
+		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr!=issuing_inst->cluster_id) diff_clust++;
+	}
+
+if (num_src_regs == 1) {
+    if (diff_clust == 0) {
+        stats.insts1++;
+        stats.instsHist.sample(0, 1);  // insts1
+    }
+    if (diff_clust == 1) {
+        stats.insts2++;
+        stats.instsHist.sample(1, 1);  // insts2
+    }
+}
+if (num_src_regs == 2) {
+    if (diff_clust == 0) {
+        stats.insts3++;
+        stats.instsHist.sample(2, 1);  // insts3
+    }
+    if (diff_clust == 1) {
+        stats.insts4++;
+        stats.instsHist.sample(3, 1);  // insts4
+    }
+    if (diff_clust == 2) {
+        stats.insts5++;
+        stats.instsHist.sample(4, 1);  // insts5
+    }
+}
+if (num_src_regs == 3) {
+    if (diff_clust == 0) {
+        stats.insts6++;
+        stats.instsHist.sample(5, 1);  // insts6
+    }
+    if (diff_clust == 1) {
+        stats.insts7++;
+        stats.instsHist.sample(6, 1);  // insts7
+    }
+    if (diff_clust == 2) {
+        stats.insts8++;
+        stats.instsHist.sample(7, 1);  // insts8
+    }
+    if (diff_clust == 3) {
+        stats.insts9++;
+        stats.instsHist.sample(8, 1);  // insts9
+    }
+}
+
 
         if (op_class != No_OpClass) {
             idx = fuPool->getUnit(op_class);
