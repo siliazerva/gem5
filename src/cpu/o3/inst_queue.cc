@@ -837,7 +837,7 @@ InstructionQueue::scheduleReadyInsts()
                 // This is a load (first) 
                 DPRINTF(IQ, "Issuing a memory read (load) instruction with sn:%llu.\n",issuing_inst->seqNum);
 
-                // Switch cluster from 0 to 1 or from 1 to 0
+                // Switch to next cluster 
                 cluster = (cluster + 1) % num_clusters;
                 DPRINTF(IQ, "Cluster switched to: %d\n", cluster);
                 adjacent_loads=true;
