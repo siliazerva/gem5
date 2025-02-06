@@ -222,7 +222,25 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
     ADD_STAT(fuBusy, statistics::units::Count::get(), "FU busy when requested"),
     ADD_STAT(fuBusyRate, statistics::units::Rate<
                 statistics::units::Count, statistics::units::Count>::get(),
-             "FU busy rate (busy events/executed inst)")
+             "FU busy rate (busy events/executed inst)"),
+      ADD_STAT(insts1, statistics::units::Count::get(),
+               "one operand, 0 in different cluster"),
+      ADD_STAT(insts2, statistics::units::Count::get(),
+               "one operand, one in different cluster"),
+      ADD_STAT(insts3, statistics::units::Count::get(),
+               "2 operands, 0 in different cluster"),
+      ADD_STAT(insts4, statistics::units::Count::get(),
+               "2 operands, 1 in different cluster"),
+      ADD_STAT(insts5, statistics::units::Count::get(),
+               "2 operands, 2 in different cluster"),
+      ADD_STAT(insts6, statistics::units::Count::get(),
+               "3 operands, 0 in different cluster"),
+      ADD_STAT(insts7, statistics::units::Count::get(),
+               "3 operands, 1 in different cluster"),
+      ADD_STAT(insts8, statistics::units::Count::get(),
+               "3 operands, 2 in different cluster"),
+      ADD_STAT(insts9, statistics::units::Count::get(),
+               "3 operands, 3 in different cluster")
 {
     instsAdded
         .prereq(instsAdded);
@@ -328,6 +346,18 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
         .flags(statistics::total)
         ;
     fuBusyRate = fuBusy / instsIssued;
+
+
+insts1.prereq(insts1);
+insts2.prereq(insts2);
+insts3.prereq(insts3);
+insts4.prereq(insts4);
+insts5.prereq(insts5);
+insts6.prereq(insts6);
+insts7.prereq(insts7);
+insts8.prereq(insts8);
+insts9.prereq(insts9);
+	
 }
 
 InstructionQueue::IQIOStats::IQIOStats(statistics::Group *parent)
