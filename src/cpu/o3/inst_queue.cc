@@ -223,6 +223,8 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
     ADD_STAT(fuBusyRate, statistics::units::Rate<
                 statistics::units::Count, statistics::units::Count>::get(),
              "FU busy rate (busy events/executed inst)"),
+      ADD_STAT(instsHist, statistics::units::Count::get(),
+               "Histogram of instructions by operand distribution"),
       ADD_STAT(insts1, statistics::units::Count::get(),
                "one operand, 0 in different cluster"),
       ADD_STAT(insts2, statistics::units::Count::get(),
@@ -347,7 +349,7 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
         ;
     fuBusyRate = fuBusy / instsIssued;
 
-
+instsHist.init(9);
 insts1.prereq(insts1);
 insts2.prereq(insts2);
 insts3.prereq(insts3);
