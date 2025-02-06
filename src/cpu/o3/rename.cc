@@ -1088,7 +1088,7 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
     UnifiedRenameMap *map = renameMap[tid];
     unsigned num_dest_regs = inst->numDestRegs();
     auto *isa = tc->getIsaPtr();
-
+    int instruction_cluster_id = inst->cluster_id;
     // Rename the destination registers.
     for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
         const RegId& dest_reg = inst->destRegIdx(dest_idx);
@@ -1100,7 +1100,9 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
         rename_result = map->rename(flat_dest_regid);
 
         inst->flattenedDestIdx(dest_idx, flat_dest_regid);
-
+        if (rename_result.first) {
+            rename_result.first->cluster_id = instruction_cluster_id;
+        }
         scoreboard->unsetReg(rename_result.first);
 
         DPRINTF(Rename,
