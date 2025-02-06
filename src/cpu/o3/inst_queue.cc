@@ -789,7 +789,7 @@ InstructionQueue::scheduleReadyInsts()
 {
     bool adjacent_loads=false;
     int diff_clust=0;
-    int num_clusters = fuPools.size();
+    int num_cl = fuPools.size();
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
 
@@ -829,7 +829,7 @@ InstructionQueue::scheduleReadyInsts()
     if (cluster==-1){
         //first instruction to arrive
         DPRINTF(IQ, "Setting a random cluster id for instruction with sn:%llu.\n",issuing_inst->seqNum);
-        cluster=std::rand() % num_clusters;
+        cluster=std::rand() % num_cl;
         issuing_inst->cluster_id=cluster;
     }
     else {
@@ -838,7 +838,7 @@ InstructionQueue::scheduleReadyInsts()
                 DPRINTF(IQ, "Issuing a memory read (load) instruction with sn:%llu.\n",issuing_inst->seqNum);
 
                 // Switch to next cluster 
-                cluster = (cluster + 1) % num_clusters;
+                cluster = (cluster + 1) % num_cl;
                 DPRINTF(IQ, "Cluster switched to: %d\n", cluster);
                 adjacent_loads=true;
             }
