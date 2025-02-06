@@ -491,6 +491,18 @@ class InstructionQueue
         /** Stat for number of non-speculative instructions added. */
         statistics::Scalar nonSpecInstsAdded;
 
+    statistics::Scalar insts1;
+    statistics::Scalar insts2;
+    statistics::Scalar insts3;
+    statistics::Scalar insts4;
+    statistics::Scalar insts5;
+    statistics::Scalar insts6;
+    statistics::Scalar insts7;
+    statistics::Scalar insts8;
+    statistics::Scalar insts9;
+    statistics::Histogram instsHist; 
+
+
         statistics::Scalar instsIssued;
         /** Stat for number of integer instructions issued. */
         statistics::Scalar intInstsIssued;
