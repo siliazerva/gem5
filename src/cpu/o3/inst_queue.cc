@@ -221,7 +221,27 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
     ADD_STAT(fuBusy, statistics::units::Count::get(), "FU busy when requested"),
     ADD_STAT(fuBusyRate, statistics::units::Rate<
                 statistics::units::Count, statistics::units::Count>::get(),
-             "FU busy rate (busy events/executed inst)")
+             "FU busy rate (busy events/executed inst)"),
+    ADD_STAT(instsHist, statistics::units::Count::get(),
+               "Histogram of instructions by operand distribution"),
+      ADD_STAT(insts1, statistics::units::Count::get(),
+               "one operand, 0 in different cluster"),
+      ADD_STAT(insts2, statistics::units::Count::get(),
+               "one operand, one in different cluster"),
+      ADD_STAT(insts3, statistics::units::Count::get(),
+               "2 operands, 0 in different cluster"),
+      ADD_STAT(insts4, statistics::units::Count::get(),
+               "2 operands, 1 in different cluster"),
+      ADD_STAT(insts5, statistics::units::Count::get(),
+               "2 operands, 2 in different cluster"),
+      ADD_STAT(insts6, statistics::units::Count::get(),
+               "3 operands, 0 in different cluster"),
+      ADD_STAT(insts7, statistics::units::Count::get(),
+               "3 operands, 1 in different cluster"),
+      ADD_STAT(insts8, statistics::units::Count::get(),
+               "3 operands, 2 in different cluster"),
+      ADD_STAT(insts9, statistics::units::Count::get(),
+               "3 operands, 3 in different cluster")
 {
     instsAdded
         .prereq(instsAdded);
@@ -327,6 +347,17 @@ InstructionQueue::IQStats::IQStats(CPU *cpu, const unsigned &total_width)
         .flags(statistics::total)
         ;
     fuBusyRate = fuBusy / instsIssued;
+
+    instsHist.init(9);
+    insts1.prereq(insts1);
+    insts2.prereq(insts2);
+    insts3.prereq(insts3);
+    insts4.prereq(insts4);
+    insts5.prereq(insts5);
+    insts6.prereq(insts6);
+    insts7.prereq(insts7);
+    insts8.prereq(insts8);
+    insts9.prereq(insts9);
 }
 
 InstructionQueue::IQIOStats::IQIOStats(statistics::Group *parent)
@@ -825,6 +856,59 @@ InstructionQueue::scheduleReadyInsts()
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
 
+//now that the instruction has an id check for registers' id's.
+	unsigned num_src_regs = issuing_inst->numSrcRegs();
+	for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
+		PhysRegIdPtr phys_reg_ptr =issuing_inst->renamedSrcIdx(src_idx);
+		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr!=issuing_inst->cluster_id) diff_clust++;
+	}
+
+if (num_src_regs == 1) {
+    if (diff_clust == 0) {
+        stats.insts1++;
+        stats.instsHist.sample(0, 1);  // insts1
+    }
+    if (diff_clust == 1) {
+        stats.insts2++;
+        stats.instsHist.sample(1, 1);  // insts2
+    }
+}
+if (num_src_regs == 2) {
+    if (diff_clust == 0) {
+        stats.insts3++;
+        stats.instsHist.sample(2, 1);  // insts3
+    }
+    if (diff_clust == 1) {
+        stats.insts4++;
+        stats.instsHist.sample(3, 1);  // insts4
+    }
+    if (diff_clust == 2) {
+        stats.insts5++;
+        stats.instsHist.sample(4, 1);  // insts5
+    }
+}
+if (num_src_regs == 3) {
+    if (diff_clust == 0) {
+        stats.insts6++;
+        stats.instsHist.sample(5, 1);  // insts6
+    }
+    if (diff_clust == 1) {
+        stats.insts7++;
+        stats.instsHist.sample(6, 1);  // insts7
+    }
+    if (diff_clust == 2) {
+        stats.insts8++;
+        stats.instsHist.sample(7, 1);  // insts8
+    }
+    if (diff_clust == 3) {
+        stats.insts9++;
+        stats.instsHist.sample(8, 1);  // insts9
+    }
+}
+
+
+
+        
         if (op_class != No_OpClass) {
             idx = fuPool->getUnit(op_class);
             if (issuing_inst->isFloating()) {
