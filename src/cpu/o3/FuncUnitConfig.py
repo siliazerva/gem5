@@ -44,8 +44,8 @@ from m5.SimObject import SimObject
 
 class IntALU(FUDesc):
     opList = [OpDesc(opClass="IntAlu")]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class IntMultDiv(FUDesc):
     opList = [
@@ -53,8 +53,8 @@ class IntMultDiv(FUDesc):
         OpDesc(opClass="IntDiv", opLat=20, pipelined=False),
     ]
 
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class FP_ALU(FUDesc):
     opList = [
@@ -62,8 +62,8 @@ class FP_ALU(FUDesc):
         OpDesc(opClass="FloatCmp", opLat=2),
         OpDesc(opClass="FloatCvt", opLat=2),
     ]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class FP_MultDiv(FUDesc):
     opList = [
@@ -73,8 +73,8 @@ class FP_MultDiv(FUDesc):
         OpDesc(opClass="FloatDiv", opLat=12, pipelined=False),
         OpDesc(opClass="FloatSqrt", opLat=24, pipelined=False),
     ]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class SIMD_Unit(FUDesc):
     opList = [
@@ -110,13 +110,13 @@ class SIMD_Unit(FUDesc):
         OpDesc(opClass="SimdFloatExt"),
         OpDesc(opClass="SimdConfig"),
     ]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class PredALU(FUDesc):
     opList = [OpDesc(opClass="SimdPredAlu")]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class ReadPort(FUDesc):
     opList = [
@@ -163,10 +163,10 @@ class RdWrPort(FUDesc):
         OpDesc(opClass="SimdWholeRegisterLoad"),
         OpDesc(opClass="SimdWholeRegisterStore"),
     ]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
 
 class IprPort(FUDesc):
     opList = [OpDesc(opClass="IprAccess", opLat=3, pipelined=False)]
-    #count = 4
-    count=8
+    count = 4
+    #count=8
