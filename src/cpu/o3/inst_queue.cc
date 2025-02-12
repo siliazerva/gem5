@@ -919,7 +919,7 @@ if (selectedCluster != -1) {
 	unsigned num_src_regs = issuing_inst->numSrcRegs();
 	for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
 		PhysRegIdPtr phys_reg_ptr =issuing_inst->renamedSrcIdx(src_idx);
-		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr!=issuing_inst->cluster_id) diff_clust++;
+		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr->cluster_id!=issuing_inst->cluster_id) diff_clust++;
 	}
 
 if (num_src_regs == 1) {
