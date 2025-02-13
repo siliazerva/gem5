@@ -865,11 +865,8 @@ InstructionQueue::scheduleReadyInsts()
          src_reg_idx++)
     {
         PhysRegIdPtr src_reg = issuing_inst->renamedSrcIdx(src_reg_idx);
-        if (src_reg->cluster_id == -1 || current_cluster == -1) continue;
+        if (src_reg->cluster_id != -1 && src_reg->cluster_id != cluster) diff_clust++;
             
-            if (src_reg->cluster_id != cluster) {
-                diff_clust++;
-            }
     }
     
 if (num_src_regs == 1) {
