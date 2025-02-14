@@ -89,7 +89,7 @@ class SimpleBTB(BranchTargetBuffer):
     cxx_header = "cpu/pred/simple_btb.hh"
 
     numEntries = Param.Unsigned(4096, "Number of BTB entries")
-    tagBits = Param.Unsigned(2, "Size of the BTB tags, in bits")
+    tagBits = Param.Unsigned(16, "Size of the BTB tags, in bits")
     instShiftAmt = Param.Unsigned(
         Parent.instShiftAmt, "Number of bits to shift instructions by"
     )
@@ -174,7 +174,7 @@ class TournamentBP(BranchPredictor):
     localPredictorSize = Param.Unsigned(2048, "Size of local predictor")
     localCtrBits = Param.Unsigned(2, "Bits per counter")
     localHistoryTableSize = Param.Unsigned(2048, "size of local history table")
-    globalPredictorSize = Param.Unsigned(4096, "Size of global predictor")
+    globalPredictorSize = Param.Unsigned(8192, "Size of global predictor")
     globalCtrBits = Param.Unsigned(2, "Bits per counter")
     choicePredictorSize = Param.Unsigned(8192, "Size of choice predictor")
     choiceCtrBits = Param.Unsigned(2, "Bits of choice counters")
