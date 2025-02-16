@@ -133,7 +133,7 @@ class IEW
     std::string name() const;
 
     int num_clusters;
-
+    int numIQEntries;
     /** Registers probes. */
     void regProbePoints();
 
