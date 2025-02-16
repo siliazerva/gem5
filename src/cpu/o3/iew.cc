@@ -892,6 +892,7 @@ IEW::dispatchInsts(ThreadID tid)
         inst = insts_to_dispatch.front();
         //check for cluster_id
         selectedCluster=inst->cluster_id;
+        DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
         if (selectedCluster==-1){
         // Check available FUPools for least load if inst doesnt have an id from dependences
             for (int i = 0; i < fuPools.size(); ++i) {
@@ -905,8 +906,8 @@ IEW::dispatchInsts(ThreadID tid)
         // Select the FUPool with the least load
         if (selectedCluster != -1) {
             //fuPool = fuPools[selectedCluster]; 
-            issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction for later 
-            DPRINTF(IEW, "Setting cluster id %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, issuing_inst->seqNum);
+            inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction for later 
+            DPRINTF(IEW, "Setting cluster id %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, inst->seqNum);
 } 
         }
 
@@ -977,6 +978,7 @@ IEW::dispatchInsts(ThreadID tid)
         }
         attempts--;
     }
+           //modify the cluster_id 
             inst->cluster_id=selectedCluster;
         }
 
