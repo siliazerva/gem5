@@ -859,14 +859,17 @@ InstructionQueue::scheduleReadyInsts()
 	if (issuing_inst->cluster_id!=-1){
 	    DPRINTF(IQ, "Instruction with sn:%llu has cluster_id = %d, goes to cluster %d.\n", issuing_inst->seqNum, issuing_inst->cluster_id, issuing_inst->cluster_id );
 	}
-        //fuPool = (issuing_inst->cluster_id == 0) ? fuPool1 : fuPool2;
+        
         int idx = FUPool::NoCapableFU;
         Cycles op_latency = Cycles(1);
         ThreadID tid = issuing_inst->threadNumber;
-if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
-        DPRINTF(IQ, "Instruction with sn:%llu has no cluster id, no dependencies.\n", issuing_inst->seqNum);
-        
-	/*float load1 = fuPool1->getRelativeLoad();
+	if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
+        DPRINTF(IQ, "Instruction with sn:%llu (and op_class) has no cluster_id before issue.\n", issuing_inst->seqNum);
+}
+
+	//FOR 2 CLUSTERS!!!!!!!!!!!!
+	/*
+ 	float load1 = fuPool1->getRelativeLoad();
         float load2 = fuPool2->getRelativeLoad();
 	
         if (load1 < load2) {
@@ -877,8 +880,14 @@ if (issuing_inst->cluster_id==-1 && op_class!=No_OpClass){
                 fuPool = fuPool2;
                 issuing_inst->cluster_id=1;
                 DPRINTF(IQ, "Choosing Cluster 2 (less load: %.2f) for instruction sn:%llu.\n", load2, issuing_inst->seqNum);
-        } */
+        } 
+	*/
 
+
+	
+		
+// CHANGED THIS CHECK!!!!!!!!!!!
+/*
 float minLoad = std::numeric_limits<float>::infinity();
 int selectedCluster = -1;
 
@@ -900,7 +909,10 @@ if (selectedCluster != -1) {
     issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction
     DPRINTF(IQ, "Choosing Cluster %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, issuing_inst->seqNum);
 } 
-	
+	*/
+
+	    
+
 	//now that the cluster is chosen, the physical register that will contain the result is set
         unsigned num_dest_regs = issuing_inst->numDestRegs();
         for (int dest_idx = 0; dest_idx < num_dest_regs; dest_idx++) {
@@ -913,15 +925,15 @@ if (selectedCluster != -1) {
                 DPRINTF(IQ,"Setting physical register's (register id:%d) cluster id=%d (intsruction with sn:%llu).\n", flat_reg.index(), issuing_inst->cluster_id ,issuing_inst->seqNum);
         }
     }
-
-}
-	//now that the instruction has an id check for registers' id's.
+	//now that the instruction has an id check for registers' id's to get stats.
 	unsigned num_src_regs = issuing_inst->numSrcRegs();
 	for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
 		PhysRegIdPtr phys_reg_ptr =issuing_inst->renamedSrcIdx(src_idx);
 		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr->cluster_id!=issuing_inst->cluster_id) diff_clust++;
 	}
 
+	    
+//STATS!!!!!!!
 if (num_src_regs == 1) {
     if (diff_clust == 0) {
         iqStats.insts1++;
