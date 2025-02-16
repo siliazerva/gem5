@@ -878,14 +878,36 @@ IEW::dispatchInsts(ThreadID tid)
     DynInstPtr inst;
     bool add_to_iq = false;
     int dis_num_inst = 0;
-
+    int cluster=0;
+    float minLoad = std::numeric_limits<float>::infinity();
+    int selectedCluster = -1;
     // Loop through the instructions, putting them in the instruction
     // queue.
     for ( ; dis_num_inst < insts_to_add &&
               dis_num_inst < dispatchWidth;
           ++dis_num_inst)
-    {
+    {    
+        //get inst
         inst = insts_to_dispatch.front();
+        //check for cluster_id
+        cluster=inst->cluster_id;
+        if (cluster==-1){
+        // Check available FUPools for least load if inst doesnt have an id from dependences
+            for (int i = 0; i < fuPools.size(); ++i) {
+            // Get the load for the current cluster
+            float load = fuPools[i]->getRelativeLoad(); 
+            if (load < minLoad) {
+                minLoad = load;
+                selectedCluster = i;
+            }
+            }
+        // Select the FUPool with the least load
+        if (selectedCluster != -1) {
+            //fuPool = fuPools[selectedCluster]; 
+            issuing_inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction for later 
+            DPRINTF(IEW, "Setting cluster id %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, issuing_inst->seqNum);
+} 
+        }
 
         if (dispatchStatus[tid] == Unblocking) {
             DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
