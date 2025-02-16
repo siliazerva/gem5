@@ -69,6 +69,7 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       cpu(_cpu),
       num_clusters(params.num_clusters),
       fuPools(params.fuPools),
+      numIQEntries(params.numIQEntries),
       instQueue(_cpu, this, params),
       ldstQueue(_cpu, this, params),
       commitToIEWDelay(params.commitToIEWDelay),
@@ -874,11 +875,11 @@ IEW::dispatchInsts(ThreadID tid)
         skidBuffer[tid] : insts[tid];
 
     int insts_to_add = insts_to_dispatch.size();
-
+    int maxPerCluster=numIQEntries/num_clusters;
     DynInstPtr inst;
     bool add_to_iq = false;
     int dis_num_inst = 0;
-    int cluster=0;
+    
     float minLoad = std::numeric_limits<float>::infinity();
     int selectedCluster = -1;
     // Loop through the instructions, putting them in the instruction
@@ -890,8 +891,8 @@ IEW::dispatchInsts(ThreadID tid)
         //get inst
         inst = insts_to_dispatch.front();
         //check for cluster_id
-        cluster=inst->cluster_id;
-        if (cluster==-1){
+        selectedCluster=inst->cluster_id;
+        if (selectedCluster==-1){
         // Check available FUPools for least load if inst doesnt have an id from dependences
             for (int i = 0; i < fuPools.size(); ++i) {
             // Get the load for the current cluster
@@ -961,7 +962,25 @@ IEW::dispatchInsts(ThreadID tid)
 
             ++iewStats.iqFullEvents;
             break;
+        } 
+
+        //CHECK FOR INSTRUCTION QUEUE SPACE
+        int attempts=num_clusters;
+        //check if instructions of this cluster's has reached max or else send to another one
+        if (instQueue.countClusterInstructions(selectedCluster,tid)==maxPerCluster){
+            int nextCluster = selectedCluster;
+            while(attempts > 0) {
+            nextCluster = (nextCluster + 1) % num_clusters;
+            if (instQueue.countClusterInstructions(nextCluster,tid) < maxPerCluster) {
+            selectedCluster = nextCluster;
+            break;
         }
+        attempts--;
+    }
+            inst->cluster_id=selectedCluster;
+        }
+
+        
 
         // Check LSQ if inst is LD/ST
         if ((inst->isAtomic() && ldstQueue.sqFull(tid)) ||
