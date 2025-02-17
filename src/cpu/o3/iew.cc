@@ -71,6 +71,7 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       ldstQueue(_cpu, this, params),
       num_clusters(params.num_clusters),
       fuPools(params.fuPools),
+      numIQEntries(params.numIQEntries),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToIEWDelay(params.renameToIEWDelay),
       issueToExecuteDelay(params.issueToExecuteDelay),
@@ -868,7 +869,7 @@ IEW::dispatchInsts(ThreadID tid)
         skidBuffer[tid] : insts[tid];
 
     int insts_to_add = insts_to_dispatch.size();
-
+    int maxPerCluster=numIQEntries/num_clusters;
     DynInstPtr inst;
     bool add_to_iq = false;
     int dis_num_inst = 0;
