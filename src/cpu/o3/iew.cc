@@ -899,7 +899,7 @@ IEW::dispatchInsts(ThreadID tid)
          DPRINTF(IEW, "DEBUG: FU pools size is %d.\n",fuPools.size());
             for (int i = 0; i < fuPools.size(); ++i) {
             // Get the load for the current cluster
-             DPRINTF(IEW, "FU pool's i number of FU is %d.\n",fuPools[i]->numFU);            
+             DPRINTF(IEW, "FU pool's i number of FU is %d.\n",fuPools[i]->size());            
             float load = fuPools[i]->getRelativeLoad(); 
             if (load < minLoad) {
                 minLoad = load;
