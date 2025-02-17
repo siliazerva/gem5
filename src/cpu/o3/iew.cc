@@ -908,12 +908,12 @@ IEW::dispatchInsts(ThreadID tid)
                 
             }
             }
-        // Select the FUPool with the least load
-        if (selectedCluster != -1) {
+
             //fuPool = fuPools[selectedCluster]; 
+             DPRINTF(IEW, "After loop: selectedCluster = %d\n", selectedCluster);
             inst->cluster_id = selectedCluster; // Assign the cluster ID to the instruction for later 
             DPRINTF(IEW, "Setting cluster id %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, inst->seqNum);
-} 
+ 
         }
 
         if (dispatchStatus[tid] == Unblocking) {
