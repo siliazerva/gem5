@@ -972,14 +972,18 @@ IEW::dispatchInsts(ThreadID tid)
 
         //CHECK FOR INSTRUCTION QUEUE SPACE
         int attempts=num_clusters;
+        int cluster_inst=instQueue.countClusterInstructions(selectedCluster,tid);
+        DPRINTF(IEW, "DEBUG: IQ has %d instructions for cluster %d.\n", cluster_inst, selectedCluster);
         //check if instructions of this cluster's has reached max or else send to another one
         if (instQueue.countClusterInstructions(selectedCluster,tid)==maxPerCluster){
-            DPRINTF(IEW, "DEBUG: IQ reached limit, instruction sn:%llu is changing cluster.\n", inst->seqNum);
+            DPRINTF(IEW, "DEBUG: IQ reached limit (%d), instruction sn:%llu is changing cluster.\n",maxPerCluster, inst->seqNum);
             int nextCluster = selectedCluster;
             while(attempts > 0) {
             nextCluster = (nextCluster + 1) % num_clusters;
             if (instQueue.countClusterInstructions(nextCluster,tid) < maxPerCluster) {
+            cluster_inst=instQueue.countClusterInstructions(nextCluster,tid);
             selectedCluster = nextCluster;
+            DPRINTF(IEW, "DEBUG: IQ has %d instructions for new cluster %d.\n", cluster_inst, selectedCluster);
             break;
         }
         attempts--;
