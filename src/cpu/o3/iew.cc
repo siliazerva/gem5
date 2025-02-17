@@ -1,4 +1,3 @@
-/*
  * Copyright (c) 2010-2013, 2018-2019 ARM Limited
  * Copyright (c) 2013 Advanced Micro Devices, Inc.
  * All rights reserved.
@@ -880,14 +879,15 @@ IEW::dispatchInsts(ThreadID tid)
     bool add_to_iq = false;
     int dis_num_inst = 0;
     
-    float minLoad = std::numeric_limits<float>::infinity();
-    int selectedCluster = -1;
+
     // Loop through the instructions, putting them in the instruction
     // queue.
     for ( ; dis_num_inst < insts_to_add &&
               dis_num_inst < dispatchWidth;
           ++dis_num_inst)
     {    
+        float minLoad = std::numeric_limits<float>::infinity();
+        int selectedCluster = -1;
         //get inst
         inst = insts_to_dispatch.front();
         //check for cluster_id
