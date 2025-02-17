@@ -894,13 +894,16 @@ IEW::dispatchInsts(ThreadID tid)
         selectedCluster=inst->cluster_id;
         DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
         if (selectedCluster==-1){
+        DPRINTF(IEW, "DEBUG: Checking if instruction sn:%llu is getting a cluster assignment.\n", inst->seqNum);
         // Check available FUPools for least load if inst doesnt have an id from dependences
+         DPRINTF(IEW, "DEBUG: FU pools size is %d.\n",fuPools.size());
             for (int i = 0; i < fuPools.size(); ++i) {
             // Get the load for the current cluster
             float load = fuPools[i]->getRelativeLoad(); 
             if (load < minLoad) {
                 minLoad = load;
                 selectedCluster = i;
+                DPRINTF(IEW, "Cluster %d has load: %.2f \n", selectedCluster, load);
             }
             }
         // Select the FUPool with the least load
@@ -969,6 +972,7 @@ IEW::dispatchInsts(ThreadID tid)
         int attempts=num_clusters;
         //check if instructions of this cluster's has reached max or else send to another one
         if (instQueue.countClusterInstructions(selectedCluster,tid)==maxPerCluster){
+            DPRINTF(IEW, "DEBUG: IQ reached limit, instruction sn:%llu is changing cluster.\n", inst->seqNum);
             int nextCluster = selectedCluster;
             while(attempts > 0) {
             nextCluster = (nextCluster + 1) % num_clusters;
@@ -979,7 +983,9 @@ IEW::dispatchInsts(ThreadID tid)
         attempts--;
     }
            //modify the cluster_id 
+            
             inst->cluster_id=selectedCluster;
+            DPRINTF(IEW, "Instruction with sn:%llu switched cluster (now has cluster id %d).\n", inst->seqNum, inst->cluster_id);
         }
 
         
