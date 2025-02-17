@@ -901,10 +901,11 @@ IEW::dispatchInsts(ThreadID tid)
             // Get the load for the current cluster
              DPRINTF(IEW, "FU pool's i number of FU is %d.\n",fuPools[i]->size());            
             float load = fuPools[i]->getRelativeLoad(); 
+            DPRINTF(IEW, "Cluster %d has load: %.2f \n", i, load);
             if (load < minLoad) {
                 minLoad = load;
                 selectedCluster = i;
-                DPRINTF(IEW, "Cluster %d has load: %.2f \n", selectedCluster, load);
+                
             }
             }
         // Select the FUPool with the least load
