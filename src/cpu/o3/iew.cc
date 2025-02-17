@@ -1,4 +1,4 @@
- * Copyright (c) 2010-2013, 2018-2019 ARM Limited
+/* Copyright (c) 2010-2013, 2018-2019 ARM Limited
  * Copyright (c) 2013 Advanced Micro Devices, Inc.
  * All rights reserved.
  *
