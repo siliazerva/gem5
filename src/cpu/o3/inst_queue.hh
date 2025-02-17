@@ -139,6 +139,14 @@ class InstructionQueue
     /** Returns the name of the IQ. */
     std::string name() const;
 
+    /*get instruction queue list*/
+    std::list<DynInstPtr>& getInstList(ThreadID tid) {
+        return instList[tid];
+    }
+
+  /*get Cluster count*/
+    int countClusterInstructions(int cluster_id, ThreadID tid);
+    
     /** Resets all instruction queue state. */
     void resetState();
 
