@@ -60,7 +60,7 @@
 #include "cpu/timebuf.hh"
 #include "enums/SMTQueuePolicy.hh"
 #include "sim/eventq.hh"
-#include "cpu/o3/dyn_inst.hh"
+
 
 namespace gem5
 {
@@ -147,16 +147,7 @@ std::list<DynInstPtr>& getInstList(ThreadID tid) {
     }
 
   /*get Cluster count*/
-int countClusterInstructions(int cluster_id, ThreadID tid) {
-    int count = 0;
-    for (const auto &inst : getInstList(tid)) {
-        if (inst && inst->cluster_id == cluster_id) {
-            count++;
-        }
-    }
-    
-    return count;
-}
+int countClusterInstructions(int cluster_id, ThreadID tid);
 
 
     std::string name() const;
