@@ -171,7 +171,7 @@ class InstructionQueue
     /** Number of entries needed for given amount of threads. */
     int entryAmount(ThreadID num_threads);
 
-    int cluster;
+
 
     /** Resets max entries for all threads. */
     void resetEntries();
