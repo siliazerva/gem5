@@ -923,23 +923,23 @@ IEW::dispatchInsts(ThreadID tid)
     //LOADCUT STEERING!!!	    
     if (cluster==-1){
         //first instruction to arrive
-        DPRINTF(IQ, "Setting a random cluster id for instruction with sn:%llu.\n",inst->seqNum);
+        DPRINTF(IEW, "Setting a random cluster id for instruction with sn:%llu.\n",inst->seqNum);
         cluster=std::rand() % num_clusters;
         inst->cluster_id=cluster;
     }
     else {
             if (inst->isLoad() && !adjacent_loads){
                 // This is a load (first) 
-                DPRINTF(IQ, "Issuing a memory read (load) instruction with sn:%llu.\n",inst->seqNum);
+                DPRINTF(IEW, "Issuing a memory read (load) instruction with sn:%llu.\n",inst->seqNum);
 
                 // Switch to next cluster 
                 cluster = (cluster + 1) % num_clusters;
-                DPRINTF(IQ, "Cluster switched to: %d\n", cluster);
+                DPRINTF(IEW, "Cluster switched to: %d\n", cluster);
                 adjacent_loads=true;
             }
             else if (!inst->isLoad() && adjacent_loads) {
                 adjacent_loads=false;
-                DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",inst->seqNum);}
+                DPRINTF(IEW, "Issuing a (non-load) instruction with sn:%llu.\n",inst->seqNum);}
                 inst->cluster_id=cluster;
         }
 
@@ -961,6 +961,7 @@ IEW::dispatchInsts(ThreadID tid)
 
         //CHECK FOR INSTRUCTION QUEUE SPACE
         int attempts=num_clusters;
+        int selectedCluster=cluster;
         int cluster_inst=instQueue.countClusterInstructions(selectedCluster,tid);
         DPRINTF(IEW, "DEBUG: IQ has %d instructions for cluster %d.\n", cluster_inst, selectedCluster);
         //check if instructions of this cluster's has reached max or else send to another one
