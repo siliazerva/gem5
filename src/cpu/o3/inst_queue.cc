@@ -463,6 +463,18 @@ InstructionQueue::resetState()
     wbOutstanding = 0;
 }
 
+int InstructionQueue::countClusterInstructions(int cluster_id, ThreadID tid) {
+    int count = 0;
+    for (const auto &inst : getInstList(tid)) {
+        if (inst && inst->cluster_id == cluster_id) {
+            count++;
+        }
+    }
+    
+    return count;
+}
+
+
 void
 InstructionQueue::setActiveThreads(list<ThreadID> *at_ptr)
 {
