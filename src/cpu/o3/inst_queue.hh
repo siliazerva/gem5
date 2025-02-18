@@ -136,6 +136,14 @@ class InstructionQueue
     /** Destructs the IQ. */
     ~InstructionQueue();
 
+    /*get instruction queue list*/
+    std::list<DynInstPtr>& getInstList(ThreadID tid) {
+        return instList[tid];
+    }
+
+    /*get Cluster count*/
+    int countClusterInstructions(int cluster_id, ThreadID tid);
+
     /** Returns the name of the IQ. */
     std::string name() const;
 
