@@ -881,8 +881,8 @@ IEW::dispatchInsts(ThreadID tid)
     {
         inst = insts_to_dispatch.front();
         //get cluster id from round robin
-        DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
         int selectedCluster=inst->cluster_id;
+        DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
         if (dispatchStatus[tid] == Unblocking) {
             DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
                     "buffer\n", tid);
