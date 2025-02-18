@@ -798,9 +798,9 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
 void
 InstructionQueue::scheduleReadyInsts()
 {
-    bool adjacent_loads=false;
+    //bool adjacent_loads=false;
     int diff_clust=0;
-    int num_cl = fuPools.size();
+    //int num_cl = fuPools.size();
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
 
@@ -837,7 +837,10 @@ InstructionQueue::scheduleReadyInsts()
         OpClass issuing_inst_op_class = issuing_inst->opClass();
         DPRINTF(IQ, "Issuing instruction with [sn:%llu] and opclass: %i.\n",
                     issuing_inst->seqNum, issuing_inst_op_class);
-    if (cluster==-1){
+    
+	    
+//LOADCUT STEERING	    
+/*if (cluster==-1){
         //first instruction to arrive
         DPRINTF(IQ, "Setting a random cluster id for instruction with sn:%llu.\n",issuing_inst->seqNum);
         cluster=std::rand() % num_cl;
@@ -857,8 +860,8 @@ InstructionQueue::scheduleReadyInsts()
             DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",issuing_inst->seqNum);}
             issuing_inst->cluster_id=cluster;
             
-        }
-
+        } */
+    int cluster=issuing_inst->cluster_id;
     int8_t total_dest_regs = issuing_inst->numDestRegs();
     for (int dest_reg_idx = 0; dest_reg_idx < total_dest_regs; dest_reg_idx++) {
         PhysRegIdPtr dest_reg = issuing_inst->renamedDestIdx(dest_reg_idx);
