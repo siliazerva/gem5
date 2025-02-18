@@ -97,7 +97,7 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       commitToIEWDelay(params.commitToIEWDelay),
       iqStats(cpu, totalWidth),
       iqIOStats(cpu),
-      cluster(-1)
+
 {
 std::cout << "InstructionQueue initialized with " << fuPools.size() << " FU pools." << std::endl;
 for (int i = 0; i < fuPools.size(); ++i) {
