@@ -117,6 +117,12 @@ class IEW
     /** Writeback status. */
     StageStatus wbStatus;
 
+    /* Tracks adjacent loads */
+    bool adjacent_loads;
+    
+    /** Tracks current cluster ID */
+    int cluster;
+    
     /** Probe points. */
     ProbePointArg<DynInstPtr> *ppMispredict;
     ProbePointArg<DynInstPtr> *ppDispatch;
