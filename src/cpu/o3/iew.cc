@@ -70,6 +70,7 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       instQueue(_cpu, this, params),
       ldstQueue(_cpu, this, params),
       num_clusters(params.num_clusters),
+      numIQEntries(params.numIQEntries),
       fuPools(params.fuPools),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToIEWDelay(params.renameToIEWDelay),
@@ -865,7 +866,7 @@ IEW::dispatchInsts(ThreadID tid)
     std::queue<DynInstPtr> &insts_to_dispatch =
         dispatchStatus[tid] == Unblocking ?
         skidBuffer[tid] : insts[tid];
-
+    int maxPerCluster=numIQEntries/num_clusters;
     int insts_to_add = insts_to_dispatch.size();
 
     DynInstPtr inst;
@@ -879,7 +880,9 @@ IEW::dispatchInsts(ThreadID tid)
           ++dis_num_inst)
     {
         inst = insts_to_dispatch.front();
-
+        //get cluster id from round robin
+        DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
+        int selectedCluster=inst->cluster_id;
         if (dispatchStatus[tid] == Unblocking) {
             DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
                     "buffer\n", tid);
@@ -933,6 +936,31 @@ IEW::dispatchInsts(ThreadID tid)
             ++iewStats.iqFullEvents;
             break;
         }
+
+
+         //CHECK FOR INSTRUCTION QUEUE SPACE
+        int attempts=num_clusters;
+        int cluster_inst=instQueue.countClusterInstructions(selectedCluster,tid);
+        DPRINTF(IEW, "DEBUG: IQ has %d instructions for cluster %d.\n", cluster_inst, selectedCluster);
+        //check if instructions of this cluster's has reached max or else send to another one
+        if (instQueue.countClusterInstructions(selectedCluster,tid)==maxPerCluster){
+            DPRINTF(IEW, "DEBUG: IQ reached limit (%d), instruction sn:%llu is changing cluster.\n",maxPerCluster, inst->seqNum);
+            int nextCluster = selectedCluster;
+            while(attempts > 0) {
+            nextCluster = (nextCluster + 1) % num_clusters;
+            if (instQueue.countClusterInstructions(nextCluster,tid) < maxPerCluster) {
+            cluster_inst=instQueue.countClusterInstructions(nextCluster,tid);
+            selectedCluster = nextCluster;
+            DPRINTF(IEW, "DEBUG: IQ has %d instructions for new cluster %d.\n", cluster_inst, selectedCluster);
+            break;
+        }
+        attempts--;
+    }
+           //modify the cluster_id 
+            inst->cluster_id=selectedCluster;
+            DPRINTF(IEW, "Instruction with sn:%llu switched cluster (now has cluster id %d).\n", inst->seqNum, inst->cluster_id);
+        }
+
 
         // Check LSQ if inst is LD/ST
         if ((inst->isAtomic() && ldstQueue.sqFull(tid)) ||
