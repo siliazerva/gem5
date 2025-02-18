@@ -70,6 +70,7 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       instQueue(_cpu, this, params),
       ldstQueue(_cpu, this, params),
       num_clusters(params.num_clusters),
+      numIQEntries(params.numIQEntries),
       fuPools(params.fuPools),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToIEWDelay(params.renameToIEWDelay),
@@ -878,7 +879,7 @@ IEW::dispatchInsts(ThreadID tid)
           ++dis_num_inst)
     {
         inst = insts_to_dispatch.front();
-
+        
         if (dispatchStatus[tid] == Unblocking) {
             DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
                     "buffer\n", tid);
@@ -915,6 +916,29 @@ IEW::dispatchInsts(ThreadID tid)
             toRename->iewInfo[tid].dispatched++;
 
             continue;
+        }
+
+    //LOADCUT STEERING!!!	    
+    if (cluster==-1){
+        //first instruction to arrive
+        DPRINTF(IQ, "Setting a random cluster id for instruction with sn:%llu.\n",inst->seqNum);
+        cluster=std::rand() % num_clusters;
+        inst->cluster_id=cluster;
+    }
+    else {
+            if (inst->isLoad() && !adjacent_loads){
+                // This is a load (first) 
+                DPRINTF(IQ, "Issuing a memory read (load) instruction with sn:%llu.\n",inst->seqNum);
+
+                // Switch to next cluster 
+                cluster = (cluster + 1) % num_clusters;
+                DPRINTF(IQ, "Cluster switched to: %d\n", cluster);
+                adjacent_loads=true;
+            }
+            else if (!inst->isLoad() && adjacent_loads) {
+                adjacent_loads=false;
+                DPRINTF(IQ, "Issuing a (non-load) instruction with sn:%llu.\n",inst->seqNum);}
+                inst->cluster_id=cluster;
         }
 
         // Check for full conditions.
