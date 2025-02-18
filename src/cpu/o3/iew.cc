@@ -880,9 +880,7 @@ IEW::dispatchInsts(ThreadID tid)
           ++dis_num_inst)
     {
         inst = insts_to_dispatch.front();
-        //get cluster id from round robin
-        int selectedCluster=inst->cluster_id;
-        DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
+        
         if (dispatchStatus[tid] == Unblocking) {
             DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
                     "buffer\n", tid);
@@ -890,7 +888,10 @@ IEW::dispatchInsts(ThreadID tid)
 
         // Make sure there's a valid instruction there.
         assert(inst);
-
+        //get cluster id from round robin
+        int selectedCluster=inst->cluster_id;
+        DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
+        
         DPRINTF(IEW, "[tid:%i] Issue: Adding PC %s [sn:%lli] [tid:%i] to "
                 "IQ.\n",
                 tid, inst->pcState(), inst->seqNum, inst->threadNumber);
