@@ -81,6 +81,8 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       wbCycle(0),
       wbWidth(params.wbWidth),
       numThreads(params.numThreads),
+      adjacent_loads(false),
+      cluster(-1),
       iewStats(cpu)
 {
     if (dispatchWidth > MaxWidth)
