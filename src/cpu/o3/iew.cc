@@ -890,6 +890,16 @@ IEW::dispatchInsts(ThreadID tid)
         int selectedCluster = -1;
         //get inst
         inst = insts_to_dispatch.front();
+
+
+        if (dispatchStatus[tid] == Unblocking) {
+            DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
+                    "buffer\n", tid);
+        }
+
+        // Make sure there's a valid instruction there.
+        assert(inst);
+
         //check for cluster_id
         selectedCluster=inst->cluster_id;
         DPRINTF(IEW, "Instruction (sn:%llu) has cluster id %d.\n", inst->seqNum, selectedCluster);
@@ -915,14 +925,7 @@ IEW::dispatchInsts(ThreadID tid)
             DPRINTF(IEW, "Setting cluster id %d (less load: %.2f) for instruction sn:%llu.\n", selectedCluster, minLoad, inst->seqNum);
  
         }
-
-        if (dispatchStatus[tid] == Unblocking) {
-            DPRINTF(IEW, "[tid:%i] Issue: Examining instruction from skid "
-                    "buffer\n", tid);
-        }
-
-        // Make sure there's a valid instruction there.
-        assert(inst);
+        
 
         DPRINTF(IEW, "[tid:%i] Issue: Adding PC %s [sn:%lli] [tid:%i] to "
                 "IQ.\n",
