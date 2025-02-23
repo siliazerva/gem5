@@ -93,7 +93,7 @@ class BaseO3CPU(BaseCPU):
             self.SQEntries=16
             self.numPhysIntRegs=128    
             self.numPhysFloatRegs=192
-        elif width.value==8:
+        elif width_value==8:
             print("Setting parameters for width 8")
             self.numIQEntries=80
             self.numROBEntries=512
