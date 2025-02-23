@@ -77,6 +77,7 @@ class BaseO3CPU(BaseCPU):
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         self.width=int(self.width)
+        print(f"Type of self.width: {type(self.width)}")
         print(f"BaseO3CPU initialized with {self.num_clusters} clusters and with pipeline width {self.width}.")
         width_params = [
         'fetchWidth', 'decodeWidth', 'renameWidth', 'dispatchWidth',
