@@ -99,6 +99,7 @@ InstructionQueue::InstructionQueue(CPU *cpu_ptr, IEW *iew_ptr,
       iqIOStats(cpu)
 {
 std::cout << "InstructionQueue initialized with " << fuPools.size() << " FU pools." << std::endl;
+std::cout << "Issue width is: " << totalWidth << std::endl;
 for (int i = 0; i < fuPools.size(); ++i) {
     assert(fuPools[i]); // Check that each FU pool in fuPools is valid
 }  
