@@ -121,33 +121,6 @@ class BaseO3CPU(BaseCPU):
     wbWidth = Param.Unsigned(4, "Writeback width")
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
-    
-    fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
-    num_clusters = Param.Int(2, "Number of clusters in the CPU")
-    fu_config = VectorParam.Int([], "num of FUs")
-    width = Param.Int(4, "Width of the CPU stages")
-    def __init__(self, *args, **kwargs):
-        super(BaseO3CPU, self).__init__(*args, **kwargs)
-        print(f"BaseO3CPU initialized with {self.num_clusters} clusters and with pipeline width {self.width}.")
-        self.fetchWidth=self.width
-        self.decodeWidth=self.width
-        self.renameWidth=self.width
-        self.dispatchWidth=self.width
-        self.issueWidth=self.width
-        self.wbWidth=self.width
-        self.commitWidth=self.width
-        self.squashWidth=self.width
-       
-        cluster_fu_count = 10  
-        start_idx = 0
-        fu_config_obj = FuncUnitConfig()
-        for i in range(self.num_clusters):
-            cluster_fu_counts = self.fu_config[start_idx:start_idx + cluster_fu_count]
-            #cluster_fu_counts = self.fu_config[i]
-            start_idx += cluster_fu_count
-            new_fupool = fu_config_obj.gen_fu_pool(*cluster_fu_counts) 
-            self.fuPools.append(new_fupool)
-            print(f"FU pool {i} added.")
 
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
@@ -165,8 +138,8 @@ class BaseO3CPU(BaseCPU):
         5, "Time buffer size for forward communication"
     )
 
-    LQEntries = Param.Unsigned(8, "Number of load queue entries")
-    SQEntries = Param.Unsigned(8, "Number of store queue entries")
+    LQEntries = Param.Unsigned(16, "Number of load queue entries")
+    SQEntries = Param.Unsigned(16, "Number of store queue entries")
     LSQDepCheckShift = Param.Unsigned(
         4, "Number of places to shift addr before check"
     )
@@ -186,10 +159,10 @@ class BaseO3CPU(BaseCPU):
     numRobs = Param.Unsigned(1, "Number of Reorder Buffers")
 
     numPhysIntRegs = Param.Unsigned(
-        62, "Number of physical integer registers"
+        128, "Number of physical integer registers"
     )
     numPhysFloatRegs = Param.Unsigned(
-        256, "Number of physical floating point registers"
+        192, "Number of physical floating point registers"
     )
     numPhysVecRegs = Param.Unsigned(256, "Number of physical vector registers")
     numPhysVecPredRegs = Param.Unsigned(
@@ -198,8 +171,8 @@ class BaseO3CPU(BaseCPU):
     numPhysMatRegs = Param.Unsigned(2, "Number of physical matrix registers")
     # most ISAs don't use condition-code regs, so default is 0
     numPhysCCRegs = Param.Unsigned(0, "Number of physical cc registers")
-    numIQEntries = Param.Unsigned(32, "Number of instruction queue entries")
-    numROBEntries = Param.Unsigned(40, "Number of reorder buffer entries")
+    numIQEntries = Param.Unsigned(48, "Number of instruction queue entries")
+    numROBEntries = Param.Unsigned(128, "Number of reorder buffer entries")
 
     smtNumFetchingThreads = Param.Unsigned(1, "SMT Number of Fetching Threads")
     smtFetchPolicy = Param.SMTFetchPolicy("RoundRobin", "SMT Fetch policy")
@@ -219,3 +192,43 @@ class BaseO3CPU(BaseCPU):
         TournamentBP(numThreads=Parent.numThreads), "Branch Predictor"
     )
     needsTSO = Param.Bool(False, "Enable TSO Memory model")
+
+    fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
+    num_clusters = Param.Int(2, "Number of clusters in the CPU")
+    fu_config = VectorParam.Int([], "num of FUs")
+    width = Param.Int(4, "Width of the CPU stages")
+    def __init__(self, *args, **kwargs):
+        super(BaseO3CPU, self).__init__(*args, **kwargs)
+        print(f"BaseO3CPU initialized with {self.num_clusters} clusters and with pipeline width {self.width}.")
+        self.fetchWidth=self.width
+        self.decodeWidth=self.width
+        self.renameWidth=self.width
+        self.dispatchWidth=self.width
+        self.issueWidth=self.width
+        self.wbWidth=self.width
+        self.commitWidth=self.width
+        self.squashWidth=self.width
+        if (self.width==4):
+            self.numIQEntries=48
+            self.numROBEntries=128
+            self.LQEntries=16
+            self.SQEntries=16
+            self.numPhysIntRegs=128    
+            self.numPhysFloatRegs=192
+        else if (self.width==8):
+            self.numIQEntries=80
+            self.numROBEntries=512
+            self.LQEntries=32
+            self.SQEntries=48
+            self.numPhysIntRegs=280    
+            self.numPhysFloatRegs=332
+        cluster_fu_count = 10  
+        start_idx = 0
+        fu_config_obj = FuncUnitConfig()
+        for i in range(self.num_clusters):
+            cluster_fu_counts = self.fu_config[start_idx:start_idx + cluster_fu_count]
+            #cluster_fu_counts = self.fu_config[i]
+            start_idx += cluster_fu_count
+            new_fupool = fu_config_obj.gen_fu_pool(*cluster_fu_counts) 
+            self.fuPools.append(new_fupool)
+            print(f"FU pool {i} added.")
