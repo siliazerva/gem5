@@ -118,16 +118,26 @@ class BaseO3CPU(BaseCPU):
     )
     dispatchWidth = Param.Unsigned(4, "Dispatch width")
     issueWidth = Param.Unsigned(4, "Issue width")
-    wbWidth = Param.Unsigned(8, "Writeback width")
+    wbWidth = Param.Unsigned(4, "Writeback width")
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
     
     fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
     num_clusters = Param.Int(2, "Number of clusters in the CPU")
     fu_config = VectorParam.Int([], "num of FUs")
+    width = Param.Int(4, "Width of the CPU stages")
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
-        print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
+        print(f"BaseO3CPU initialized with {self.num_clusters} clusters and with pipeline width {self.width}.")
+        self.fetchWidth=self.width
+        self.decodeWidth=self.width
+        self.renameWidth=self.width
+        self.dispatchWidth=self.width
+        self.issueWidth=self.width
+        self.wbWidth=self.width
+        self.commitWidth=self.width
+        self.squashWidth=self.width
+       
         cluster_fu_count = 10  
         start_idx = 0
         fu_config_obj = FuncUnitConfig()
@@ -143,8 +153,8 @@ class BaseO3CPU(BaseCPU):
         1, "Issue/Execute/Writeback to commit delay"
     )
     renameToROBDelay = Param.Cycles(1, "Rename to reorder buffer delay")
-    commitWidth = Param.Unsigned(8, "Commit width")
-    squashWidth = Param.Unsigned(8, "Squash width")
+    commitWidth = Param.Unsigned(4, "Commit width")
+    squashWidth = Param.Unsigned(4, "Squash width")
     trapLatency = Param.Cycles(13, "Trap latency")
     fetchTrapLatency = Param.Cycles(1, "Fetch trap latency")
 
