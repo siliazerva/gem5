@@ -50,15 +50,19 @@ class FUPool(SimObject):
 
 
 class DefaultFUPool(FUPool):
-    FUList = [
-        IntALU(),
-        IntMultDiv(),
-        FP_ALU(),
-        FP_MultDiv(),
+    def __init__(self, width=4):  # Default to 4 if not provided
+        super().__init__()  
+        self.width = width  
+        print(f"DefaultFUPool (baseline) initialized for width {self.width}.")
+        FUList = [
+        IntALU(count=width),
+        IntMultDiv(count=width),
+        FP_ALU(count=width),
+        FP_MultDiv(count=width),
         ReadPort(),
-        SIMD_Unit(),
-        PredALU(),
+        SIMD_Unit(count=width),
+        PredALU(count=width),
         WritePort(),
-        RdWrPort(),
-        IprPort(),
+        RdWrPort(count=width),
+        IprPort(count=width),
     ]
