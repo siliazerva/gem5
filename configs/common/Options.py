@@ -699,6 +699,12 @@ def addCommonOptions(parser, default_isa: Optional[ISA] = None):
         type=str,
         help="List of lists containing FU counts for each cluster."
     )
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=4,
+        help="Pipeline widths"
+    )
 
 def addSEOptions(parser):
     # Benchmark options
