@@ -37,136 +37,139 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from m5.defines import buildEnv
+from m5.objects import FUPool  
 from m5.objects.FuncUnit import *
 from m5.params import *
 from m5.SimObject import SimObject
 
 
-class IntALU(FUDesc):
-    opList = [OpDesc(opClass="IntAlu")]
-    count = 4
-    #count=8
+class FuncUnitConfig:
+    def gen_fu_pool(self, width=4):
+        from m5.objects import FUPool  
+        print(FUPool)
+        fupool = FUPool()
 
-class IntMultDiv(FUDesc):
-    opList = [
-        OpDesc(opClass="IntMult", opLat=3),
-        OpDesc(opClass="IntDiv", opLat=20, pipelined=False),
-    ]
+        class IntALU(FUDesc):
+            opList = [OpDesc(opClass="IntAlu")]
+            count = width
 
-    count = 4
-    #count=8
+        class IntMultDiv(FUDesc):
+            opList = [
+                OpDesc(opClass="IntMult", opLat=3),
+                OpDesc(opClass="IntDiv", opLat=20, pipelined=False),
+            ]
+            count = width
 
-class FP_ALU(FUDesc):
-    opList = [
-        OpDesc(opClass="FloatAdd", opLat=2),
-        OpDesc(opClass="FloatCmp", opLat=2),
-        OpDesc(opClass="FloatCvt", opLat=2),
-    ]
-    count = 4
-    #count=8
+        class FP_ALU(FUDesc):
+            opList = [
+                OpDesc(opClass="FloatAdd", opLat=2),
+                OpDesc(opClass="FloatCmp", opLat=2),
+                OpDesc(opClass="FloatCvt", opLat=2),
+            ]
+            count = width
 
-class FP_MultDiv(FUDesc):
-    opList = [
-        OpDesc(opClass="FloatMult", opLat=4),
-        OpDesc(opClass="FloatMultAcc", opLat=5),
-        OpDesc(opClass="FloatMisc", opLat=3),
-        OpDesc(opClass="FloatDiv", opLat=12, pipelined=False),
-        OpDesc(opClass="FloatSqrt", opLat=24, pipelined=False),
-    ]
-    count = 4
-    #count=8
+        class FP_MultDiv(FUDesc):
+            opList = [
+                OpDesc(opClass="FloatMult", opLat=4),
+                OpDesc(opClass="FloatMultAcc", opLat=5),
+                OpDesc(opClass="FloatMisc", opLat=3),
+                OpDesc(opClass="FloatDiv", opLat=12, pipelined=False),
+                OpDesc(opClass="FloatSqrt", opLat=24, pipelined=False),
+            ]
+            count = width
 
-class SIMD_Unit(FUDesc):
-    opList = [
-        OpDesc(opClass="SimdAdd"),
-        OpDesc(opClass="SimdAddAcc"),
-        OpDesc(opClass="SimdAlu"),
-        OpDesc(opClass="SimdCmp"),
-        OpDesc(opClass="SimdCvt"),
-        OpDesc(opClass="SimdMisc"),
-        OpDesc(opClass="SimdMult"),
-        OpDesc(opClass="SimdMultAcc"),
-        OpDesc(opClass="SimdMatMultAcc"),
-        OpDesc(opClass="SimdShift"),
-        OpDesc(opClass="SimdShiftAcc"),
-        OpDesc(opClass="SimdDiv"),
-        OpDesc(opClass="SimdSqrt"),
-        OpDesc(opClass="SimdFloatAdd"),
-        OpDesc(opClass="SimdFloatAlu"),
-        OpDesc(opClass="SimdFloatCmp"),
-        OpDesc(opClass="SimdFloatCvt"),
-        OpDesc(opClass="SimdFloatDiv"),
-        OpDesc(opClass="SimdFloatMisc"),
-        OpDesc(opClass="SimdFloatMult"),
-        OpDesc(opClass="SimdFloatMultAcc"),
-        OpDesc(opClass="SimdFloatMatMultAcc"),
-        OpDesc(opClass="SimdFloatSqrt"),
-        OpDesc(opClass="SimdReduceAdd"),
-        OpDesc(opClass="SimdReduceAlu"),
-        OpDesc(opClass="SimdReduceCmp"),
-        OpDesc(opClass="SimdFloatReduceAdd"),
-        OpDesc(opClass="SimdFloatReduceCmp"),
-        OpDesc(opClass="SimdExt"),
-        OpDesc(opClass="SimdFloatExt"),
-        OpDesc(opClass="SimdConfig"),
-    ]
-    count = 4
-    #count=8
+        class SIMD_Unit(FUDesc):
+            opList = [
+                OpDesc(opClass="SimdAdd"),
+                OpDesc(opClass="SimdAddAcc"),
+                OpDesc(opClass="SimdAlu"),
+                OpDesc(opClass="SimdCmp"),
+                OpDesc(opClass="SimdCvt"),
+                OpDesc(opClass="SimdMisc"),
+                OpDesc(opClass="SimdMult"),
+                OpDesc(opClass="SimdMultAcc"),
+                OpDesc(opClass="SimdMatMultAcc"),
+                OpDesc(opClass="SimdShift"),
+                OpDesc(opClass="SimdShiftAcc"),
+                OpDesc(opClass="SimdDiv"),
+                OpDesc(opClass="SimdSqrt"),
+                OpDesc(opClass="SimdFloatAdd"),
+                OpDesc(opClass="SimdFloatAlu"),
+                OpDesc(opClass="SimdFloatCmp"),
+                OpDesc(opClass="SimdFloatCvt"),
+                OpDesc(opClass="SimdFloatDiv"),
+                OpDesc(opClass="SimdFloatMisc"),
+                OpDesc(opClass="SimdFloatMult"),
+                OpDesc(opClass="SimdFloatMultAcc"),
+                OpDesc(opClass="SimdFloatMatMultAcc"),
+                OpDesc(opClass="SimdFloatSqrt"),
+                OpDesc(opClass="SimdReduceAdd"),
+                OpDesc(opClass="SimdReduceAlu"),
+                OpDesc(opClass="SimdReduceCmp"),
+                OpDesc(opClass="SimdFloatReduceAdd"),
+                OpDesc(opClass="SimdFloatReduceCmp"),
+                OpDesc(opClass="SimdExt"),
+                OpDesc(opClass="SimdFloatExt"),
+                OpDesc(opClass="SimdConfig"),
+            ]
+            count = width
 
-class PredALU(FUDesc):
-    opList = [OpDesc(opClass="SimdPredAlu")]
-    count = 4
-    #count=8
+        class PredALU(FUDesc):
+            opList = [OpDesc(opClass="SimdPredAlu")]
+            count = width
 
-class ReadPort(FUDesc):
-    opList = [
-        OpDesc(opClass="MemRead"),
-        OpDesc(opClass="FloatMemRead"),
-        OpDesc(opClass="SimdUnitStrideLoad"),
-        OpDesc(opClass="SimdUnitStrideMaskLoad"),
-        OpDesc(opClass="SimdStridedLoad"),
-        OpDesc(opClass="SimdIndexedLoad"),
-        OpDesc(opClass="SimdUnitStrideFaultOnlyFirstLoad"),
-        OpDesc(opClass="SimdWholeRegisterLoad"),
-    ]
-    count = 0
+        class ReadPort(FUDesc):
+            opList = [
+                OpDesc(opClass="MemRead"),
+                OpDesc(opClass="FloatMemRead"),
+                OpDesc(opClass="SimdUnitStrideLoad"),
+                OpDesc(opClass="SimdUnitStrideMaskLoad"),
+                OpDesc(opClass="SimdStridedLoad"),
+                OpDesc(opClass="SimdIndexedLoad"),
+                OpDesc(opClass="SimdUnitStrideFaultOnlyFirstLoad"),
+                OpDesc(opClass="SimdWholeRegisterLoad"),
+            ]
+            count = 0
 
+        class WritePort(FUDesc):
+            opList = [
+                OpDesc(opClass="MemWrite"),
+                OpDesc(opClass="FloatMemWrite"),
+                OpDesc(opClass="SimdUnitStrideStore"),
+                OpDesc(opClass="SimdUnitStrideMaskStore"),
+                OpDesc(opClass="SimdStridedStore"),
+                OpDesc(opClass="SimdIndexedStore"),
+                OpDesc(opClass="SimdWholeRegisterStore"),
+            ]
+            count = 0
 
-class WritePort(FUDesc):
-    opList = [
-        OpDesc(opClass="MemWrite"),
-        OpDesc(opClass="FloatMemWrite"),
-        OpDesc(opClass="SimdUnitStrideStore"),
-        OpDesc(opClass="SimdUnitStrideMaskStore"),
-        OpDesc(opClass="SimdStridedStore"),
-        OpDesc(opClass="SimdIndexedStore"),
-        OpDesc(opClass="SimdWholeRegisterStore"),
-    ]
-    count = 0
+        class RdWrPort(FUDesc):
+            opList = [
+                OpDesc(opClass="MemRead"),
+                OpDesc(opClass="MemWrite"),
+                OpDesc(opClass="FloatMemRead"),
+                OpDesc(opClass="FloatMemWrite"),
+                OpDesc(opClass="SimdUnitStrideLoad"),
+                OpDesc(opClass="SimdUnitStrideStore"),
+                OpDesc(opClass="SimdUnitStrideMaskLoad"),
+                OpDesc(opClass="SimdUnitStrideMaskStore"),
+                OpDesc(opClass="SimdStridedLoad"),
+                OpDesc(opClass="SimdStridedStore"),
+                OpDesc(opClass="SimdIndexedLoad"),
+                OpDesc(opClass="SimdIndexedStore"),
+                OpDesc(opClass="SimdUnitStrideFaultOnlyFirstLoad"),
+                OpDesc(opClass="SimdWholeRegisterLoad"),
+                OpDesc(opClass="SimdWholeRegisterStore"),
+            ]
+            count = width
 
+        class IprPort(FUDesc):
+            opList = [OpDesc(opClass="IprAccess", opLat=3, pipelined=False)]
+            count = width
 
-class RdWrPort(FUDesc):
-    opList = [
-        OpDesc(opClass="MemRead"),
-        OpDesc(opClass="MemWrite"),
-        OpDesc(opClass="FloatMemRead"),
-        OpDesc(opClass="FloatMemWrite"),
-        OpDesc(opClass="SimdUnitStrideLoad"),
-        OpDesc(opClass="SimdUnitStrideStore"),
-        OpDesc(opClass="SimdUnitStrideMaskLoad"),
-        OpDesc(opClass="SimdUnitStrideMaskStore"),
-        OpDesc(opClass="SimdStridedLoad"),
-        OpDesc(opClass="SimdStridedStore"),
-        OpDesc(opClass="SimdIndexedLoad"),
-        OpDesc(opClass="SimdIndexedStore"),
-        OpDesc(opClass="SimdUnitStrideFaultOnlyFirstLoad"),
-        OpDesc(opClass="SimdWholeRegisterLoad"),
-        OpDesc(opClass="SimdWholeRegisterStore"),
-    ]
-    count = 4
-    #count=8
-
-class IprPort(FUDesc):
-    opList = [OpDesc(opClass="IprAccess", opLat=3, pipelined=False)]
-    count = 4
-    #count=8
+        fus = [
+            IntALU(), IntMultDiv(), FP_ALU(), FP_MultDiv(), SIMD_Unit(), 
+            PredALU(), ReadPort(), WritePort(), RdWrPort(), IprPort()
+        ]
+        fupool.FUList = fus
+        return fupool
