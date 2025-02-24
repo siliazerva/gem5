@@ -3,7 +3,7 @@
 #
 # The license below extends only to copyright in the software and shall
 # not be construed as granting a license to any other intellectual
-# property including but not limited to intellectual property relatingvector
+# property including but not limited to intellectual property relating
 # to a hardware implementation of the functionality of the software
 # licensed hereunder.  You may use the software subject to the license
 # terms below provided that you ensure that this notice is replicated
@@ -41,7 +41,6 @@ from m5.objects.BaseCPU import BaseCPU
 
 # from m5.objects.O3Checker import O3Checker
 from m5.objects.BranchPredictor import *
-from m5.objects.FuncUnitConfig import *
 from m5.objects.FUPool import *
 from m5.params import *
 from m5.proxy import *
@@ -75,7 +74,46 @@ class BaseO3CPU(BaseCPU):
     @classmethod
     def support_take_over(cls):
         return True
-
+    def __init__(self, *args, **kwargs):
+        super(BaseO3CPU, self).__init__(*args, **kwargs)
+        width_value=self.width.value
+        
+        print(f"BaseO3CPU initialized with {self.num_clusters} clusters and with pipeline width {self.width}.")
+        width_params = [
+        'fetchWidth', 'decodeWidth', 'renameWidth', 'dispatchWidth',
+        'issueWidth', 'wbWidth', 'commitWidth', 'squashWidth'
+        ]
+        for param in width_params:
+            setattr(self, param, self.width)
+        if width_value==4:
+            print("Setting parameters for width 4")
+            self.numIQEntries=48
+            self.numROBEntries=128
+            self.LQEntries=16
+            self.SQEntries=16
+            self.numPhysIntRegs=128    
+            self.numPhysFloatRegs=192
+        elif width_value==8:
+            print("Setting parameters for width 8")
+            self.numIQEntries=80
+            self.numROBEntries=512
+            self.LQEntries=32
+            self.SQEntries=48
+            self.numPhysIntRegs=280    
+            self.numPhysFloatRegs=332
+        else:
+            print(f"Warning: Using default values for width {self.width}")
+        cluster_fu_count = 10  
+        start_idx = 0
+        fu_config_obj = FuncUnitConfig()
+        for i in range(self.num_clusters):
+            cluster_fu_counts = self.fu_config[start_idx:start_idx + cluster_fu_count]
+            #cluster_fu_counts = self.fu_config[i]
+            start_idx += cluster_fu_count
+            new_fupool = fu_config_obj.gen_fu_pool(*cluster_fu_counts) 
+            self.fuPools.append(new_fupool)
+            print(f"FU pool {i} added.")
+    
     activity = Param.Unsigned(0, "Initial count")
 
     cacheStorePorts = Param.Unsigned(
@@ -119,34 +157,16 @@ class BaseO3CPU(BaseCPU):
     )
     dispatchWidth = Param.Unsigned(4, "Dispatch width")
     issueWidth = Param.Unsigned(4, "Issue width")
-    wbWidth = Param.Unsigned(8, "Writeback width")
+    wbWidth = Param.Unsigned(4, "Writeback width")
     #fuPool1 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster1")
     #fuPool2 = Param.FUPool(DefaultFUPool(), "Functional Unit pool cluster2")
-
-    
-    fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
-    num_clusters = Param.Int(2, "Number of clusters in the CPU")
-    fu_config = VectorParam.Int([], "num of FUs")
-    def __init__(self, *args, **kwargs):
-        super(BaseO3CPU, self).__init__(*args, **kwargs)
-        print(f"BaseO3CPU initialized with {self.num_clusters} clusters.")
-        cluster_fu_count = 10  
-        start_idx = 0
-        fu_config_obj = FuncUnitConfig()
-        for i in range(self.num_clusters):
-            cluster_fu_counts = self.fu_config[start_idx:start_idx + cluster_fu_count]
-            #cluster_fu_counts = self.fu_config[i]
-            start_idx += cluster_fu_count
-            new_fupool = fu_config_obj.gen_fu_pool(*cluster_fu_counts) 
-            self.fuPools.append(new_fupool)
-            print(f"FU pool {i} added.")
 
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
     )
     renameToROBDelay = Param.Cycles(1, "Rename to reorder buffer delay")
-    commitWidth = Param.Unsigned(8, "Commit width")
-    squashWidth = Param.Unsigned(8, "Squash width")
+    commitWidth = Param.Unsigned(4, "Commit width")
+    squashWidth = Param.Unsigned(4, "Squash width")
     trapLatency = Param.Cycles(13, "Trap latency")
     fetchTrapLatency = Param.Cycles(1, "Fetch trap latency")
 
@@ -157,8 +177,8 @@ class BaseO3CPU(BaseCPU):
         5, "Time buffer size for forward communication"
     )
 
-    LQEntries = Param.Unsigned(8, "Number of load queue entries")
-    SQEntries = Param.Unsigned(8, "Number of store queue entries")
+    LQEntries = Param.Unsigned(16, "Number of load queue entries")
+    SQEntries = Param.Unsigned(16, "Number of store queue entries")
     LSQDepCheckShift = Param.Unsigned(
         4, "Number of places to shift addr before check"
     )
@@ -178,10 +198,10 @@ class BaseO3CPU(BaseCPU):
     numRobs = Param.Unsigned(1, "Number of Reorder Buffers")
 
     numPhysIntRegs = Param.Unsigned(
-        62, "Number of physical integer registers"
+        128, "Number of physical integer registers"
     )
     numPhysFloatRegs = Param.Unsigned(
-        256, "Number of physical floating point registers"
+        192, "Number of physical floating point registers"
     )
     numPhysVecRegs = Param.Unsigned(256, "Number of physical vector registers")
     numPhysVecPredRegs = Param.Unsigned(
@@ -190,8 +210,8 @@ class BaseO3CPU(BaseCPU):
     numPhysMatRegs = Param.Unsigned(2, "Number of physical matrix registers")
     # most ISAs don't use condition-code regs, so default is 0
     numPhysCCRegs = Param.Unsigned(0, "Number of physical cc registers")
-    numIQEntries = Param.Unsigned(32, "Number of instruction queue entries")
-    numROBEntries = Param.Unsigned(40, "Number of reorder buffer entries")
+    numIQEntries = Param.Unsigned(48, "Number of instruction queue entries")
+    numROBEntries = Param.Unsigned(128, "Number of reorder buffer entries")
 
     smtNumFetchingThreads = Param.Unsigned(1, "SMT Number of Fetching Threads")
     smtFetchPolicy = Param.SMTFetchPolicy("RoundRobin", "SMT Fetch policy")
@@ -211,3 +231,8 @@ class BaseO3CPU(BaseCPU):
         TournamentBP(numThreads=Parent.numThreads), "Branch Predictor"
     )
     needsTSO = Param.Bool(False, "Enable TSO Memory model")
+
+    fuPools = VectorParam.FUPool([], "Functional Unit pools for each cluster")
+    num_clusters = Param.Int(2, "Number of clusters in the CPU")
+    fu_config = VectorParam.Int([], "num of FUs")
+    width = Param.Int(4, "Width of the CPU stages")
