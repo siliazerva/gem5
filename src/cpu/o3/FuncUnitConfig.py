@@ -47,6 +47,7 @@ class FuncUnitConfig:
     def gen_fu_pool(self, width=4):
         from m5.objects import FUPool  
         print(FUPool)
+        print(f"Width received in gen_fu_pool: {width}")
         fupool = FUPool()
 
         class IntALU(FUDesc):
