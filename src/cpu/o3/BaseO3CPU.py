@@ -149,7 +149,7 @@ class BaseO3CPU(BaseCPU):
     dispatchWidth = Param.Unsigned(4, "Dispatch width")
     issueWidth = Param.Unsigned(4, "Issue width")
     wbWidth = Param.Unsigned(8, "Writeback width")
-    fupool = fu_config_obj.gen_fu_pool(width=4)
+
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
     )
