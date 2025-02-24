@@ -74,7 +74,35 @@ class BaseO3CPU(BaseCPU):
     @classmethod
     def support_take_over(cls):
         return True
-
+    def __init__(self, *args, **kwargs):
+        super(BaseO3CPU, self).__init__(*args, **kwargs)
+        width_value=self.width.value
+        
+        print(f"BaseO3CPU (baseline) initialized with pipeline width {self.width}.")
+        width_params = [
+        'fetchWidth', 'decodeWidth', 'renameWidth', 'dispatchWidth',
+        'issueWidth', 'wbWidth', 'commitWidth', 'squashWidth'
+        ]
+        for param in width_params:
+            setattr(self, param, self.width)
+        if width_value==4:
+            print("Setting parameters for width 4")
+            self.numIQEntries=48
+            self.numROBEntries=128
+            self.LQEntries=16
+            self.SQEntries=16
+            self.numPhysIntRegs=128    
+            self.numPhysFloatRegs=192
+        elif width_value==8:
+            print("Setting parameters for width 8")
+            self.numIQEntries=80
+            self.numROBEntries=512
+            self.LQEntries=32
+            self.SQEntries=48
+            self.numPhysIntRegs=280    
+            self.numPhysFloatRegs=332
+        else:
+            print(f"Warning: Using default values for width {self.width}")
     activity = Param.Unsigned(0, "Initial count")
 
     cacheStorePorts = Param.Unsigned(
@@ -137,8 +165,8 @@ class BaseO3CPU(BaseCPU):
         5, "Time buffer size for forward communication"
     )
 
-    LQEntries = Param.Unsigned(192, "Number of load queue entries")
-    SQEntries = Param.Unsigned(114, "Number of store queue entries")
+    LQEntries = Param.Unsigned(16, "Number of load queue entries")
+    SQEntries = Param.Unsigned(16, "Number of store queue entries")
     LSQDepCheckShift = Param.Unsigned(
         4, "Number of places to shift addr before check"
     )
@@ -158,10 +186,10 @@ class BaseO3CPU(BaseCPU):
     numRobs = Param.Unsigned(1, "Number of Reorder Buffers")
 
     numPhysIntRegs = Param.Unsigned(
-        280, "Number of physical integer registers"
+        128, "Number of physical integer registers"
     )
     numPhysFloatRegs = Param.Unsigned(
-        332, "Number of physical floating point registers"
+        192, "Number of physical floating point registers"
     )
     numPhysVecRegs = Param.Unsigned(256, "Number of physical vector registers")
     numPhysVecPredRegs = Param.Unsigned(
@@ -170,8 +198,8 @@ class BaseO3CPU(BaseCPU):
     numPhysMatRegs = Param.Unsigned(2, "Number of physical matrix registers")
     # most ISAs don't use condition-code regs, so default is 0
     numPhysCCRegs = Param.Unsigned(0, "Number of physical cc registers")
-    numIQEntries = Param.Unsigned(97, "Number of instruction queue entries")
-    numROBEntries = Param.Unsigned(512, "Number of reorder buffer entries")
+    numIQEntries = Param.Unsigned(48, "Number of instruction queue entries")
+    numROBEntries = Param.Unsigned(128, "Number of reorder buffer entries")
 
     smtNumFetchingThreads = Param.Unsigned(1, "SMT Number of Fetching Threads")
     smtFetchPolicy = Param.SMTFetchPolicy("RoundRobin", "SMT Fetch policy")
