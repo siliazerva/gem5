@@ -193,7 +193,7 @@ if args.fu_config:
 np = args.num_cpus
 mp0_path = multiprocesses[0].executable
 system = System(
-    cpu=[CPUClass(cpu_id=i, num_clusters=args.num_clusters, fu_config=args.fu_config) for i in range(np)],
+    cpu=[CPUClass(cpu_id=i, num_clusters=args.num_clusters, fu_config=args.fu_config, width=args.width) for i in range(np)],
     mem_mode=test_mem_mode,
     mem_ranges=[AddrRange(args.mem_size)],
     cache_line_size=args.cacheline_size,
