@@ -107,6 +107,7 @@ class BaseO3CPU(BaseCPU):
             print(f"Warning: Using default values for width {self.width}")
     activity = Param.Unsigned(0, "Initial count")
     fuPool = Param.FUPool(FUPool(), "Functional Unit pool")
+    width = Param.Int(4, "Width of the CPU stages")
     cacheStorePorts = Param.Unsigned(
         200, "Cache Ports. Constrains stores only."
     )
