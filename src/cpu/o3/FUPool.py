@@ -49,20 +49,4 @@ class FUPool(SimObject):
     FUList = VectorParam.FUDesc("list of FU's for this pool")
 
 
-class DefaultFUPool(FUPool):
-    def __init__(self, width=4):  # Default to 4 if not provided
-        super().__init__()  
-        self.width = width  
-        print(f"DefaultFUPool (baseline) initialized for width {self.width}.")
-        FUList = [
-        IntALU(count=width),
-        IntMultDiv(count=width),
-        FP_ALU(count=width),
-        FP_MultDiv(count=width),
-        ReadPort(),
-        SIMD_Unit(count=width),
-        PredALU(count=width),
-        WritePort(),
-        RdWrPort(count=width),
-        IprPort(count=width),
-    ]
+
