@@ -77,7 +77,7 @@ class BaseO3CPU(BaseCPU):
     def __init__(self, *args, **kwargs):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         width_value=self.width.value
-        
+        fuPool = Param.FUPool(DefaultFUPool(width=self.width), "Functional Unit pool")
         print(f"BaseO3CPU (baseline) initialized with pipeline width {self.width}.")
         width_params = [
         'fetchWidth', 'decodeWidth', 'renameWidth', 'dispatchWidth',
@@ -147,7 +147,7 @@ class BaseO3CPU(BaseCPU):
     dispatchWidth = Param.Unsigned(4, "Dispatch width")
     issueWidth = Param.Unsigned(4, "Issue width")
     wbWidth = Param.Unsigned(8, "Writeback width")
-    fuPool = Param.FUPool(DefaultFUPool(), "Functional Unit pool")
+    fuPool = Param.FUPool(DefaultFUPool(width=4), "Functional Unit pool")
 
     iewToCommitDelay = Param.Cycles(
         1, "Issue/Execute/Writeback to commit delay"
