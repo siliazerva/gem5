@@ -78,8 +78,8 @@ class BaseO3CPU(BaseCPU):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         width_value=self.width.value
         fu_config_obj = FuncUnitConfig()
-        #fuPool = Param.FUPool(DefaultFUPool(width=self.width), "Functional Unit pool")
-        fupool = fu_config_obj.gen_fu_pool(self.width)
+        fuPool = Param.FUPool(fu_config_obj.gen_fu_pool(self.width), "Functional Unit pool")
+        #fuPool = fu_config_obj.gen_fu_pool(self.width)
         print(f"BaseO3CPU (baseline) initialized with pipeline width {self.width}.")
         width_params = [
         'fetchWidth', 'decodeWidth', 'renameWidth', 'dispatchWidth',
