@@ -78,7 +78,7 @@ class BaseO3CPU(BaseCPU):
         super(BaseO3CPU, self).__init__(*args, **kwargs)
         width_value=self.width.value
         fu_config_obj = FuncUnitConfig()
-        fuPool = Param.FUPool(fu_config_obj.gen_fu_pool(self.width), "Functional Unit pool")
+        self.fuPool = fu_config_obj.gen_fu_pool(self.width)
         #fuPool = fu_config_obj.gen_fu_pool(self.width)
         print(f"BaseO3CPU (baseline) initialized with pipeline width {self.width}.")
         width_params = [
@@ -106,7 +106,7 @@ class BaseO3CPU(BaseCPU):
         else:
             print(f"Warning: Using default values for width {self.width}")
     activity = Param.Unsigned(0, "Initial count")
-
+    fuPool = Param.FUPool(FUPool(), "Functional Unit pool")
     cacheStorePorts = Param.Unsigned(
         200, "Cache Ports. Constrains stores only."
     )
