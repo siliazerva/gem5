@@ -174,5 +174,7 @@ class FuncUnitConfig:
             IntALU(), IntMultDiv(), FP_ALU(), FP_MultDiv(), SIMD_Unit(), 
             PredALU(), ReadPort(), WritePort(), RdWrPort(), IprPort()
         ]
+        for fu in fus:
+            print(f"{fu.__class__.__name__}: count = {fu.count}")
         fupool.FUList = fus
         return fupool
