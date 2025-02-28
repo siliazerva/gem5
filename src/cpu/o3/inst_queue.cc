@@ -799,7 +799,7 @@ void
 InstructionQueue::scheduleReadyInsts()
 {
     //bool adjacent_loads=false;
-    int diff_clust=0;
+    
     //int num_cl = fuPools.size();
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
@@ -872,59 +872,7 @@ InstructionQueue::scheduleReadyInsts()
             cluster, dest_reg->index(), issuing_inst->seqNum);
 }
 
-  //check for the stats  
-    int8_t num_src_regs = issuing_inst->numSrcRegs();
-    for (int src_reg_idx = 0;
-         src_reg_idx < num_src_regs;
-         src_reg_idx++)
-    {
-        PhysRegIdPtr src_reg = issuing_inst->renamedSrcIdx(src_reg_idx);
-        if (src_reg->cluster_id != -1 && src_reg->cluster_id != cluster) diff_clust++;
-            
-    }
-    
-if (num_src_regs == 1) {
-    if (diff_clust == 0) {
-        iqStats.insts1++;
-        iqStats.instsHist.sample(0, 1);  // insts1
-    }
-    if (diff_clust == 1) {
-        iqStats.insts2++;
-        iqStats.instsHist.sample(1, 1);  // insts2
-    }
-}
-if (num_src_regs == 2) {
-    if (diff_clust == 0) {
-        iqStats.insts3++;
-        iqStats.instsHist.sample(2, 1);  // insts3
-    }
-    if (diff_clust == 1) {
-        iqStats.insts4++;
-        iqStats.instsHist.sample(3, 1);  // insts4
-    }
-    if (diff_clust == 2) {
-        iqStats.insts5++;
-        iqStats.instsHist.sample(4, 1);  // insts5
-    }
-}
-if (num_src_regs == 3) {
-    if (diff_clust == 0) {
-        iqStats.insts6++;
-        iqStats.instsHist.sample(5, 1);  // insts6
-    }
-    if (diff_clust == 1) {
-        iqStats.insts7++;
-        iqStats.instsHist.sample(6, 1);  // insts7
-    }
-    if (diff_clust == 2) {
-        iqStats.insts8++;
-        iqStats.instsHist.sample(7, 1);  // insts8
-    }
-    if (diff_clust == 3) {
-        iqStats.insts9++;
-        iqStats.instsHist.sample(8, 1);  // insts9
-    }
-}    
+   
     
 
         
@@ -1020,7 +968,60 @@ if (num_src_regs == 3) {
                 readyIt[op_class] = listOrder.end();
                 queueOnList[op_class] = false;
             }
-
+	     //check for the stats  
+    int diff_clust=0;	
+    int8_t num_src_regs = issuing_inst->numSrcRegs();
+    for (int src_reg_idx = 0;
+         src_reg_idx < num_src_regs;
+         src_reg_idx++)
+    {
+        PhysRegIdPtr src_reg = issuing_inst->renamedSrcIdx(src_reg_idx);
+        if (src_reg->cluster_id != -1 && src_reg->cluster_id != cluster) diff_clust++;
+            
+    }
+    
+if (num_src_regs == 1) {
+    if (diff_clust == 0) {
+        iqStats.insts1++;
+        iqStats.instsHist.sample(0, 1);  // insts1
+    }
+    if (diff_clust == 1) {
+        iqStats.insts2++;
+        iqStats.instsHist.sample(1, 1);  // insts2
+    }
+}
+if (num_src_regs == 2) {
+    if (diff_clust == 0) {
+        iqStats.insts3++;
+        iqStats.instsHist.sample(2, 1);  // insts3
+    }
+    if (diff_clust == 1) {
+        iqStats.insts4++;
+        iqStats.instsHist.sample(3, 1);  // insts4
+    }
+    if (diff_clust == 2) {
+        iqStats.insts5++;
+        iqStats.instsHist.sample(4, 1);  // insts5
+    }
+}
+if (num_src_regs == 3) {
+    if (diff_clust == 0) {
+        iqStats.insts6++;
+        iqStats.instsHist.sample(5, 1);  // insts6
+    }
+    if (diff_clust == 1) {
+        iqStats.insts7++;
+        iqStats.instsHist.sample(6, 1);  // insts7
+    }
+    if (diff_clust == 2) {
+        iqStats.insts8++;
+        iqStats.instsHist.sample(7, 1);  // insts8
+    }
+    if (diff_clust == 3) {
+        iqStats.insts9++;
+        iqStats.instsHist.sample(8, 1);  // insts9
+    }
+}  
             issuing_inst->setIssued();
             ++total_issued;
 
