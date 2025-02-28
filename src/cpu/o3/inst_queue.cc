@@ -804,7 +804,7 @@ InstructionQueue::processFUCompletion(const DynInstPtr &inst, int fu_idx)
 void
 InstructionQueue::scheduleReadyInsts()
 {
-	int diff_clust=0;
+	
     DPRINTF(IQ, "Attempting to schedule ready instructions from "
             "the IQ.\n");
 
@@ -938,57 +938,7 @@ if (selectedCluster != -1) {
                 DPRINTF(IQ,"Setting physical register's (register id:%d) cluster id=%d (intsruction with sn:%llu).\n", flat_reg.index(), issuing_inst->cluster_id ,issuing_inst->seqNum);
         }
     }
-	//now that the instruction has an id check for registers' id's to get stats.
-	unsigned num_src_regs = issuing_inst->numSrcRegs();
-	for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
-		PhysRegIdPtr phys_reg_ptr =issuing_inst->renamedSrcIdx(src_idx);
-		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr->cluster_id!=issuing_inst->cluster_id) diff_clust++;
-	}
 
-	    
-//STATS!!!!!!!
-if (num_src_regs == 1) {
-    if (diff_clust == 0) {
-        iqStats.insts1++;
-        iqStats.instsHist.sample(0, 1);  // insts1
-    }
-    if (diff_clust == 1) {
-        iqStats.insts2++;
-        iqStats.instsHist.sample(1, 1);  // insts2
-    }
-}
-if (num_src_regs == 2) {
-    if (diff_clust == 0) {
-        iqStats.insts3++;
-        iqStats.instsHist.sample(2, 1);  // insts3
-    }
-    if (diff_clust == 1) {
-        iqStats.insts4++;
-        iqStats.instsHist.sample(3, 1);  // insts4
-    }
-    if (diff_clust == 2) {
-        iqStats.insts5++;
-        iqStats.instsHist.sample(4, 1);  // insts5
-    }
-}
-if (num_src_regs == 3) {
-    if (diff_clust == 0) {
-        iqStats.insts6++;
-        iqStats.instsHist.sample(5, 1);  // insts6
-    }
-    if (diff_clust == 1) {
-        iqStats.insts7++;
-        iqStats.instsHist.sample(6, 1);  // insts7
-    }
-    if (diff_clust == 2) {
-        iqStats.insts8++;
-        iqStats.instsHist.sample(7, 1);  // insts8
-    }
-    if (diff_clust == 3) {
-        iqStats.insts9++;
-        iqStats.instsHist.sample(8, 1);  // insts9
-    }
-}
 
 
         if (op_class != No_OpClass) {
@@ -1050,7 +1000,57 @@ if (num_src_regs == 3) {
                 readyIt[op_class] = listOrder.end();
                 queueOnList[op_class] = false;
             }
-
+	    	//now that the instruction has an id check for registers' id's to get stats.
+	int diff_clust=0;
+	unsigned num_src_regs = issuing_inst->numSrcRegs();
+	for (int src_idx = 0; src_idx < num_src_regs; src_idx++) {
+		PhysRegIdPtr phys_reg_ptr =issuing_inst->renamedSrcIdx(src_idx);
+		if (phys_reg_ptr->cluster_id!=-1 && phys_reg_ptr->cluster_id!=issuing_inst->cluster_id) diff_clust++;
+	}
+	    
+//STATS!!!!!!!
+if (num_src_regs == 1) {
+    if (diff_clust == 0) {
+        iqStats.insts1++;
+        iqStats.instsHist.sample(0, 1);  // insts1
+    }
+    if (diff_clust == 1) {
+        iqStats.insts2++;
+        iqStats.instsHist.sample(1, 1);  // insts2
+    }
+}
+if (num_src_regs == 2) {
+    if (diff_clust == 0) {
+        iqStats.insts3++;
+        iqStats.instsHist.sample(2, 1);  // insts3
+    }
+    if (diff_clust == 1) {
+        iqStats.insts4++;
+        iqStats.instsHist.sample(3, 1);  // insts4
+    }
+    if (diff_clust == 2) {
+        iqStats.insts5++;
+        iqStats.instsHist.sample(4, 1);  // insts5
+    }
+}
+if (num_src_regs == 3) {
+    if (diff_clust == 0) {
+        iqStats.insts6++;
+        iqStats.instsHist.sample(5, 1);  // insts6
+    }
+    if (diff_clust == 1) {
+        iqStats.insts7++;
+        iqStats.instsHist.sample(6, 1);  // insts7
+    }
+    if (diff_clust == 2) {
+        iqStats.insts8++;
+        iqStats.instsHist.sample(7, 1);  // insts8
+    }
+    if (diff_clust == 3) {
+        iqStats.insts9++;
+        iqStats.instsHist.sample(8, 1);  // insts9
+    }
+}
             issuing_inst->setIssued();
             ++total_issued;
 
