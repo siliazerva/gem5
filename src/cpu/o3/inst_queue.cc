@@ -1212,7 +1212,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         //Go through the dependency chain, marking the registers as
         //ready within the waiting instructions.
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
-        Cycles extraDelay = Cycles(1);
+        Cycles extraDelay = Cycles(2);
          while (dep_inst) {
 	    totalDependents++;
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
