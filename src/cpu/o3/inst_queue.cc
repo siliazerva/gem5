@@ -1228,7 +1228,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                
                 dep_inst->needsClusterDelay = true; 
 		interClusterDependents++;
-		MemDepEntryPtr entry = memDepUnit[tid].findInHash(dep_inst);
+		MemDepEntryPtr entry = memDepUnit[tid].getMemDepEntryPtr(dep_inst);
 
 		entry->pendingEvents++;
             }
@@ -1247,7 +1247,7 @@ if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
 	DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
         dep_inst->needsClusterDelay = false;
         dep_inst->setEventScheduled(false);
-	MemDepEntryPtr entry = memDepUnit[tid].findInHash(dep_inst);
+	MemDepEntryPtr entry = memDepUnit[tid].getMemDepEntryPtr(dep_inst);
     	entry->pendingEvents--;
 }, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
 
