@@ -160,9 +160,9 @@ class MemDepUnit
 
     /** Debugging function to dump the lists of instructions. */
     void dumpLists();
-    typedef std::shared_ptr<MemDepEntry> MemDepEntryPtr;
+   
   private:
-
+     typedef std::shared_ptr<MemDepEntry> MemDepEntryPtr;
     /** Completes a memory instruction. */
     void completed(const DynInstPtr &inst);
 
