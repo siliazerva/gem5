@@ -53,7 +53,8 @@
 #include "params/BaseO3CPU.hh"
 #include "sim/core.hh"
 #include "cpu/o3/mem_dep_unit.hh" 
-typedef std::shared_ptr<MemDepUnit::MemDepEntry> MemDepEntryPtr;
+typedef std::shared_ptr<gem5::o3::MemDepUnit::MemDepEntry> MemDepEntryPtr;
+
 // clang complains about std::set being overloaded with Packet::set if
 // we open up the entire namespace std
 using std::list;
