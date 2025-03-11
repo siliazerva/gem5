@@ -160,6 +160,10 @@ class MemDepUnit
 
     /** Debugging function to dump the lists of instructions. */
     void dumpLists();
+    void incrementPendingEvents(const DynInstPtr &inst);
+    void decrementPendingEvents(const DynInstPtr &inst);
+    bool hasPendingEvents(const DynInstPtr &inst);
+    
   private:
     /** Completes a memory instruction. */
     friend class InstructionQueue;
