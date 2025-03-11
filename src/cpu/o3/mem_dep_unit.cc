@@ -118,7 +118,7 @@ MemDepUnit::MemDepUnitStats::MemDepUnitStats(statistics::Group *parent)
 void
 MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
 {
-    auto it = memDepHash.find(inst);
+    auto it = memDepHash.find(inst->seqNum);
     if (it != memDepHash.end()) {
         MemDepEntryPtr entry = it->second;
         if (entry) {
@@ -130,7 +130,7 @@ MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
 void
 MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
 {
-    auto it = memDepHash.find(inst);
+    auto it = memDepHash.find(inst->seqNum);
     if (it != memDepHash.end()) {
         MemDepEntryPtr entry = it->second;
         if (entry) {
