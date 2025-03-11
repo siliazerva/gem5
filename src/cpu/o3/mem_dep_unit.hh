@@ -160,9 +160,7 @@ class MemDepUnit
 
     /** Debugging function to dump the lists of instructions. */
     void dumpLists();
-    MemDepEntryPtr getMemDepEntryPtr(const DynInstConstPtr& inst) {
-        return findInHash(inst);  // Or whatever method you use to fetch the entry
-    }
+
   private:
     /** Completes a memory instruction. */
     void completed(const DynInstPtr &inst);
@@ -220,7 +218,7 @@ class MemDepUnit
 
     /** Finds the memory dependence entry in the hash map. */
     MemDepEntryPtr &findInHash(const DynInstConstPtr& inst);
-
+    
     /** Moves an entry to the ready list. */
     void moveToReady(MemDepEntryPtr &ready_inst_entry);
 
