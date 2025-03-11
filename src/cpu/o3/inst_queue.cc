@@ -1197,7 +1197,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         DPRINTF(IQ, "Waking any dependents on register %i (%s).\n",
                 dest_reg->index(),
                 dest_reg->className());
-
+	
         //Go through the dependency chain, marking the registers as
         //ready within the waiting instructions.
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
@@ -1211,6 +1211,9 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 		interClusterDependents++;
 		memDepUnit[tid].incrementPendingEvents(completed_inst);
             }
+	   
+
+	   
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
@@ -1222,8 +1225,6 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         		dep_inst->markSrcRegReady();
         		addIfReady(dep_inst);
         		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
-			double percentage = 100.0 * interClusterDependents / totalDependents;
-			DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
         		dep_inst->needsClusterDelay = false;
         		dep_inst->setEventScheduled(false);
 			memDepUnit[tid].decrementPendingEvents(completed_inst);
@@ -1238,14 +1239,15 @@ dep_inst = dependGraph.pop(dest_reg->flatIndex());
 ++dependents;
      
 }
+
 if(!memDepUnit[tid].hasPendingEvents(completed_inst)){
 	if (completed_inst->isMemRef()) {
-        memDepUnit[tid].completeInst(completed_inst);
-        DPRINTF(IQ, "Completing mem instruction PC: %s [sn:%llu]\n",
+        	memDepUnit[tid].completeInst(completed_inst);
+        	DPRINTF(IQ, "Completing mem instruction, PC: %s [sn:%llu]\n",
             completed_inst->pcState(), completed_inst->seqNum);
-	++freeEntries;
-        completed_inst->memOpDone(true);
-        count[tid]--;
+		++freeEntries;
+        	completed_inst->memOpDone(true);
+        	count[tid]--;
    	 } else if (completed_inst->isReadBarrier() ||
                completed_inst->isWriteBarrier()) {
         	// Completes a non mem ref barrier
