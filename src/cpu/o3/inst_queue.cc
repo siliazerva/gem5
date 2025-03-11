@@ -1234,7 +1234,12 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
     addIfReady(dep_inst);
 }
 
-if (completed_inst->isMemRef()) {
+dep_inst = dependGraph.pop(dest_reg->flatIndex());
+++dependents;
+     
+}
+if(!memDepUnit[tid].hasPendingEvents(completed_inst){
+	if (completed_inst->isMemRef()) {
         memDepUnit[tid].completeInst(completed_inst);
         DPRINTF(IQ, "Completing mem instruction PC: %s [sn:%llu]\n",
             completed_inst->pcState(), completed_inst->seqNum);
@@ -1246,13 +1251,7 @@ if (completed_inst->isMemRef()) {
         	// Completes a non mem ref barrier
         	memDepUnit[tid].completeInst(completed_inst);
     }
-
-dep_inst = dependGraph.pop(dest_reg->flatIndex());
-++dependents;
-     
 }
-
-
         DPRINTF(IQ, "Source register of dependent instruction is marked ready");
 
         // Reset the head node now that all of its dependents have
