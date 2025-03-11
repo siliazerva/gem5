@@ -1166,20 +1166,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
     // instruction if it is a memory instruction.  Also complete the memory
     // instruction at this point since we know it executed without issues.
     ThreadID tid = completed_inst->threadNumber;
-    if (completed_inst->isMemRef()) {
-        memDepUnit[tid].completeInst(completed_inst);
 
-        DPRINTF(IQ, "Completing mem instruction PC: %s [sn:%llu]\n",
-            completed_inst->pcState(), completed_inst->seqNum);
-
-        ++freeEntries;
-        completed_inst->memOpDone(true);
-        count[tid]--;
-    } else if (completed_inst->isReadBarrier() ||
-               completed_inst->isWriteBarrier()) {
-        // Completes a non mem ref barrier
-        memDepUnit[tid].completeInst(completed_inst);
-    }
 
     for (int dest_reg_idx = 0;
          dest_reg_idx < completed_inst->numDestRegs();
@@ -1229,26 +1216,41 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                
                 dep_inst->needsClusterDelay = true; 
 		interClusterDependents++;
-		memDepUnit[tid].incrementPendingEvents(dep_inst);
+		memDepUnit[tid].incrementPendingEvents(completed_inst);
             }
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
-if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
-    dep_inst->setEventScheduled(true);
-    DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-    cpu->schedule(new EventFunctionWrapper([this, dep_inst, tid]() {
-        dep_inst->markSrcRegReady();
-        addIfReady(dep_inst);
-        DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
-	double percentage = 100.0 * interClusterDependents / totalDependents;
-	DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
-        dep_inst->needsClusterDelay = false;
-        dep_inst->setEventScheduled(false);
-	memDepUnit[tid].decrementPendingEvents(dep_inst);
-}, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
+	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
+    		dep_inst->setEventScheduled(true);
+    		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
+    		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completed_inst, tid]() {
+        		dep_inst->markSrcRegReady();
+        		addIfReady(dep_inst);
+        		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
+			double percentage = 100.0 * interClusterDependents / totalDependents;
+			DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
+        		dep_inst->needsClusterDelay = false;
+        		dep_inst->setEventScheduled(false);
+	
+			memDepUnit[tid].decrementPendingEvents(completed_inst);
+		}, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
+	if (!dep_inst->isEventScheduled()){
+		if (completed_inst->isMemRef()) {
+        		memDepUnit[tid].completeInst(completed_inst);
+        		DPRINTF(IQ, "Completing mem instruction PC: %s [sn:%llu]\n",
+            		completed_inst->pcState(), completed_inst->seqNum);
 
+        		++freeEntries;
+        		completed_inst->memOpDone(true);
+        		count[tid]--;
+   	 } else if (completed_inst->isReadBarrier() ||
+               completed_inst->isWriteBarrier()) {
+        	// Completes a non mem ref barrier
+        	memDepUnit[tid].completeInst(completed_inst);
+    }
+}
 } else {
     dep_inst->markSrcRegReady();
     addIfReady(dep_inst);
