@@ -164,7 +164,6 @@ class MemDepUnit
         return findInHash(inst);  // Or whatever method you use to fetch the entry
     }
   private:
-     typedef std::shared_ptr<MemDepEntry> MemDepEntryPtr;
     /** Completes a memory instruction. */
     void completed(const DynInstPtr &inst);
 
@@ -174,7 +173,7 @@ class MemDepUnit
     typedef typename std::list<DynInstPtr>::iterator ListIt;
 
     class MemDepEntry;
-
+    typedef std::shared_ptr<MemDepEntry> MemDepEntryPtr;
    
 
     /** Memory dependence entries that track memory operations, marking
