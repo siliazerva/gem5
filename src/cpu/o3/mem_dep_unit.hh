@@ -160,7 +160,7 @@ class MemDepUnit
 
     /** Debugging function to dump the lists of instructions. */
     void dumpLists();
-
+    int pendingEvents=0;
   private:
     /** Completes a memory instruction. */
     void completed(const DynInstPtr &inst);
@@ -207,7 +207,7 @@ class MemDepUnit
         bool completed = false;
         /** If the instruction is squashed. */
         bool squashed = false;
-        int pendingEvents=0;
+        
         /** For debugging. */
 #ifdef GEM5_DEBUG
         static int memdep_count;
