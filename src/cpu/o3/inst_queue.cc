@@ -53,7 +53,7 @@
 #include "params/BaseO3CPU.hh"
 #include "sim/core.hh"
 #include "cpu/o3/mem_dep_unit.hh" 
-typedef std::shared_ptr<gem5::o3::MemDepUnit::MemDepEntry> MemDepEntryPtr;
+
 
 // clang complains about std::set being overloaded with Packet::set if
 // we open up the entire namespace std
@@ -1229,7 +1229,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                
                 dep_inst->needsClusterDelay = true; 
 		interClusterDependents++;
-		MemDepEntryPtr entry = memDepUnit[tid].findInHash(dep_inst);
+		MemDepEntryPtr entry = memDepUnit[tid].getMemDepEntry(dep_inst);
 
 		entry->pendingEvents++;
             }
@@ -1248,7 +1248,7 @@ if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
 	DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
         dep_inst->needsClusterDelay = false;
         dep_inst->setEventScheduled(false);
-	MemDepEntryPtr entry = memDepUnit[tid].findInHash(dep_inst);
+	MemDepEntryPtr entry = memDepUnit[tid].getMemDepEntry(dep_inst);
     	entry->pendingEvents--;
 }, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
 
