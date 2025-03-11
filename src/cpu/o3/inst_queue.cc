@@ -1212,13 +1212,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 		interClusterDependents++;
 		memDepUnit[tid].incrementPendingEvents(completed_inst);
             }
-	   
 
-	   
-            // Might want to give more information to the instruction
-            // so that it knows which of its source registers is
-            // ready.  However that would mean that the dependency
-            // graph entries would need to hold the src_reg_idx.
 	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
     		dep_inst->setEventScheduled(true);
     		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
