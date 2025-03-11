@@ -1238,7 +1238,7 @@ dep_inst = dependGraph.pop(dest_reg->flatIndex());
 ++dependents;
      
 }
-if(!memDepUnit[tid].hasPendingEvents(completed_inst){
+if(!memDepUnit[tid].hasPendingEvents(completed_inst)){
 	if (completed_inst->isMemRef()) {
         memDepUnit[tid].completeInst(completed_inst);
         DPRINTF(IQ, "Completing mem instruction PC: %s [sn:%llu]\n",
