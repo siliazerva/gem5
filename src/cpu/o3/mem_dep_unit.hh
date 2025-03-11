@@ -160,10 +160,7 @@ class MemDepUnit
 
     /** Debugging function to dump the lists of instructions. */
     void dumpLists();
-    std::shared_ptr<MemDepEntry> getMemDepEntry(const DynInstConstPtr& inst) {
-        // Access private findInHash function
-        return std::shared_ptr<MemDepEntry>(&findInHash(inst));  
-    }
+
   private:
     /** Completes a memory instruction. */
     void completed(const DynInstPtr &inst);
