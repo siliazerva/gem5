@@ -1227,6 +1227,8 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                
                 dep_inst->needsClusterDelay = true; 
 		interClusterDependents++;
+		MemDepEntryPtr entry = findInHash(dep_inst);
+		entry->pendingEvents++;
             }
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
@@ -1243,6 +1245,8 @@ if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
 	DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
         dep_inst->needsClusterDelay = false;
         dep_inst->setEventScheduled(false);
+	MemDepEntryPtr entry = findInHash(dep_inst);
+    	entry->pendingEvents--;
 }, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
 
 } else {
