@@ -123,6 +123,7 @@ MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
         MemDepEntryPtr entry = it->second;
         if (entry) {
             entry->pendingEvents++;
+            DPRINTF(MemDepUnit,"Incremented pending events, now we have %d", entry->pendingEvents);
         }
     }
 }
@@ -135,6 +136,7 @@ MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
         MemDepEntryPtr entry = it->second;
         if (entry) {
             entry->pendingEvents--;
+            DPRINTF(MemDepUnit,"Decremented pending events, now we have %d", entry->pendingEvents);
         }
     }
 }
