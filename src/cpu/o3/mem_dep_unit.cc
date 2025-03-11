@@ -115,7 +115,42 @@ MemDepUnit::MemDepUnitStats::MemDepUnitStats(statistics::Group *parent)
                "Number of conflicting stores.")
 {
 }
+void
+MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
+{
+    auto it = memDepHash.find(inst);
+    if (it != memDepHash.end()) {
+        MemDepEntryPtr entry = it->second;
+        if (entry) {
+            entry->pendingEvents++;
+        }
+    }
+}
 
+void
+MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
+{
+    auto it = memDepHash.find(inst);
+    if (it != memDepHash.end()) {
+        MemDepEntryPtr entry = it->second;
+        if (entry) {
+            entry->pendingEvents--;
+        }
+    }
+}
+
+bool
+MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
+{
+    auto it = memDepHash.find(inst);
+    if (it != memDepHash.end()) {
+        MemDepEntryPtr entry = it->second;
+        if (entry) {
+            return entry->pendingEvents > 0;
+        }
+    }
+    return false;
+}
 bool
 MemDepUnit::isDrained() const
 {
