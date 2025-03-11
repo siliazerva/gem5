@@ -53,7 +53,7 @@
 #include "cpu/o3/limits.hh"
 #include "cpu/o3/store_set.hh"
 #include "debug/MemDepUnit.hh"
-
+#include "cpu/o3/inst_queue.hh"
 namespace gem5
 {
 
@@ -162,6 +162,7 @@ class MemDepUnit
     void dumpLists();
   private:
     /** Completes a memory instruction. */
+    friend class InstructionQueue;
     void completed(const DynInstPtr &inst);
 
     /** Wakes any dependents of a memory instruction. */
