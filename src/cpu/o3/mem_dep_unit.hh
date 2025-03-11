@@ -207,7 +207,7 @@ class MemDepUnit
         bool completed = false;
         /** If the instruction is squashed. */
         bool squashed = false;
-        
+        int pendingEvents=0;
         /** For debugging. */
 #ifdef GEM5_DEBUG
         static int memdep_count;
