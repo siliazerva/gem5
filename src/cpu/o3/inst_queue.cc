@@ -1229,9 +1229,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                
                 dep_inst->needsClusterDelay = true; 
 		interClusterDependents++;
-		MemDepEntryPtr entry = memDepUnit[tid].findInHash(dep_inst);
-
-		entry->pendingEvents++;
+		memDepUnit[tid].incrementPendingEvents(dep_inst);
             }
             // Might want to give more information to the instruction
             // so that it knows which of its source registers is
@@ -1240,7 +1238,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
     dep_inst->setEventScheduled(true);
     DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-    cpu->schedule(new EventFunctionWrapper([this, dep_inst]() {
+    cpu->schedule(new EventFunctionWrapper([this, dep_inst, tid]() {
         dep_inst->markSrcRegReady();
         addIfReady(dep_inst);
         DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
@@ -1248,8 +1246,7 @@ if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
 	DPRINTF(IQ, "Percentage of delayed instructions is %.2f%%\n", percentage); 
         dep_inst->needsClusterDelay = false;
         dep_inst->setEventScheduled(false);
-	MemDepEntryPtr entry = memDepUnit[tid].findInHash(dep_inst);
-    	entry->pendingEvents--;
+	memDepUnit[tid].decrementPendingEvents(dep_inst);
 }, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
 
 } else {
