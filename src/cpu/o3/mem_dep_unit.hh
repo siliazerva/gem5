@@ -160,7 +160,7 @@ class MemDepUnit
 
     /** Debugging function to dump the lists of instructions. */
     void dumpLists();
-
+    typedef std::shared_ptr<MemDepEntry> MemDepEntryPtr;
   private:
 
     /** Completes a memory instruction. */
@@ -173,7 +173,7 @@ class MemDepUnit
 
     class MemDepEntry;
 
-    typedef std::shared_ptr<MemDepEntry> MemDepEntryPtr;
+   
 
     /** Memory dependence entries that track memory operations, marking
      *  when the instruction is ready to execute and what instructions depend
