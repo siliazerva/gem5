@@ -414,11 +414,11 @@ MemDepUnit::completed(const DynInstPtr &inst)
 
     assert(hash_it != memDepHash.end());
 
-    if ((*hash_it).second->pendingEvents > 0) {
+    /*if ((*hash_it).second->pendingEvents > 0) {
         DPRINTF(MemDepUnit, "Not removing inst with pending events [sn:%lli].\n",
                 inst->seqNum);
         return;  // Don't remove 
-    }
+    }*/
 
     instList[tid].erase((*hash_it).second->listIt);
 
