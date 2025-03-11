@@ -166,7 +166,7 @@ class MemDepUnit
     
   private:
     /** Completes a memory instruction. */
-    friend class InstructionQueue;
+    
     void completed(const DynInstPtr &inst);
 
     /** Wakes any dependents of a memory instruction. */
