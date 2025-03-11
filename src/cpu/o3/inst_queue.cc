@@ -1232,7 +1232,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 			if(!memDepUnit[tid].hasPendingEvents(completed_inst)){
 				if (completed_inst->isMemRef()) {
         				memDepUnit[tid].completeInst(completed_inst);
-        				DPRINTF(IQ, "Completing mem instruction, PC: %s [sn:%llu]\n",
+        				DPRINTF(IQ, "Completing (delayed) mem instruction, PC: %s [sn:%llu]\n",
             				completed_inst->pcState(), completed_inst->seqNum);
 					++freeEntries;
         				completed_inst->memOpDone(true);
@@ -1258,7 +1258,7 @@ dep_inst = dependGraph.pop(dest_reg->flatIndex());
 	if(!memDepUnit[tid].hasPendingEvents(completed_inst)){
 	if (completed_inst->isMemRef()) {
         	memDepUnit[tid].completeInst(completed_inst);
-        	DPRINTF(IQ, "Completing mem instruction, PC: %s [sn:%llu]\n",
+        	DPRINTF(IQ, "Completing mem instruction (no delay) PC: %s [sn:%llu]\n",
             completed_inst->pcState(), completed_inst->seqNum);
 		++freeEntries;
         	completed_inst->memOpDone(true);
