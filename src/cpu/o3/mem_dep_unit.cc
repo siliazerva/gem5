@@ -149,7 +149,7 @@ MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
 bool
 MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
 {
-    if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
+
     auto it = memDepHash.find(inst);
     if (it != memDepHash.end()) {
         MemDepEntryPtr entry = it->second;
@@ -158,7 +158,7 @@ MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
         }
     }
     return false;
-}
+
 
 }
 
