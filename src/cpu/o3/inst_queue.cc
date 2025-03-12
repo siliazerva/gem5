@@ -1219,7 +1219,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
     		dep_inst->setEventScheduled(true);
     		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-		auto* completedInstPtr = completed_inst;
+		DynInstPtr completedInstPtr = completed_inst;
     		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completedInstPtr, tid]() {
         		dep_inst->markSrcRegReady();
         		addIfReady(dep_inst);
