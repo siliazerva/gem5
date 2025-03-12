@@ -1219,28 +1219,29 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
     		dep_inst->setEventScheduled(true);
     		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-    		cpu->schedule(new EventFunctionWrapper([this, dep_inst, &completed_inst, tid]() {
+		auto* completedInstPtr = completed_inst;
+    		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completedInstPtr, tid]() {
         		dep_inst->markSrcRegReady();
         		addIfReady(dep_inst);
         		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
         		dep_inst->needsClusterDelay = false;
         		dep_inst->setEventScheduled(false);
-			if(completed_inst){
-			completed_inst->pendingEvents--;
+			if(completedInstPtr){
+			completedInstPtr->pendingEvents--;
 			DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
-        		completed_inst->seqNum, completed_inst->pendingEvents);
+        		completedInstPtr->seqNum, completedInstPtr->pendingEvents);
 			//last instruction will remove
-			if (completed_inst->pendingEvents == 0) {
-                        if (completed_inst->isMemRef()) {
-                            memDepUnit[tid].completeInst(completed_inst);
+			if (completedInstPtr->pendingEvents == 0) {
+                        if (completedInstPtr->isMemRef()) {
+                            memDepUnit[tid].completeInst(completedInstPtr);
                             DPRINTF(IQ, "Completing (delayed) mem instruction, PC: %s [sn:%llu]\n",
-                                completed_inst->pcState(), completed_inst->seqNum);
-                            completed_inst->memOpDone(true);
+                                completedInstPtr->pcState(), completedInstPtr->seqNum);
+                            completedInstPtr->memOpDone(true);
                             ++freeEntries;
                             count[tid]--;
-                        } else if (completed_inst->isReadBarrier() || completed_inst->isWriteBarrier()) {
+                        } else if (completedInstPtr->isReadBarrier() || completedInstPtr->isWriteBarrier()) {
                             // Completes a non mem ref barrier
-                            memDepUnit[tid].completeInst(completed_inst);
+                            memDepUnit[tid].completeInst(completedInstPtr);
                         }
                     }
 			}
