@@ -1227,6 +1227,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         		dep_inst->needsClusterDelay = false;
         		dep_inst->setEventScheduled(false);
 			if(completedInstPtr){
+			if (completedInstPtr->isSquashed()) return;
 			completedInstPtr->pendingEvents--;
 			DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
         		completedInstPtr->seqNum, completedInstPtr->pendingEvents);
