@@ -119,9 +119,9 @@ void
 MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
 { 
     if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
-    auto it = memDepHash.find(inst->seqNum);
+    MemDepHashIt it = memDepHash.find(inst->seqNum);
     if (it != memDepHash.end()) {
-        MemDepEntryPtr entry = it->second;
+        MemDepEntryPtr entry = (*it).second;
         if (entry) {
             entry->pendingEvents++;
             DPRINTF(MemDepUnit,"Incremented pending events, now we have %d", entry->pendingEvents);
@@ -135,9 +135,9 @@ void
 MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
 {
     if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
-    auto it = memDepHash.find(inst->seqNum);
+    MemDepHashIt it = memDepHash.find(inst->seqNum);
     if (it != memDepHash.end()) {
-        MemDepEntryPtr entry = it->second;
+        MemDepEntryPtr entry = (*it).second;
         if (entry) {
             entry->pendingEvents--;
             DPRINTF(MemDepUnit,"Decremented pending events, now we have %d", entry->pendingEvents);
@@ -150,9 +150,9 @@ bool
 MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
 {
 
-    auto it = memDepHash.find(inst);
+    MemDepHashIt it = memDepHash.find(inst);
     if (it != memDepHash.end()) {
-        MemDepEntryPtr entry = it->second;
+        MemDepEntryPtr entry = (*it).second;
         if (entry) {
             return entry->pendingEvents > 0;
         }
