@@ -1219,12 +1219,13 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
     		dep_inst->setEventScheduled(true);
     		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
-    		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completed_inst, tid]() {
+    		cpu->schedule(new EventFunctionWrapper([this, dep_inst, &completed_inst, tid]() {
         		dep_inst->markSrcRegReady();
         		addIfReady(dep_inst);
         		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
         		dep_inst->needsClusterDelay = false;
         		dep_inst->setEventScheduled(false);
+			if(completed_inst){
 			completed_inst->pendingEvents--;
 			DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
         		completed_inst->seqNum, completed_inst->pendingEvents);
@@ -1242,7 +1243,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
                             memDepUnit[tid].completeInst(completed_inst);
                         }
                     }
-
+			}
 		}, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
 
 } else {
