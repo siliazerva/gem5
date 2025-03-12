@@ -159,7 +159,7 @@ MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
     }
     return false;
 }
-else {return false;}
+
 }
 
 bool
