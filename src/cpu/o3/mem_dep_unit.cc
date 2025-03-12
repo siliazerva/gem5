@@ -117,7 +117,8 @@ MemDepUnit::MemDepUnitStats::MemDepUnitStats(statistics::Group *parent)
 }
 void
 MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
-{
+{ 
+    if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
     auto it = memDepHash.find(inst->seqNum);
     if (it != memDepHash.end()) {
         MemDepEntryPtr entry = it->second;
@@ -126,11 +127,14 @@ MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
             DPRINTF(MemDepUnit,"Incremented pending events, now we have %d", entry->pendingEvents);
         }
     }
+    }
+    else return;
 }
 
 void
 MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
 {
+    if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
     auto it = memDepHash.find(inst->seqNum);
     if (it != memDepHash.end()) {
         MemDepEntryPtr entry = it->second;
@@ -139,10 +143,13 @@ MemDepUnit::decrementPendingEvents(const DynInstPtr &inst)
             DPRINTF(MemDepUnit,"Decremented pending events, now we have %d", entry->pendingEvents);
         }
     }
+    }
+    else return;
 }
 bool
 MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
 {
+    if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
     auto it = memDepHash.find(inst);
     if (it != memDepHash.end()) {
         MemDepEntryPtr entry = it->second;
@@ -151,6 +158,8 @@ MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
         }
     }
     return false;
+}
+else {return false;}
 }
 
 bool
