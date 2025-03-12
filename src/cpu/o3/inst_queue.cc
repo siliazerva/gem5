@@ -1221,13 +1221,13 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
     		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
 		DynInstPtr completedInstPtr = completed_inst;
     		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completedInstPtr, tid]() {
-        		dep_inst->markSrcRegReady();
+        		if (completedInstPtr->isSquashed()) return;
+			dep_inst->markSrcRegReady();
         		addIfReady(dep_inst);
         		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
         		dep_inst->needsClusterDelay = false;
         		dep_inst->setEventScheduled(false);
 			if(completedInstPtr){
-			if (completedInstPtr->isSquashed()) return;
 			completedInstPtr->pendingEvents--;
 			DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
         		completedInstPtr->seqNum, completedInstPtr->pendingEvents);
