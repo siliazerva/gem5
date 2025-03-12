@@ -115,7 +115,7 @@ MemDepUnit::MemDepUnitStats::MemDepUnitStats(statistics::Group *parent)
                "Number of conflicting stores.")
 {
 }
-void
+/*void
 MemDepUnit::incrementPendingEvents(const DynInstPtr &inst)
 { 
     if (inst->isMemRef() || inst->isReadBarrier() || inst->isWriteBarrier()) {
@@ -161,7 +161,7 @@ MemDepUnit::hasPendingEvents(const DynInstPtr &inst)
 
 
 }
-
+*/
 bool
 MemDepUnit::isDrained() const
 {
