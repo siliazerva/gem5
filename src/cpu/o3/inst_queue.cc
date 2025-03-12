@@ -1212,6 +1212,8 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 		interClusterDependents++;
 		hasEvents=true;
 		completed_inst->pendingEvents++;
+		DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
+        	completed_inst->seqNum, completed_inst->pendingEvents);
             }
 
 	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
@@ -1224,6 +1226,8 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         		dep_inst->needsClusterDelay = false;
         		dep_inst->setEventScheduled(false);
 			completed_inst->pendingEvents--;
+			DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
+        		completed_inst->seqNum, completed_inst->pendingEvents);
 			//last instruction will remove
 			if (completed_inst->pendingEvents == 0) {
                         if (completed_inst->isMemRef()) {
@@ -1250,6 +1254,16 @@ dep_inst = dependGraph.pop(dest_reg->flatIndex());
 ++dependents;
      
 }
+        DPRINTF(IQ, "Source register of dependent instruction is marked ready");
+
+        // Reset the head node now that all of its dependents have
+        // been woken up.
+        assert(dependGraph.empty(dest_reg->flatIndex()));
+        dependGraph.clearInst(dest_reg->flatIndex());
+
+        // Mark the scoreboard as having that register ready.
+        regScoreboard[dest_reg->flatIndex()] = true;
+    }
 if (!hasEvents) {
         if (completed_inst->isMemRef()) {
             memDepUnit[tid].completeInst(completed_inst);
@@ -1262,17 +1276,6 @@ if (!hasEvents) {
             // Completes a non mem ref barrier
             memDepUnit[tid].completeInst(completed_inst);
         }
-    }
-
-        DPRINTF(IQ, "Source register of dependent instruction is marked ready");
-
-        // Reset the head node now that all of its dependents have
-        // been woken up.
-        assert(dependGraph.empty(dest_reg->flatIndex()));
-        dependGraph.clearInst(dest_reg->flatIndex());
-
-        // Mark the scoreboard as having that register ready.
-        regScoreboard[dest_reg->flatIndex()] = true;
     }
     return dependents;
 }
