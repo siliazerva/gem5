@@ -1202,7 +1202,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
         //ready within the waiting instructions.
 
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
-        Cycles extraDelay = Cycles(1);
+        Cycles extraDelay = Cycles(2);
          while (dep_inst) {
 	    totalDependents++;
             DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
@@ -1221,7 +1221,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
     		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
 		DynInstPtr completedInstPtr = completed_inst;
     		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completedInstPtr, tid]() {
-        		//if (completedInstPtr->isSquashed() || dep_inst->isSquashed()) return;
+        		if (dep_inst->isSquashed()) return;
 			dep_inst->markSrcRegReady();
         		addIfReady(dep_inst);
         		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
