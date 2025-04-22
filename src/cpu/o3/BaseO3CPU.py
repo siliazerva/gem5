@@ -85,6 +85,7 @@ class BaseO3CPU(BaseCPU):
         'fetchWidth', 'decodeWidth', 'renameWidth', 'dispatchWidth',
         'issueWidth', 'wbWidth', 'commitWidth', 'squashWidth'
         ]
+        
         for param in width_params:
             setattr(self, param, self.width)
         if width_value==4:
@@ -103,6 +104,16 @@ class BaseO3CPU(BaseCPU):
             self.SQEntries=48
             self.numPhysIntRegs=280    
             self.numPhysFloatRegs=332
+        elif width_value==16:
+            print("Setting parameters for width 16") 
+            self.decodeWidth = 10
+            self.renameWidth = 10
+            self.numIQEntries=160
+            self.numROBEntries=1024
+            self.LQEntries=64
+            self.SQEntries=96
+            self.numPhysIntRegs=560  
+            self.numPhysFloatRegs=664
         else:
             print(f"Warning: Using default values for width {self.width}")
     activity = Param.Unsigned(0, "Initial count")
