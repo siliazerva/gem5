@@ -284,6 +284,9 @@ class InstructionQueue
 
     /** Debug function to print all instructions. */
     void printInsts();
+    int totalDependents = 0;     // Total dependent instructions
+   
+    int interClusterDependents = 0;  // Dependent instructions in a different cluster
 
   private:
     /** Does the actual squashing. */
