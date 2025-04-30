@@ -84,7 +84,9 @@ class DynInst : public ExecContext, public RefCounted
 //add an id for the cluster
     int cluster_id; 
     bool needsClusterDelay = false; 
-     bool eventScheduled = false;
+    bool eventScheduled = false;
+    int pendingEvents;
+
     struct Arrays
     {
         size_t numSrcs;
