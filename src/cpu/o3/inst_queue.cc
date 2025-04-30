@@ -1066,7 +1066,7 @@ InstructionQueue::commit(const InstSeqNum &inst, ThreadID tid)
     assert(freeEntries == (numEntries - countInsts()));
 }
 
-int
+/*int
 InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 {
     int dependents = 0;
@@ -1185,6 +1185,146 @@ dep_inst = dependGraph.pop(dest_reg->flatIndex());
 
         // Mark the scoreboard as having that register ready.
         regScoreboard[dest_reg->flatIndex()] = true;
+    }
+    return dependents;
+}*/
+int
+InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
+{
+    int dependents = 0;
+
+    // The instruction queue here takes care of both floating and int ops
+    if (completed_inst->isFloating()) {
+        iqIOStats.fpInstQueueWakeupAccesses++;
+    } else if (completed_inst->isVector()) {
+        iqIOStats.vecInstQueueWakeupAccesses++;
+    } else {
+        iqIOStats.intInstQueueWakeupAccesses++;
+    }
+
+    completed_inst->lastWakeDependents = curTick();
+
+    DPRINTF(IQ, "Waking dependents of completed instruction.\n");
+
+    assert(!completed_inst->isSquashed());
+
+    // Tell the memory dependence unit to wake any dependents on this
+    // instruction if it is a memory instruction.  Also complete the memory
+    // instruction at this point since we know it executed without issues.
+    ThreadID tid = completed_inst->threadNumber;
+    bool hasEvents= false;
+
+    for (int dest_reg_idx = 0;
+         dest_reg_idx < completed_inst->numDestRegs();
+         dest_reg_idx++)
+    {
+        PhysRegIdPtr dest_reg =
+            completed_inst->renamedDestIdx(dest_reg_idx);
+
+        // Special case of uniq or control registers.  They are not
+        // handled by the IQ and thus have no dependency graph entry.
+        if (dest_reg->isFixedMapping()) {
+            DPRINTF(IQ, "Reg %d [%s] is part of a fix mapping, skipping\n",
+                    dest_reg->index(), dest_reg->className());
+            continue;
+        }
+
+        // Avoid waking up dependents if the register is pinned
+        dest_reg->decrNumPinnedWritesToComplete();
+        if (dest_reg->isPinned())
+            completed_inst->setPinnedRegsWritten();
+
+        if (dest_reg->getNumPinnedWritesToComplete() != 0) {
+            DPRINTF(IQ, "Reg %d [%s] is pinned, skipping\n",
+                    dest_reg->index(), dest_reg->className());
+            continue;
+        }
+
+        DPRINTF(IQ, "Waking any dependents on register %i (%s).\n",
+                dest_reg->index(),
+                dest_reg->className());
+	
+        //Go through the dependency chain, marking the registers as
+        //ready within the waiting instructions.
+
+        DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
+        Cycles extraDelay = Cycles(1);
+         while (dep_inst) {
+	    totalDependents++;
+            DPRINTF(IQ, "Waking up a dependent instruction, [sn:%llu] "
+                    "PC %s.\n", dep_inst->seqNum, dep_inst->pcState());
+            if (dep_inst->cluster_id != completed_inst->cluster_id) {
+                dep_inst->needsClusterDelay = true; 
+		interClusterDependents++;
+		hasEvents=true;
+		completed_inst->pendingEvents++;
+		DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
+        	completed_inst->seqNum, completed_inst->pendingEvents);
+            }
+
+	if (dep_inst->needsClusterDelay && !dep_inst->isEventScheduled()) {
+    		dep_inst->setEventScheduled(true);
+    		DPRINTF(IQ, "Scheduling delay for instruction [sn:%llu]\n", dep_inst->seqNum);
+		DynInstPtr completedInstPtr = completed_inst;
+    		cpu->schedule(new EventFunctionWrapper([this, dep_inst, completedInstPtr, tid]() {
+        		//if (dep_inst->isSquashed()) return;
+			dep_inst->markSrcRegReady();
+        		addIfReady(dep_inst);
+        		DPRINTF(IQ, "Instruction [sn:%llu] is marked ready after delay.\n", dep_inst->seqNum); 
+        		dep_inst->needsClusterDelay = false;
+        		dep_inst->setEventScheduled(false);
+			if(completedInstPtr){
+			completedInstPtr->pendingEvents--;
+			DPRINTF(IQ, "Instruction [sn:%llu] has %d pending cluster events\n", 
+        		completedInstPtr->seqNum, completedInstPtr->pendingEvents);
+			//last instruction will remove
+			if (completedInstPtr->pendingEvents == 0) {
+                        if (completedInstPtr->isMemRef()) {
+                            memDepUnit[tid].completeInst(completedInstPtr);
+                            DPRINTF(IQ, "Completing (delayed) mem instruction, PC: %s [sn:%llu]\n",
+                                completedInstPtr->pcState(), completedInstPtr->seqNum);
+                            completedInstPtr->memOpDone(true);
+                            ++freeEntries;
+                            count[tid]--;
+                        } else if (completedInstPtr->isReadBarrier() || completedInstPtr->isWriteBarrier()) {
+                            // Completes a non mem ref barrier
+                            memDepUnit[tid].completeInst(completedInstPtr);
+                        }
+                    }
+			}
+		}, "ClusterDelayEvent", true), cpu->clockEdge(extraDelay));
+
+} else {
+    dep_inst->markSrcRegReady();
+    addIfReady(dep_inst);
+}
+
+dep_inst = dependGraph.pop(dest_reg->flatIndex());
+++dependents;
+     
+}
+        DPRINTF(IQ, "Source register of dependent instruction is marked ready");
+
+        // Reset the head node now that all of its dependents have
+        // been woken up.
+        assert(dependGraph.empty(dest_reg->flatIndex()));
+        dependGraph.clearInst(dest_reg->flatIndex());
+
+        // Mark the scoreboard as having that register ready.
+        regScoreboard[dest_reg->flatIndex()] = true;
+    }
+if (!hasEvents) {
+        if (completed_inst->isMemRef()) {
+            memDepUnit[tid].completeInst(completed_inst);
+            DPRINTF(IQ, "Completing (non delayed) mem instruction , PC: %s [sn:%llu]\n",
+                completed_inst->pcState(), completed_inst->seqNum);
+            completed_inst->memOpDone(true);
+            ++freeEntries;
+            count[tid]--;
+        } else if (completed_inst->isReadBarrier() || completed_inst->isWriteBarrier()) {
+            // Completes a non mem ref barrier
+            memDepUnit[tid].completeInst(completed_inst);
+        }
     }
     return dependents;
 }
